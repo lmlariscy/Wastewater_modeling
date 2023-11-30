@@ -3,24 +3,24 @@ project:
   output-dir: docs
 
 website:
-  title: "YOURNAME Data Analysis Portfolio"
+  title: "Leah Lariscy's Wastewater Forecasting Repository"
   navbar:
     left:
       - text: "About Me"
         href: ./aboutme.html
-      - text: "Projects"
+      - text: "Scripts"
         menu:
-          - text: "Starter Analysis Exercise"
-            href: ./starter_analysis_exercise/products/report/Starter_Analysis_Report.html
-          - text: "R Coding Exercise"
-            href: ./coding_exercise/coding_exercise.html
-          - text: "Presentation Exercise"
-            href: ./presentation_exercise/presentation_exercise.html
-          - text: "Tidy Tuesday Exercise"
-            href: ./tidytuesday_exercise/tidytuesday_exercise.html
+          - text: "Initial Data Cleaning"
+            href: ./code/processing/1_initial_cleaning.html
+          - text: "Data Preprocessing"
+            href: ./code/processing/2_preprocessing.html
+          - text: "Exploratory Time Series Analysis"
+            href: ./code/analysis/3_exploratory_timeseries.html
+          - text: "Univariate Linear Regressions"
+            href: ./code/analysis/4_univariate_regressions.html
     right:
       - icon: github 
-        href: URL-TO-THIS-REPOSITORY-HERE        
+        href: https://github.com/lmlariscy/WW_Forecasting        
 
 format:
   html:

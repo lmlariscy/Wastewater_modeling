@@ -515,11 +515,11 @@ covid
 Filter for state of GA, city of Athens, and for appropriate dates
 
 ```{r}
-athens_hospitalizations <- hospitalization %>% 
-  filter(state=="GA", city=="ATHENS", between(collection_week, as.Date("2020-06-28"), as.Date("2023-01-08")))
+#athens_hospitalizations <- hospitalization %>% 
+  #filter(state=="GA", city=="ATHENS", between(collection_week, as.Date("2020-06-28"), as.Date("2023-01-08")))
 
 #Save to processed data folder
-saveRDS(athens_hospitalizations, here("data/processed_data/athens_hospitalizations.rds"))
+#saveRDS(athens_hospitalizations, here("data/processed_data/athens_hospitalizations.rds"))
 ```
 
 ### Combine WBE and COVID data sets
