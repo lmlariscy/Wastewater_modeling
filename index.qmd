@@ -1,16 +1,19 @@
 ---
-title: "My website and data analysis portfolio"
+title: "My Data Repository"
 output: 
   html_document:
     toc: FALSE
 ---
 
-# Hello
+### Purpose
 
-### And hello again
+PhD Chapter 1 data repository
 
-Welcome to **my website** and _data analysis portfolio._ 
+Exploring COVID-19 forecasting methods using wastewater surveillance data
 
+### Scripts
 
-* Please use the `Menu Bar` above to look around.
-* Have fun!
+1.  Initial Data Cleaning
+2.  Data Preprocessing
+3.  Exploratory Time Series Analysis
+4.  Univariate Linear Regressions

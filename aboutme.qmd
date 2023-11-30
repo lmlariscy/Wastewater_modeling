@@ -1,8 +1,24 @@
 ---
-title: "About me"
+title: "About me!"
 output: 
   html_document:
       toc: FALSE
 ---
 
+## Leah Lariscy, 2nd year PhD student
 
+![](about_me_pic.jpg){width="300"}
+
+### Degree Program
+
+University of Georgia Environmental Health Science
+
+### Advised By
+
+Erin Lipp
+
+Travis Glenn
+
+### Project Co-author
+
+Andreas Handel

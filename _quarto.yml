@@ -10,13 +10,13 @@ website:
         href: ./aboutme.html
       - text: "Scripts"
         menu:
-          - text: "Initial Data Cleaning"
+          - text: "1. Initial Data Cleaning"
             href: ./code/processing/1_initial_cleaning.html
-          - text: "Data Preprocessing"
+          - text: "2. Data Preprocessing"
             href: ./code/processing/2_preprocessing.html
-          - text: "Exploratory Time Series Analysis"
+          - text: "3. Exploratory Time Series Analysis"
             href: ./code/analysis/3_exploratory_timeseries.html
-          - text: "Univariate Linear Regressions"
+          - text: "4. Univariate Linear Regressions"
             href: ./code/analysis/4_univariate_regressions.html
     right:
       - icon: github 
@@ -24,7 +24,7 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: pulse
     highlight: zenburn
     css: styles.css
     toc: FALSE

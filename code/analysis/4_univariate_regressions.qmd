@@ -1,8 +1,9 @@
 ---
 title: "Univariate Linear Regressions"
 author: "Leah Lariscy"
-date: "2023-11-16"
-output: html_document
+date: "2023-09-01"
+format: html
+editor: visual
 toc: true
 toc-depth: 4
 ---
@@ -69,7 +70,7 @@ plot(log10(case_pcr_pos_7dma)~ log10(vl_7dma), data=data)
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe1 <- recipe(case_pcr_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
 ####################################################################################
 workflow1 <- workflow() %>% 
@@ -125,7 +126,7 @@ plot(log_case_pos_7dma~ log10(vl_7dma), data=data)
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe2 <- recipe(log_case_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
 ####################################################################################
 workflow2 <- workflow() %>% 
@@ -179,7 +180,7 @@ plot(case_prop_pos_7dma ~ log10(vl_7dma), data=data)
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe3 <- recipe(case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
 ####################################################################################
 workflow3 <- workflow() %>% 
@@ -233,7 +234,7 @@ plot(log_case_prop_pos_7dma*100 ~ log10(vl_7dma), data=data)
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe4 <- recipe(log_case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
 ####################################################################################
 workflow4 <- workflow() %>% 
@@ -293,7 +294,7 @@ plot(case_pcr_pos_7dma ~ pr_7dma, data=data)
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe5 <- recipe(case_pcr_pos_7dma ~ pr_7dma, data = train) #recipe 
 ####################################################################################
 workflow5 <- workflow() %>% 
@@ -339,7 +340,7 @@ aug_train5 %>% ggplot(aes(case_pcr_pos_7dma, .pred)) +
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe6 <- recipe(log_case_pos_7dma ~ pr_7dma, data = train) #recipe 
 ####################################################################################
 workflow6 <- workflow() %>% 
@@ -395,7 +396,7 @@ plot(case_prop_pos_7dma ~ pr_7dma, data=data)
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe7 <- recipe(case_prop_pos_7dma ~ pr_7dma, data = train) #recipe 
 ####################################################################################
 workflow7 <- workflow() %>% 
@@ -437,9 +438,9 @@ aug_train7 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
-## 4. Log qPCR positivity rate as predictor
+## C) Log qPCR positivity rate as predictor
 
-### Test positivity rate 7DMA \~ Log WW PR
+### 1. Test positivity rate 7DMA \~ Log WW PR
 
 #### Viz
 
@@ -453,7 +454,7 @@ plot(case_prop_pos_7dma ~ log_pr_7dma, data=data)
 
 #### Model
 
-```{r}
+```{r,message=FALSE}
 recipe8 <- recipe(case_prop_pos_7dma ~ log_pr_7dma, data = train) #recipe 
 ####################################################################################
 workflow8 <- workflow() %>% 
