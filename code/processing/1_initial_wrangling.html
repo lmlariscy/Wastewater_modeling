@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.313">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Leah Lariscy">
+<meta name="dcterms.date" content="2023-09-01">
+
+<title>Raw data processing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="1_initial_wrangling_files/libs/clipboard/clipboard.min.js"></script>
+<script src="1_initial_wrangling_files/libs/quarto-html/quarto.js"></script>
+<script src="1_initial_wrangling_files/libs/quarto-html/popper.min.js"></script>
+<script src="1_initial_wrangling_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="1_initial_wrangling_files/libs/quarto-html/anchor.min.js"></script>
+<link href="1_initial_wrangling_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="1_initial_wrangling_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="1_initial_wrangling_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="1_initial_wrangling_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="1_initial_wrangling_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#processing" id="toc-processing" class="nav-link active" data-scroll-target="#processing">Processing</a>
+  <ul class="collapse">
+  <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages">Load packages</a></li>
+  <li><a href="#load-raw-data" id="toc-load-raw-data" class="nav-link" data-scroll-target="#load-raw-data">Load raw data</a></li>
+  <li><a href="#create-df-to-check-for-missing-collections" id="toc-create-df-to-check-for-missing-collections" class="nav-link" data-scroll-target="#create-df-to-check-for-missing-collections">Create df to check for missing collections</a></li>
+  <li><a href="#glance-at-data" id="toc-glance-at-data" class="nav-link" data-scroll-target="#glance-at-data">Glance at data</a>
+  <ul class="collapse">
+  <li><a href="#stepone-n1" id="toc-stepone-n1" class="nav-link" data-scroll-target="#stepone-n1">StepOne N1</a></li>
+  <li><a href="#stepone-n2" id="toc-stepone-n2" class="nav-link" data-scroll-target="#stepone-n2">StepOne N2</a></li>
+  <li><a href="#cfx-n1" id="toc-cfx-n1" class="nav-link" data-scroll-target="#cfx-n1">CFX N1</a></li>
+  <li><a href="#cfx-n2" id="toc-cfx-n2" class="nav-link" data-scroll-target="#cfx-n2">CFX N2</a></li>
+  <li><a href="#plant-data" id="toc-plant-data" class="nav-link" data-scroll-target="#plant-data">Plant data</a></li>
+  </ul></li>
+  <li><a href="#cleaning-and-merging" id="toc-cleaning-and-merging" class="nav-link" data-scroll-target="#cleaning-and-merging">Cleaning and merging</a>
+  <ul class="collapse">
+  <li><a href="#qpcr-data" id="toc-qpcr-data" class="nav-link" data-scroll-target="#qpcr-data">qPCR data</a></li>
+  <li><a href="#combine-plant-and-qpcr-data-sets" id="toc-combine-plant-and-qpcr-data-sets" class="nav-link" data-scroll-target="#combine-plant-and-qpcr-data-sets">Combine plant and qPCR data sets</a></li>
+  <li><a href="#quick-look-at-wbe-data" id="toc-quick-look-at-wbe-data" class="nav-link" data-scroll-target="#quick-look-at-wbe-data">Quick look at WBE data</a></li>
+  <li><a href="#combine-dph-covid-data-sets" id="toc-combine-dph-covid-data-sets" class="nav-link" data-scroll-target="#combine-dph-covid-data-sets">Combine DPH COVID data sets</a></li>
+  <li><a href="#combine-wbe-and-covid-data-sets" id="toc-combine-wbe-and-covid-data-sets" class="nav-link" data-scroll-target="#combine-wbe-and-covid-data-sets">Combine WBE and COVID data sets</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Raw data processing</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Leah Lariscy </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 1, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="processing" class="level1">
+<h1>Processing</h1>
+<section id="load-packages" class="level2">
+<h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-raw-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-raw-data">Load raw data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load N1 data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n1_stepone_v2 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/updated_data/stepone_n1_FINAL_UPDATE.csv"</span>)) <span class="co">#year 1 data</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n1_cfx_v2 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/updated_data/cfx_n1_FINAL_UPDATE.csv"</span>)) <span class="co">#year 2 data</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load N2 data</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n2_stepone_v2 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/updated_data/stepone_n2_FINAL_UPDATE.csv"</span>)) <span class="co">#year 1 data</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>n2_cfx_v2 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/updated_data/cfx_n2_FINAL_UPDATE.csv"</span>)) <span class="co">#year 2 data</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Plant data</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>plant_v2 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/updated_data/plant_data_UPDATED.csv"</span>))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Load COVID-19 Symptom data</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>covid_symptom <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/ga_covid_data/epicurve_symptom_date.csv"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(county<span class="sc">==</span><span class="st">"Clarke"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">symptom.date=</span><span class="st">`</span><span class="at">symptom date</span><span class="st">`</span>, </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>         cases, moving_avg_cases)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#Load COVID-19 Confirmed Case Data</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>covid_case <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/ga_covid_data/epicurve_rpt_date.csv"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(county<span class="sc">==</span><span class="st">"Clarke"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(report_date, </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>         cases, </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>         moving_avg_cases)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#Load COVID-19 Testing Data</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>covid_testing <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/ga_covid_data/pcr_antigen_col.csv"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(county<span class="sc">==</span><span class="st">"Clarke"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">collection_date =</span> collection_dt, </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>         <span class="at">pcr_tests =</span> <span class="st">`</span><span class="at">ALL PCR tests performed</span><span class="st">`</span>, </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>         <span class="at">pcr_pos =</span> <span class="st">`</span><span class="at">All PCR positive tests</span><span class="st">`</span>, </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>         <span class="at">pcr_pos_7dma =</span> <span class="st">`</span><span class="at">7 day percent positive</span><span class="st">`</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>         <span class="at">pcr_pos_14dma =</span> <span class="st">`</span><span class="at">14 day percent positive</span><span class="st">`</span>)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co">#Load CFX recovery data</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>recovery_output <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/recovery_data.csv"</span>))</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>recovery_input <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data/raw_data/calfguard.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="create-df-to-check-for-missing-collections" class="level2">
+<h2 class="anchored" data-anchor-id="create-df-to-check-for-missing-collections">Create df to check for missing collections</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Year 1</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>numbers <span class="ot">&lt;-</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">92</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>numbers_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="st">"collection_num"</span><span class="ot">=</span>numbers)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Year 2</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>numbers2 <span class="ot">&lt;-</span> <span class="dv">93</span><span class="sc">:</span><span class="dv">243</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>numbers2_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="st">"collection_num"</span> <span class="ot">=</span>numbers2)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#full time series (for plant data)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>numbers3 <span class="ot">&lt;-</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">243</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>numbers3_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="st">"Collection"</span> <span class="ot">=</span>numbers3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="glance-at-data" class="level2">
+<h2 class="anchored" data-anchor-id="glance-at-data">Glance at data</h2>
+<section id="stepone-n1" class="level3">
+<h3 class="anchored" data-anchor-id="stepone-n1">StepOne N1</h3>
+<section id="count-observations-for-each-collection-number" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-collection-number">Count observations for each collection number</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection date, then visualize</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>n1_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>n1_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(collection_num)) <span class="sc">+</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="co">#max should be either 27 or 54</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="count-observations-for-each-biological-replicate" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-biological-replicate">Count observations for each biological replicate</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each sample id/biological rep, then visualize</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>n1_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="co">#there should be 3 technical reps</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check which collections have more than 3 technical reps</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>n1_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(n<span class="sc">&gt;</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 2
+   sample_id     n
+   &lt;chr&gt;     &lt;int&gt;
+ 1 MI_19_A       6
+ 2 MI_19_B       6
+ 3 MI_7_C        6
+ 4 NO_19_A       6
+ 5 NO_19_B       6
+ 6 NO_65_B       6
+ 7 NO_7_A        6
+ 8 NO_7_C        9
+ 9 NO_8_A        6
+10 NO_9_A        6</code></pre>
+</div>
+</div>
+</section>
+<section id="merge-data-with-number-tibble-to-check-missing-collections" class="level4">
+<h4 class="anchored" data-anchor-id="merge-data-with-number-tibble-to-check-missing-collections">Merge data with number tibble to check missing collections</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection number</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#merge with numbers tibble to check for missing collections</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>count_n1_stepone <span class="ot">&lt;-</span> n1_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>count_n1_stepone <span class="ot">&lt;-</span> <span class="fu">merge</span>(count_n1_stepone, numbers_tbl, <span class="at">by=</span><span class="st">"collection_num"</span>, <span class="at">all.y=</span>T)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>count_n1_stepone</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   collection_num  n
+1               7 33
+2               8 21
+3               9 15
+4              10 18
+5              11 18
+6              12 18
+7              13 18
+8              14 18
+9              15 18
+10             16 18
+11             17 18
+12             18 30
+13             19 30
+14             20 18
+15             21 18
+16             22 27
+17             23 27
+18             24 27
+19             25 27
+20             26 27
+21             27 27
+22             28 27
+23             29 27
+24             30 27
+25             31 27
+26             32 24
+27             33 27
+28             34 27
+29             35 27
+30             36 27
+31             37 27
+32             38 27
+33             39 27
+34             40 NA
+35             41 27
+36             42 27
+37             43 27
+38             44 27
+39             45 27
+40             46 27
+41             47 27
+42             48 27
+43             49 27
+44             50 27
+45             51 27
+46             52 27
+47             53 27
+48             54 27
+49             55 27
+50             56 27
+51             57 27
+52             58 27
+53             59 27
+54             60 27
+55             61 27
+56             62 27
+57             63 27
+58             64 27
+59             65 57
+60             66 54
+61             67 54
+62             68 54
+63             69 54
+64             70 54
+65             71 54
+66             72 54
+67             73 54
+68             74 36
+69             75 54
+70             76 27
+71             77 54
+72             78 54
+73             79 27
+74             80 27
+75             81 54
+76             82 36
+77             83 54
+78             84 27
+79             85 54
+80             86 54
+81             87 54
+82             88 54
+83             89 54
+84             90 54
+85             91 54
+86             92 54</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#collection 40 is missing, but this is expected</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="stepone-n2" class="level3">
+<h3 class="anchored" data-anchor-id="stepone-n2">StepOne N2</h3>
+<section id="merge-data-with-number-tibble-to-check-missing-collections-1" class="level4">
+<h4 class="anchored" data-anchor-id="merge-data-with-number-tibble-to-check-missing-collections-1">Merge data with number tibble to check missing collections</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection number</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#merge with numbers tibble to check for missing collections</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>count_n2_stepone <span class="ot">&lt;-</span> n2_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>count_n2_stepone <span class="ot">&lt;-</span> <span class="fu">merge</span>(count_n2_stepone, numbers_tbl, <span class="at">by=</span><span class="st">"collection_num"</span>, <span class="at">all.y=</span>T)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>count_n2_stepone</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   collection_num  n
+1               7 33
+2               8 21
+3               9 15
+4              10 18
+5              11 18
+6              12 18
+7              13 18
+8              14 18
+9              15 18
+10             16 18
+11             17 18
+12             18 30
+13             19 30
+14             20 18
+15             21 18
+16             22 27
+17             23 27
+18             24 27
+19             25 27
+20             26 27
+21             27 27
+22             28 27
+23             29 27
+24             30 27
+25             31 27
+26             32 24
+27             33 27
+28             34 27
+29             35 27
+30             36 27
+31             37 27
+32             38 27
+33             39 27
+34             40 NA
+35             41 27
+36             42 27
+37             43 27
+38             44 27
+39             45 27
+40             46 27
+41             47 27
+42             48 27
+43             49 27
+44             50 27
+45             51 27
+46             52 27
+47             53 27
+48             54 27
+49             55 24
+50             56 27
+51             57 27
+52             58 27
+53             59 27
+54             60 27
+55             61 27
+56             62 27
+57             63 27
+58             64 27
+59             65 54
+60             66 54
+61             67 54
+62             68 54
+63             69 54
+64             70 54
+65             71 54
+66             72 54
+67             73 54
+68             74 35
+69             75 54
+70             76 27
+71             77 54
+72             78 53
+73             79 24
+74             80 27
+75             81 54
+76             82 36
+77             83 54
+78             84 27
+79             85 54
+80             86 54
+81             87 54
+82             88 54
+83             89 54
+84             90 54
+85             91 54
+86             92 54</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#collection 40 is missing, but this is expected</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="count-observations-for-each-collection-number-1" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-collection-number-1">Count observations for each collection number</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection date, then visualize</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>n2_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>n2_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(collection_num)) <span class="sc">+</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="co">#max should be either 27 or 54</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="count-observations-for-each-biological-replicate-1" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-biological-replicate-1">Count observations for each biological replicate</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each sample id/biological rep, then visualize</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>n2_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="co">#there should be 3 technical reps</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check which collections have more than 3 technical reps</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>n2_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(n<span class="sc">&gt;</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 2
+   sample_id     n
+   &lt;chr&gt;     &lt;int&gt;
+ 1 MI_19_A       6
+ 2 MI_19_B       6
+ 3 MI_7_C        6
+ 4 NO_19_A       6
+ 5 NO_19_B       6
+ 6 NO_65_B       6
+ 7 NO_7_A        6
+ 8 NO_7_C        9
+ 9 NO_8_A        6
+10 NO_9_A        6</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="cfx-n1" class="level3">
+<h3 class="anchored" data-anchor-id="cfx-n1">CFX N1</h3>
+<section id="merge-data-with-number-tibble-to-check-missing-collections-2" class="level4">
+<h4 class="anchored" data-anchor-id="merge-data-with-number-tibble-to-check-missing-collections-2">Merge data with number tibble to check missing collections</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection number</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">#merge with numbers tibble to check for missing collections</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>count_n1_cfx <span class="ot">&lt;-</span> n1_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>count_n1_cfx <span class="ot">&lt;-</span> <span class="fu">merge</span>(count_n1_cfx, numbers2_tbl, <span class="at">by=</span><span class="st">"collection_num"</span>, <span class="at">all.y=</span>T)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>count_n1_cfx</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    collection_num  n
+1               93 27
+2               94 NA
+3               95 54
+4               96 54
+5               97 54
+6               98 54
+7               99 54
+8              100 54
+9              101 54
+10             102 54
+11             103 54
+12             104 54
+13             105 48
+14             106 48
+15             107 27
+16             108 27
+17             109 54
+18             110 54
+19             111 54
+20             112 54
+21             113 54
+22             114 54
+23             115 54
+24             116 54
+25             117 54
+26             118 54
+27             119 54
+28             120 54
+29             121 54
+30             122 54
+31             123 54
+32             124 54
+33             125 54
+34             126 54
+35             127 54
+36             128 54
+37             129 54
+38             130 54
+39             131 54
+40             132 54
+41             133 54
+42             134 54
+43             135 NA
+44             136 54
+45             137 54
+46             138 54
+47             139 53
+48             140 54
+49             141 54
+50             142 54
+51             143 54
+52             144 54
+53             145 54
+54             146 54
+55             147 54
+56             148 54
+57             149 54
+58             150 54
+59             151 54
+60             152 54
+61             153 54
+62             154 54
+63             155 54
+64             156 54
+65             157 54
+66             158 54
+67             159 54
+68             160 54
+69             161 54
+70             162 54
+71             163 54
+72             164 36
+73             165 36
+74             166 54
+75             167 54
+76             168 54
+77             169 54
+78             170 54
+79             171 54
+80             172 54
+81             173 54
+82             174 54
+83             175 54
+84             176 54
+85             177 NA
+86             178 54
+87             179 54
+88             180 54
+89             181 54
+90             182 54
+91             183 54
+92             184 54
+93             185 54
+94             186 54
+95             187 54
+96             188 54
+97             189 54
+98             190 54
+99             191 54
+100            192 54
+101            193 54
+102            194 54
+103            195 54
+104            196 54
+105            197 54
+106            198 54
+107            199 54
+108            200 54
+109            201 54
+110            202 54
+111            203 54
+112            204 54
+113            205 54
+114            206 54
+115            207 54
+116            208 54
+117            209 54
+118            210 27
+119            211 27
+120            212 54
+121            213 NA
+122            214 54
+123            215 54
+124            216 54
+125            217 54
+126            218 57
+127            219 54
+128            220 54
+129            221 54
+130            222 27
+131            223 27
+132            224 54
+133            225 54
+134            226 54
+135            227 54
+136            228 51
+137            229 54
+138            230 27
+139            231 27
+140            232 54
+141            233 54
+142            234 54
+143            235 54
+144            236 54
+145            237 54
+146            238 54
+147            239 54
+148            240 54
+149            241 54
+150            242 54
+151            243 54</code></pre>
+</div>
+</div>
+</section>
+<section id="count-observations-for-each-collection-number-2" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-collection-number-2">Count observations for each collection number</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection date, then visualize</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>n1_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>n1_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(collection_num)) <span class="sc">+</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="co">#max should be 54</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="check-which-collections-are-doubled" class="level4">
+<h4 class="anchored" data-anchor-id="check-which-collections-are-doubled">Check which collections are doubled</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check which collections are doubled</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>count_n1_cfx <span class="sc">%&gt;%</span> <span class="fu">filter</span>(n<span class="sc">==</span><span class="dv">108</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] collection_num n             
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+</div>
+</div>
+</section>
+<section id="count-observations-for-each-biological-replicate-2" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-biological-replicate-2">Count observations for each biological replicate</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each sample id/biological rep, then visualize</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>n1_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span> </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="co">#there should be 3 technical reps</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#almost all have 3 replicates, but there is a small amount with 6</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">#check which collections have more than 3 technical reps</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>n1_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(n<span class="sc">&gt;</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  sample_id     n
+  &lt;chr&gt;     &lt;int&gt;
+1 MI_218_C      6</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="cfx-n2" class="level3">
+<h3 class="anchored" data-anchor-id="cfx-n2">CFX N2</h3>
+<section id="merge-data-with-number-tibble-to-check-missing-collections-3" class="level4">
+<h4 class="anchored" data-anchor-id="merge-data-with-number-tibble-to-check-missing-collections-3">Merge data with number tibble to check missing collections</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection number</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co">#merge with numbers tibble to check for missing collections</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>count_n2_cfx <span class="ot">&lt;-</span> n2_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>count_n2_cfx <span class="ot">&lt;-</span> <span class="fu">merge</span>(count_n2_cfx, numbers2_tbl, <span class="at">by=</span><span class="st">"collection_num"</span>, <span class="at">all.y=</span>T)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>count_n2_cfx</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    collection_num  n
+1               93 27
+2               94 NA
+3               95 54
+4               96 54
+5               97 54
+6               98 57
+7               99 54
+8              100 54
+9              101 54
+10             102 54
+11             103 54
+12             104 54
+13             105 48
+14             106 54
+15             107 18
+16             108 27
+17             109 54
+18             110 54
+19             111 54
+20             112 54
+21             113 54
+22             114 54
+23             115 54
+24             116 54
+25             117 54
+26             118 54
+27             119 54
+28             120 54
+29             121 54
+30             122 54
+31             123 54
+32             124 54
+33             125 54
+34             126 54
+35             127 54
+36             128 54
+37             129 54
+38             130 54
+39             131 54
+40             132 54
+41             133 54
+42             134 54
+43             135 NA
+44             136 54
+45             137 54
+46             138 54
+47             139 54
+48             140 54
+49             141 54
+50             142 54
+51             143 53
+52             144 18
+53             145 53
+54             146 53
+55             147 53
+56             148 53
+57             149 53
+58             150 53
+59             151 53
+60             152 53
+61             153 53
+62             154 53
+63             155 53
+64             156 53
+65             157 NA
+66             158 53
+67             159 53
+68             160 54
+69             161 54
+70             162 54
+71             163 54
+72             164 36
+73             165 36
+74             166 54
+75             167 48
+76             168 54
+77             169 54
+78             170 54
+79             171 54
+80             172 54
+81             173 54
+82             174 54
+83             175 54
+84             176 51
+85             177 NA
+86             178 54
+87             179 54
+88             180 54
+89             181 54
+90             182 54
+91             183 54
+92             184 54
+93             185 NA
+94             186 54
+95             187 54
+96             188 54
+97             189 54
+98             190 54
+99             191 54
+100            192 54
+101            193 54
+102            194 54
+103            195 54
+104            196 54
+105            197 54
+106            198 54
+107            199 54
+108            200 54
+109            201 54
+110            202 54
+111            203 54
+112            204 54
+113            205 54
+114            206 54
+115            207 54
+116            208 54
+117            209 54
+118            210 27
+119            211 24
+120            212 54
+121            213 NA
+122            214 54
+123            215 54
+124            216 54
+125            217 54
+126            218 54
+127            219 54
+128            220 54
+129            221 54
+130            222 27
+131            223 27
+132            224 54
+133            225 54
+134            226 54
+135            227 54
+136            228 51
+137            229 54
+138            230 27
+139            231 27
+140            232 54
+141            233 54
+142            234 54
+143            235 54
+144            236 54
+145            237 54
+146            238 54
+147            239 54
+148            240 54
+149            241 54
+150            242 45
+151            243 54</code></pre>
+</div>
+</div>
+</section>
+<section id="check-which-collections-are-doubled-1" class="level4">
+<h4 class="anchored" data-anchor-id="check-which-collections-are-doubled-1">Check which collections are doubled</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check which collections are doubled</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>count_n2_cfx <span class="sc">%&gt;%</span> <span class="fu">filter</span>(n<span class="sc">==</span><span class="dv">108</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] collection_num n             
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+</div>
+</div>
+</section>
+<section id="count-observations-for-each-biological-replicate-3" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-biological-replicate-3">Count observations for each biological replicate</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each sample id/biological rep, then visualize</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>n2_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span> </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="co">#there should be 3 technical reps</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co">#almost all have 3 replicates, but there is a small amount with 6 and some with 2</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co">#check which collections have more than 3 technical reps</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>n2_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(sample_id) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(n<span class="sc">&gt;</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  sample_id      n
+  &lt;chr&gt;      &lt;int&gt;
+1 CC_191_E       6
+2 MI_144_DEF     6
+3 MI_98_D        6</code></pre>
+</div>
+</div>
+</section>
+<section id="count-observations-for-each-collection-number-3" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-collection-number-3">Count observations for each collection number</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection date, then visualize</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>n2_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(n)) <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>n2_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(collection_num)) <span class="sc">+</span> </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="co">#max should be 54</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="plant-data" class="level3">
+<h3 class="anchored" data-anchor-id="plant-data">Plant data</h3>
+<section id="merge-data-with-number-tibble-to-check-missing-collections-4" class="level4">
+<h4 class="anchored" data-anchor-id="merge-data-with-number-tibble-to-check-missing-collections-4">Merge data with number tibble to check missing collections</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#count observations for each collection number</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="co">#merge with numbers tibble to check for missing collections</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>count_plant <span class="ot">&lt;-</span> plant_v2 <span class="sc">%&gt;%</span> <span class="fu">count</span>(Collection, date) </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>count_plant <span class="ot">&lt;-</span> <span class="fu">merge</span>(count_plant, numbers3_tbl, <span class="at">by=</span><span class="st">"Collection"</span>, <span class="at">all.y=</span>T)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>count_plant</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Collection       date  n
+1            7 2020-06-30  3
+2            8 2020-07-07  3
+3            9 2020-07-14  3
+4           10 2020-07-21  3
+5           11 2020-07-28  3
+6           12 2020-08-04  3
+7           13 2020-08-11  3
+8           14 2020-08-18  3
+9           15 2020-08-25  3
+10          16 2020-09-01  3
+11          17 2020-09-08  3
+12          18 2020-09-15  3
+13          19 2020-09-22  3
+14          20 2020-09-29  3
+15          21 2020-10-06  3
+16          22 2020-10-13  3
+17          23 2020-10-20  3
+18          24 2020-10-27  3
+19          25 2020-11-02  3
+20          26 2020-11-04  3
+21          27 2020-11-09  3
+22          28 2020-11-11  3
+23          29 2020-11-16  3
+24          30 2020-11-18  3
+25          31 2020-11-23  3
+26          32 2020-11-25  3
+27          33 2020-11-30  3
+28          34 2020-12-02  3
+29          35 2020-12-07  3
+30          36 2020-12-09  3
+31          37 2020-12-14  3
+32          38 2020-12-16  3
+33          39 2020-12-21  3
+34          40 2020-12-23  3
+35          41 2020-12-28  3
+36          42 2021-01-04  3
+37          43 2021-01-11  3
+38          44 2021-01-13  3
+39          45 2021-01-19  3
+40          46 2021-01-20  3
+41          47 2021-01-25  3
+42          48 2021-01-27  3
+43          49 2021-02-01  3
+44          50 2021-02-03  3
+45          51 2021-02-08  3
+46          52 2021-02-10  3
+47          53 2021-02-15  3
+48          54 2021-02-17  3
+49          55 2021-02-22  3
+50          56 2021-02-24  3
+51          57 2021-03-01  3
+52          58 2021-03-03  3
+53          59 2021-03-08  3
+54          60 2021-03-10  3
+55          61 2021-03-15  3
+56          62 2021-03-17  3
+57          63 2021-03-22  3
+58          64 2021-03-24  3
+59          65 2021-03-29  3
+60          66 2021-03-31  3
+61          67 2021-04-05  3
+62          68 2021-04-07  3
+63          69 2021-04-12  3
+64          70 2021-04-14  3
+65          71 2021-04-19  3
+66          72 2021-04-21  3
+67          73 2021-04-26  3
+68          74 2021-04-28  3
+69          75 2021-05-03  3
+70          76 2021-05-05  3
+71          77 2021-05-10  3
+72          78 2021-05-12  3
+73          79 2021-05-17  3
+74          80 2021-05-19  3
+75          81 2021-05-24  3
+76          82 2021-05-26  3
+77          83 2021-06-01  3
+78          84 2021-06-02  3
+79          85 2021-06-07  3
+80          86 2021-06-09  3
+81          87 2021-06-14  3
+82          88 2021-06-16  3
+83          89 2021-06-21  3
+84          90 2021-06-23  3
+85          91 2021-06-28  3
+86          92 2021-06-30  3
+87          93 2021-07-06  3
+88          94 2021-07-07  3
+89          95 2021-07-12  3
+90          96 2021-07-14  3
+91          97 2021-07-19  3
+92          98 2021-07-21  3
+93          99 2021-07-26  3
+94         100 2021-07-28  3
+95         101 2021-08-02  3
+96         102 2021-08-04  3
+97         103 2021-08-09  3
+98         104 2021-08-11  3
+99         105 2021-08-16  3
+100        106 2021-08-18  3
+101        107 2021-08-23  3
+102        108 2021-08-25  3
+103        109 2021-08-30  3
+104        110 2021-09-01  3
+105        111 2021-09-07  3
+106        112 2021-09-08  3
+107        113 2021-09-13  3
+108        114 2021-09-15  3
+109        115 2021-09-20  3
+110        116 2021-09-22  3
+111        117 2021-09-27  3
+112        118 2021-09-29  3
+113        119 2021-10-04  3
+114        120 2021-10-06  3
+115        121 2021-10-11  3
+116        122 2021-10-13  3
+117        123 2021-10-18  3
+118        124 2021-10-20  3
+119        125 2021-10-25  3
+120        126 2021-10-27  3
+121        127 2021-11-01  3
+122        128 2021-11-03  3
+123        129 2021-11-08  3
+124        130 2021-11-10  3
+125        131 2021-11-15  3
+126        132 2021-11-17  3
+127        133 2021-11-22  3
+128        134 2021-11-29  3
+129        135 2021-12-01  3
+130        136 2021-12-06  3
+131        137 2021-12-08  3
+132        138 2021-12-13  3
+133        139 2021-12-15  3
+134        140 2021-12-20  3
+135        141 2021-12-27  3
+136        142 2022-01-03  3
+137        143 2022-01-05  3
+138        144 2022-01-10  3
+139        145 2022-01-12  3
+140        146 2022-01-17  3
+141        147 2022-01-19  3
+142        148 2022-01-24  3
+143        149 2022-01-26  3
+144        150 2022-01-31  3
+145        151 2022-02-02  3
+146        152 2022-02-07  3
+147        153 2022-02-09  3
+148        154 2022-02-14  3
+149        155 2022-02-16  3
+150        156 2022-02-21  3
+151        157 2022-02-23  3
+152        158 2022-02-28  3
+153        159 2022-03-02  3
+154        160 2022-03-07  3
+155        161 2022-03-09  3
+156        162 2022-03-14  3
+157        163 2022-03-16  3
+158        164 2022-03-21  3
+159        165 2022-03-23  3
+160        166 2022-03-28  3
+161        167 2022-03-30  3
+162        168 2022-04-04  3
+163        169 2022-04-06  3
+164        170 2022-04-11  3
+165        171 2022-04-13  3
+166        172 2022-04-18  3
+167        173 2022-04-20  3
+168        174 2022-04-25  3
+169        175 2022-04-27  3
+170        176 2022-05-02  3
+171        177       &lt;NA&gt; NA
+172        178 2022-05-09  3
+173        179 2022-05-11  3
+174        180 2022-05-16  3
+175        181 2022-05-18  3
+176        182 2022-05-23  3
+177        183 2022-05-25  3
+178        184 2022-05-31  3
+179        185 2022-06-01  3
+180        186 2022-06-06  3
+181        187 2022-06-08  3
+182        188 2022-06-13  3
+183        189 2022-06-15  3
+184        190 2022-06-20  3
+185        191 2022-06-22  3
+186        192 2022-06-27  3
+187        193 2022-06-29  3
+188        194 2022-07-04  3
+189        195 2022-07-06  3
+190        196 2022-07-11  3
+191        197 2022-07-13  3
+192        198 2022-07-18  3
+193        199 2022-07-20  3
+194        200 2022-07-25  3
+195        201 2022-07-27  3
+196        202 2022-08-01  3
+197        203 2022-08-03  3
+198        204 2022-08-08  3
+199        205 2022-08-10  3
+200        206 2022-08-15  3
+201        207 2022-08-17  3
+202        208 2022-08-22  3
+203        209 2022-08-24  3
+204        210 2022-08-29  3
+205        211 2022-08-31  3
+206        212 2022-09-05  3
+207        213 2022-09-07  3
+208        214 2022-09-13  3
+209        215 2022-09-14  3
+210        216 2022-09-19  3
+211        217 2022-09-21  3
+212        218 2022-09-26  3
+213        219 2022-09-28  3
+214        220 2022-10-03  3
+215        221 2022-10-05  3
+216        222 2022-10-10  3
+217        223 2022-10-12  3
+218        224 2022-10-17  3
+219        225 2022-10-19  3
+220        226 2022-10-24  3
+221        227 2022-10-26  3
+222        228 2022-10-31  3
+223        229 2022-11-02  3
+224        230 2022-11-07  3
+225        231 2022-11-09  3
+226        232 2022-11-14  3
+227        233 2022-11-16  3
+228        234 2022-11-21  3
+229        235 2022-11-28  3
+230        236 2022-11-30  3
+231        237 2022-12-05  3
+232        238 2022-12-07  3
+233        239 2022-12-12  3
+234        240 2022-12-14  3
+235        241 2022-12-19  3
+236        242 2022-12-21  3
+237        243 2023-01-04  3</code></pre>
+</div>
+</div>
+</section>
+<section id="count-observations-for-each-collection-date" class="level4">
+<h4 class="anchored" data-anchor-id="count-observations-for-each-collection-date">Count observations for each collection date</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>plant_v2 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(Collection)) <span class="sc">+</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="co">#max should be 3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="cleaning-and-merging" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-and-merging">Cleaning and merging</h2>
+<section id="qpcr-data" class="level3">
+<h3 class="anchored" data-anchor-id="qpcr-data">qPCR data</h3>
+<section id="select-for-important-variables-convert-non-detects-to-nas" class="level4">
+<h4 class="anchored" data-anchor-id="select-for-important-variables-convert-non-detects-to-nas">Select for important variables, convert non-detects to NAs</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Select date, collection number, sample id/bio rep, target, and ct</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Convert Undetermined Cts to NAs</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co">#StepOne N1</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>n1_stepone_clean <span class="ot">&lt;-</span> n1_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">c</span>(sample_date, collection_num, sample_id, target, ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct=</span><span class="fu">as.numeric</span>(<span class="fu">ifelse</span>(ct<span class="sc">==</span><span class="st">"Undetermined"</span>, <span class="cn">NA</span>, ct)))</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="co">#StepOne N2</span></span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>n2_stepone_clean <span class="ot">&lt;-</span> n2_stepone_v2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">c</span>(sample_date, collection_num, sample_id, target, ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct=</span><span class="fu">as.numeric</span>(<span class="fu">ifelse</span>(ct<span class="sc">==</span><span class="st">"Undetermined"</span>, <span class="cn">NA</span>, ct)))</span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a><span class="co">#CFX N1</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>n1_cfx_clean <span class="ot">&lt;-</span> n1_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">c</span>(sample_date, collection_num, sample_id, target, ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct=</span><span class="fu">as.numeric</span>(<span class="fu">ifelse</span>(ct<span class="sc">==</span><span class="st">"Undetermined"</span>, <span class="cn">NA</span>, ct)))</span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a><span class="co">#CFX N2</span></span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>n2_cfx_clean <span class="ot">&lt;-</span> n2_cfx_v2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">c</span>(sample_date, collection_num, sample_id, target, ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct=</span><span class="fu">as.numeric</span>(<span class="fu">ifelse</span>(ct<span class="sc">==</span><span class="st">"Undetermined"</span>, <span class="cn">NA</span>, ct)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculate-lod-and-loq-for-qpcr-data" class="level4">
+<h4 class="anchored" data-anchor-id="calculate-lod-and-loq-for-qpcr-data">Calculate LOD and LOQ for qPCR data</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Determine the LOD and LOQ by plotting the Normal QQ-Plot</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n1.stepone <span class="ot">&lt;-</span> <span class="fu">qqnorm</span>(n1_stepone_clean<span class="sc">$</span>ct, <span class="at">plot.it =</span> T) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n2.stepone <span class="ot">&lt;-</span> <span class="fu">qqnorm</span>(n2_stepone_clean<span class="sc">$</span>ct, <span class="at">plot.it =</span> T) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n1.cfx <span class="ot">&lt;-</span> <span class="fu">qqnorm</span>(n1_cfx_clean<span class="sc">$</span>ct, <span class="at">plot.it =</span> T) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-21-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n2.cfx <span class="ot">&lt;-</span> <span class="fu">qqnorm</span>(n2_cfx_clean<span class="sc">$</span>ct, <span class="at">plot.it =</span> T) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-21-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tiff</span>(<span class="at">filename =</span> <span class="st">"figures/detection_lims.tiff"</span>, <span class="at">height =</span> <span class="dv">9</span>, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">units =</span> <span class="st">"in"</span>, <span class="at">res =</span> <span class="dv">600</span>)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Create function to compute LOD and lOQ</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>qqnorm.Explorer.ct <span class="ot">&lt;-</span> <span class="cf">function</span>(qqnorm.ct){</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  qqnorm.ct <span class="ot">&lt;-</span> qqnorm.ct[<span class="fu">which</span>(<span class="fu">complete.cases</span>(qqnorm.ct)),]</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  qqnorm.ct <span class="ot">&lt;-</span> qqnorm.ct[<span class="fu">order</span>(qqnorm.ct<span class="sc">$</span>x),]</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>  qqnorm.ct <span class="ot">&lt;-</span> <span class="fu">cbind</span>(qqnorm.ct, <span class="fu">rbind</span>(<span class="cn">NA</span>, qqnorm.ct[<span class="sc">-</span><span class="fu">nrow</span>(qqnorm.ct),])) <span class="sc">%&gt;%</span> <span class="fu">setNames</span>(., <span class="at">nm =</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"x-1"</span>, <span class="st">"y-1"</span>))</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>  qqnorm.ct <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(<span class="at">rise =</span> y<span class="sc">-</span><span class="st">`</span><span class="at">y-1</span><span class="st">`</span>, <span class="at">run =</span> x<span class="sc">-</span><span class="st">`</span><span class="at">x-1</span><span class="st">`</span>) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">slope =</span> rise <span class="sc">/</span> run)</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>  qqnorm.ct<span class="sc">$</span>lod <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>  qqnorm.ct<span class="sc">$</span>loq <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>  prev.slope <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>  lod.found <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">nrow</span>(qqnorm.ct)<span class="sc">:</span><span class="dv">2</span>){</span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(lod.found<span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(qqnorm.ct<span class="sc">$</span>slope[i]<span class="sc">&lt;</span><span class="dv">1</span> <span class="sc">&amp;</span> prev.slope <span class="sc">&lt;</span><span class="dv">1</span>){</span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a>        qqnorm.ct<span class="sc">$</span>lod[i] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>        lod.found <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a>      }<span class="cf">else</span>{</span>
+<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a>        prev.slope <span class="ot">&lt;-</span> qqnorm.ct<span class="sc">$</span>slope[i]</span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(lod.found<span class="sc">==</span><span class="dv">1</span>){</span>
+<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span>(qqnorm.ct<span class="sc">$</span>slope[i]<span class="sc">&gt;</span><span class="dv">1</span>){</span>
+<span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a>        qqnorm.ct<span class="sc">$</span>loq[i] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb54-26"><a href="#cb54-26" aria-hidden="true" tabindex="-1"></a>      }<span class="cf">else</span>{</span>
+<span id="cb54-27"><a href="#cb54-27" aria-hidden="true" tabindex="-1"></a>        prev.slope <span class="ot">&lt;-</span> qqnorm.ct<span class="sc">$</span>slope[i]</span>
+<span id="cb54-28"><a href="#cb54-28" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb54-29"><a href="#cb54-29" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb54-30"><a href="#cb54-30" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb54-31"><a href="#cb54-31" aria-hidden="true" tabindex="-1"></a>  lod.ct <span class="ot">&lt;-</span> qqnorm.ct<span class="sc">$</span>y[<span class="fu">which</span>(qqnorm.ct<span class="sc">$</span>lod<span class="sc">==</span><span class="dv">1</span>)]</span>
+<span id="cb54-32"><a href="#cb54-32" aria-hidden="true" tabindex="-1"></a>  loq.ct <span class="ot">&lt;-</span> qqnorm.ct<span class="sc">$</span>y[<span class="fu">which</span>(qqnorm.ct<span class="sc">$</span>loq<span class="sc">==</span><span class="dv">1</span>)]</span>
+<span id="cb54-33"><a href="#cb54-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">qqnorm.dataset =</span> qqnorm.ct, <span class="at">lod =</span> lod.ct, <span class="at">loq =</span> loq.ct))</span>
+<span id="cb54-34"><a href="#cb54-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb54-35"><a href="#cb54-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-36"><a href="#cb54-36" aria-hidden="true" tabindex="-1"></a><span class="co">#Run function on each data set</span></span>
+<span id="cb54-37"><a href="#cb54-37" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n1.stepone <span class="ot">&lt;-</span> <span class="fu">qqnorm.Explorer.ct</span>(qqnorm.ct.n1.stepone)</span>
+<span id="cb54-38"><a href="#cb54-38" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n2.stepone <span class="ot">&lt;-</span> <span class="fu">qqnorm.Explorer.ct</span>(qqnorm.ct.n2.stepone)</span>
+<span id="cb54-39"><a href="#cb54-39" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n1.cfx <span class="ot">&lt;-</span> <span class="fu">qqnorm.Explorer.ct</span>(qqnorm.ct.n1.cfx)</span>
+<span id="cb54-40"><a href="#cb54-40" aria-hidden="true" tabindex="-1"></a>qqnorm.ct.n2.cfx <span class="ot">&lt;-</span> <span class="fu">qqnorm.Explorer.ct</span>(qqnorm.ct.n2.cfx)</span>
+<span id="cb54-41"><a href="#cb54-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-42"><a href="#cb54-42" aria-hidden="true" tabindex="-1"></a><span class="co">#Save LOD and LOQ for each data set</span></span>
+<span id="cb54-43"><a href="#cb54-43" aria-hidden="true" tabindex="-1"></a>n1_stepone_lod <span class="ot">&lt;-</span> qqnorm.ct.n1.stepone<span class="sc">$</span>lod</span>
+<span id="cb54-44"><a href="#cb54-44" aria-hidden="true" tabindex="-1"></a>n1_stepone_loq <span class="ot">&lt;-</span> qqnorm.ct.n1.stepone<span class="sc">$</span>loq</span>
+<span id="cb54-45"><a href="#cb54-45" aria-hidden="true" tabindex="-1"></a>n2_stepone_lod <span class="ot">&lt;-</span> qqnorm.ct.n2.stepone<span class="sc">$</span>lod</span>
+<span id="cb54-46"><a href="#cb54-46" aria-hidden="true" tabindex="-1"></a>n2_stepone_loq <span class="ot">&lt;-</span> qqnorm.ct.n2.stepone<span class="sc">$</span>loq</span>
+<span id="cb54-47"><a href="#cb54-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-48"><a href="#cb54-48" aria-hidden="true" tabindex="-1"></a>n1_cfx_lod <span class="ot">&lt;-</span> qqnorm.ct.n1.cfx<span class="sc">$</span>lod</span>
+<span id="cb54-49"><a href="#cb54-49" aria-hidden="true" tabindex="-1"></a>n1_cfx_loq <span class="ot">&lt;-</span> qqnorm.ct.n1.cfx<span class="sc">$</span>loq</span>
+<span id="cb54-50"><a href="#cb54-50" aria-hidden="true" tabindex="-1"></a>n2_cfx_lod <span class="ot">&lt;-</span> qqnorm.ct.n2.cfx<span class="sc">$</span>lod</span>
+<span id="cb54-51"><a href="#cb54-51" aria-hidden="true" tabindex="-1"></a>n2_cfx_loq <span class="ot">&lt;-</span> qqnorm.ct.n2.cfx<span class="sc">$</span>loq</span>
+<span id="cb54-52"><a href="#cb54-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-53"><a href="#cb54-53" aria-hidden="true" tabindex="-1"></a>n1_stepone_lod</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 37.14072</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>n2_stepone_lod</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 37.10763</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>n1_cfx_lod </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 39.93763</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>n2_cfx_lod</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 39.9942</code></pre>
+</div>
+</div>
+</section>
+<section id="transform-ct-nas-calculate-sars-cov-2-copies" class="level4">
+<h4 class="anchored" data-anchor-id="transform-ct-nas-calculate-sars-cov-2-copies">Transform Ct NAs calculate SARS-CoV-2 copies</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Replace NAs with limit of detection</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Use standard curve slope for each target to calculate copies per uL per rxn</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="co">#StepOne N1</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>n1_stepone_clean <span class="ot">&lt;-</span> n1_stepone_clean <span class="sc">%&gt;%</span> </span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct =</span> <span class="fu">replace_na</span>(ct, n1_stepone_lod),</span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">copy_num_uL_rxn =</span> <span class="fu">as.numeric</span>(<span class="dv">10</span><span class="sc">^</span>((ct<span class="fl">-34.008</span>)<span class="sc">/-</span><span class="fl">3.389</span>)))</span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a><span class="co">#StepOne N2</span></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>n2_stepone_clean <span class="ot">&lt;-</span> n2_stepone_clean <span class="sc">%&gt;%</span> </span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct =</span> <span class="fu">replace_na</span>(ct, n2_stepone_lod),</span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">copy_num_uL_rxn =</span> <span class="fu">as.numeric</span>(<span class="dv">10</span><span class="sc">^</span>((ct<span class="fl">-32.416</span>)<span class="sc">/-</span><span class="fl">3.3084</span>)))</span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-14"><a href="#cb62-14" aria-hidden="true" tabindex="-1"></a><span class="co">#CFX N1</span></span>
+<span id="cb62-15"><a href="#cb62-15" aria-hidden="true" tabindex="-1"></a>n1_cfx_clean <span class="ot">&lt;-</span> n1_cfx_clean <span class="sc">%&gt;%</span> </span>
+<span id="cb62-16"><a href="#cb62-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct =</span> <span class="fu">replace_na</span>(ct, n1_cfx_lod), </span>
+<span id="cb62-17"><a href="#cb62-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">copy_num_uL_rxn =</span> <span class="fu">as.numeric</span>(<span class="dv">10</span><span class="sc">^</span>((ct<span class="fl">-36.046</span>)<span class="sc">/-</span><span class="fl">3.5293</span>)))</span>
+<span id="cb62-18"><a href="#cb62-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-19"><a href="#cb62-19" aria-hidden="true" tabindex="-1"></a><span class="co">#CFX N2</span></span>
+<span id="cb62-20"><a href="#cb62-20" aria-hidden="true" tabindex="-1"></a>n2_cfx_clean <span class="ot">&lt;-</span> n2_cfx_clean <span class="sc">%&gt;%</span> </span>
+<span id="cb62-21"><a href="#cb62-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ct =</span> <span class="fu">replace_na</span>(ct, n2_cfx_lod),</span>
+<span id="cb62-22"><a href="#cb62-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">copy_num_uL_rxn =</span> <span class="fu">as.numeric</span>(<span class="dv">10</span><span class="sc">^</span>((ct<span class="fl">-37.731</span>)<span class="sc">/-</span><span class="fl">3.2505</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quick-look-at-ct-distribution" class="level4">
+<h4 class="anchored" data-anchor-id="quick-look-at-ct-distribution">Quick look at Ct distribution</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co">#N1 StepOne</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>n1_stepone_clean <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(ct)) <span class="sc">+</span> <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co">#N2 StepOne</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>n2_stepone_clean <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(ct)) <span class="sc">+</span> <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co">#N1 CFX</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>n1_cfx_clean <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(ct)) <span class="sc">+</span> <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-23-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co">#N2 CFX</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>n2_cfx_clean <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(ct)) <span class="sc">+</span> <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-23-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loooooots of non-detects</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="bind-all-qpcr-data-sets" class="level4">
+<h4 class="anchored" data-anchor-id="bind-all-qpcr-data-sets">Bind all qPCR data sets</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Bind qpcr data</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>qpcr_all <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(n1_stepone_clean, n2_stepone_clean, n1_cfx_clean, n2_cfx_clean) <span class="sc">%&gt;%</span> </span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> sample_date,</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">facility=</span><span class="fu">substr</span>(sample_id, <span class="dv">1</span>,<span class="dv">2</span>), <span class="co">#first two letters in sample_id is treatment facility ID</span></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">biological_replicate=</span><span class="fu">substr</span>(sample_id, <span class="fu">nchar</span>(sample_id), <span class="fu">nchar</span>(sample_id))) <span class="sc">%&gt;%</span> <span class="co">#last number in sample_id is the biological rep</span></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a> <span class="fu">arrange</span>(date, facility, target, biological_replicate) <span class="sc">%&gt;%</span> </span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(date, facility, target, biological_replicate, collection_num, ct, copy_num_uL_rxn)<span class="co">#select necessary variables</span></span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a><span class="co">#Save to processed data folder</span></span>
+<span id="cb72-11"><a href="#cb72-11" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(qpcr_all, <span class="fu">here</span>(<span class="st">"data/processed_data/qpcr_all.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="combine-plant-and-qpcr-data-sets" class="level3">
+<h3 class="anchored" data-anchor-id="combine-plant-and-qpcr-data-sets">Combine plant and qPCR data sets</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Change plant variable names to match qPCR names, remove notes variable, convert millions of gallons to liters</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>plant_v2<span class="ot">&lt;-</span> plant_v2 <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">collection_num =</span> Collection, <span class="at">facility =</span> wrf) <span class="sc">%&gt;%</span> </span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>notes) <span class="sc">%&gt;%</span> </span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">influent_flow_L =</span> influent_flow_mg<span class="sc">*</span><span class="fl">1e6</span><span class="sc">*</span><span class="dv">231</span><span class="sc">*</span>(<span class="fl">0.0254</span><span class="sc">^</span><span class="dv">3</span>)<span class="sc">*</span><span class="dv">1000</span>)</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Select qPCR variables to merge</span></span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>qpcr_all <span class="ot">&lt;-</span> qpcr_all <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">!</span>date)</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Merge and mutate</span></span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>qpcr_plant_all <span class="ot">&lt;-</span> <span class="fu">merge</span>(qpcr_all, plant_v2, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"collection_num"</span>, <span class="st">"facility"</span>), <span class="at">all =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">facility =</span> <span class="fu">as.factor</span>(facility), <span class="co">#code each facility as a factor</span></span>
+<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">facility =</span> <span class="fu">recode</span>(facility, <span class="at">NO =</span> <span class="st">"A"</span>, <span class="at">MI =</span> <span class="st">"B"</span>, <span class="at">CC =</span> <span class="st">"C"</span>), <span class="co">#de-identify treatment facility</span></span>
+<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">facility =</span> <span class="fu">ordered</span>(facility, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>)), <span class="co">#set facility factor levels</span></span>
+<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">copy_num_L =</span> copy_num_uL_rxn<span class="sc">*</span><span class="dv">20</span><span class="sc">/</span><span class="dv">5</span><span class="sc">*</span><span class="dv">60</span><span class="sc">/</span><span class="dv">280</span><span class="sc">*</span><span class="dv">1000</span><span class="sc">*</span><span class="dv">1000</span>,</span>
+<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">viral_load =</span> copy_num_L<span class="sc">*</span>influent_flow_L) <span class="co">#transform copies per uL of reaction to copies per liter</span></span>
+<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-17"><a href="#cb73-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Save to processed data folder</span></span>
+<span id="cb73-18"><a href="#cb73-18" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(qpcr_plant_all, <span class="fu">here</span>(<span class="st">"data/processed_data/qpcr_plant_all.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="quick-look-at-wbe-data" class="level3">
+<h3 class="anchored" data-anchor-id="quick-look-at-wbe-data">Quick look at WBE data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Filter for correct date range, then visualize observations for each collection</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>qpcr_plant_all <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">between</span>(collection_num, <span class="dv">7</span>, <span class="dv">243</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(collection_num)) <span class="sc">+</span></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="1_initial_wrangling_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co">#which observations are low?</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>qpcr_plant_all <span class="sc">%&gt;%</span> <span class="fu">count</span>(collection_num) <span class="sc">%&gt;%</span> </span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(collection_num, <span class="dv">7</span>, <span class="dv">243</span>), n <span class="sc">&lt;</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  collection_num n
+1             40 3
+2             94 3
+3            135 3
+4            213 3</code></pre>
+</div>
+</div>
+</section>
+<section id="combine-dph-covid-data-sets" class="level3">
+<h3 class="anchored" data-anchor-id="combine-dph-covid-data-sets">Combine DPH COVID data sets</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>covid <span class="ot">&lt;-</span> <span class="fu">full_join</span>(</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>  covid_symptom<span class="sc">%&gt;%</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="at">cases.symptom.onset=</span>cases, <span class="at">date=</span>symptom.date), </span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  covid_case<span class="sc">%&gt;%</span></span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="at">cases.reported=</span>cases, <span class="at">date=</span>report_date), </span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"date"</span></span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(</span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a>    covid_testing<span class="sc">%&gt;%</span></span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rename</span>(<span class="at">date=</span>collection_date), </span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">by=</span><span class="st">"date"</span></span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(date, cases.symptom.onset, cases.reported, pcr_tests, pcr_pos, pcr_pos_7dma, pcr_pos_14dma) <span class="sc">%&gt;%</span> </span>
+<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-15"><a href="#cb77-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop_pos =</span> pcr_pos<span class="sc">/</span>pcr_tests)</span>
+<span id="cb77-16"><a href="#cb77-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-17"><a href="#cb77-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Save to processed data folder</span></span>
+<span id="cb77-18"><a href="#cb77-18" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(covid, <span class="fu">here</span>(<span class="st">"data/processed_data/all_covid_combined.rds"</span>))</span>
+<span id="cb77-19"><a href="#cb77-19" aria-hidden="true" tabindex="-1"></a>covid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,090 × 8
+   date       cases.symptom.on…¹ cases…² pcr_t…³ pcr_pos pcr_p…⁴ pcr_p…⁵ prop_…⁶
+   &lt;date&gt;                  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 2020-02-01                  0       0       0       0      NA      NA     NaN
+ 2 2020-02-02                  0       0       0       0      NA      NA     NaN
+ 3 2020-02-03                  0       0       0       0      NA      NA     NaN
+ 4 2020-02-04                  0       0       0       0      NA      NA     NaN
+ 5 2020-02-05                  0       0       0       0      NA      NA     NaN
+ 6 2020-02-06                  0       0       0       0      NA      NA     NaN
+ 7 2020-02-07                  0       0       0       0       0      NA     NaN
+ 8 2020-02-08                  0       0       0       0       0      NA     NaN
+ 9 2020-02-09                  0       0       0       0       0      NA     NaN
+10 2020-02-10                  1       0       0       0       0      NA     NaN
+# … with 1,080 more rows, and abbreviated variable names ¹​cases.symptom.onset,
+#   ²​cases.reported, ³​pcr_tests, ⁴​pcr_pos_7dma, ⁵​pcr_pos_14dma, ⁶​prop_pos</code></pre>
+</div>
+</div>
+</section>
+<section id="combine-wbe-and-covid-data-sets" class="level3">
+<h3 class="anchored" data-anchor-id="combine-wbe-and-covid-data-sets">Combine WBE and COVID data sets</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>wbe_covid <span class="ot">&lt;-</span> <span class="fu">merge</span>(qpcr_plant_all, covid, <span class="at">by =</span> <span class="st">"date"</span>, <span class="at">all =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2020-06-30"</span>), <span class="fu">as.Date</span>(<span class="st">"2023-01-04"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

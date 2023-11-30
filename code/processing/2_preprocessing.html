@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.313">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Leah Lariscy">
+<meta name="dcterms.date" content="2023-09-15">
+
+<title>Pre-processing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="2_preprocessing_files/libs/clipboard/clipboard.min.js"></script>
+<script src="2_preprocessing_files/libs/quarto-html/quarto.js"></script>
+<script src="2_preprocessing_files/libs/quarto-html/popper.min.js"></script>
+<script src="2_preprocessing_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="2_preprocessing_files/libs/quarto-html/anchor.min.js"></script>
+<link href="2_preprocessing_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="2_preprocessing_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="2_preprocessing_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="2_preprocessing_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="2_preprocessing_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#info" id="toc-info" class="nav-link active" data-scroll-target="#info">Info</a></li>
+  <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages">Load packages</a></li>
+  <li><a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data">Load data</a></li>
+  <li><a href="#a-wbe-wrangling" id="toc-a-wbe-wrangling" class="nav-link" data-scroll-target="#a-wbe-wrangling">A) WBE Wrangling</a>
+  <ul>
+  <li><a href="#more-cleaning" id="toc-more-cleaning" class="nav-link" data-scroll-target="#more-cleaning">1. More cleaning</a></li>
+  <li><a href="#average-qpcr-replicates" id="toc-average-qpcr-replicates" class="nav-link" data-scroll-target="#average-qpcr-replicates">2. Average qPCR replicates</a></li>
+  <li><a href="#sum-viral-load-across-wwtps" id="toc-sum-viral-load-across-wwtps" class="nav-link" data-scroll-target="#sum-viral-load-across-wwtps">3. Sum Viral Load across WWTPs</a></li>
+  <li><a href="#move-n1-and-n2-to-distinct-columns-then-calculate-average" id="toc-move-n1-and-n2-to-distinct-columns-then-calculate-average" class="nav-link" data-scroll-target="#move-n1-and-n2-to-distinct-columns-then-calculate-average">4. Move N1 and N2 to distinct columns, then calculate average</a></li>
+  <li><a href="#calculate-qpcr-pos" id="toc-calculate-qpcr-pos" class="nav-link" data-scroll-target="#calculate-qpcr-pos">5. Calculate qPCR % Pos</a></li>
+  <li><a href="#smoosh-wbe-data-set-with-pos-data" id="toc-smoosh-wbe-data-set-with-pos-data" class="nav-link" data-scroll-target="#smoosh-wbe-data-set-with-pos-data">6. Smoosh wbe data set with %pos data</a></li>
+  <li><a href="#calculate-wbe-7-dma" id="toc-calculate-wbe-7-dma" class="nav-link" data-scroll-target="#calculate-wbe-7-dma">7. Calculate WBE 7-DMA</a></li>
+  </ul></li>
+  <li><a href="#b-covid-wrangling" id="toc-b-covid-wrangling" class="nav-link" data-scroll-target="#b-covid-wrangling">B) COVID Wrangling</a>
+  <ul>
+  <li><a href="#subset-covid-dates" id="toc-subset-covid-dates" class="nav-link" data-scroll-target="#subset-covid-dates">1. Subset COVID dates</a></li>
+  <li><a href="#calculate-case-7-dma" id="toc-calculate-case-7-dma" class="nav-link" data-scroll-target="#calculate-case-7-dma">2. Calculate Case 7-DMA</a></li>
+  </ul></li>
+  <li><a href="#c-combine-wbe-covid" id="toc-c-combine-wbe-covid" class="nav-link" data-scroll-target="#c-combine-wbe-covid">C) Combine WBE &amp; COVID</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Pre-processing</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Leah Lariscy </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 15, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="info" class="level2">
+<h2 class="anchored" data-anchor-id="info">Info</h2>
+<p>This pre-processing script does the following:</p>
+<ul>
+<li><p>WBE technical replicates are averaged</p></li>
+<li><p>Viral load is summed across WWTPs per date per target</p></li>
+<li><p>Viral load is averaged across targets (N1 and N2) per date</p></li>
+<li><p>WW qPCR assay detection frequency is calculated</p></li>
+<li><p>7 day moving average is calculated for all variables of interest</p></li>
+<li><p>WBE and COVID data are combined and weekly averages are calculated</p></li>
+<li><p>Hospitalization data will also be added in the future</p></li>
+</ul>
+</section>
+<section id="load-packages" class="level2">
+<h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpp3)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-data">Load data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#WBE file from processing script</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>wbe <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">here</span>(<span class="st">"data/processed_data/qpcr_plant_all.rds"</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#COVID file from processing script</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>covid <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">here</span>(<span class="st">"data/processed_data/all_covid_combined.rds"</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Hospitalization data from processing script</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>hospital <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">here</span>(<span class="st">"data/processed_data/athens_hospitalizations.rds"</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#Load qPCR file with ct NAs from processing script</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>qpcr_na <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">here</span>(<span class="st">"data/processed_data/qpcr_na.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="a-wbe-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="a-wbe-wrangling">A) WBE Wrangling</h2>
+<section id="more-cleaning" class="level3">
+<h3 class="anchored" data-anchor-id="more-cleaning">1. More cleaning</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Remove observations when Cts = NA, this means that collection is missing or not part of the surveillance study</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>wbe <span class="ot">&lt;-</span> wbe <span class="sc">%&gt;%</span> <span class="fu">na.omit</span>(ct)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for NAs in the rest of the data</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(wbe) <span class="co">#yay nothing is missing</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">wbe</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">20556</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Date</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">target</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">biological_replicate</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">date</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2020-06-30</td>
+<td style="text-align: left;">2023-01-04</td>
+<td style="text-align: left;">2021-12-20</td>
+<td style="text-align: right;">230</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 9%">
+<col style="width: 11%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">ordered</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: left;">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">facility</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">A: 6893, B: 6872, C: 6791</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 7%">
+<col style="width: 10%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 4%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">collection_num</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.378800e+02</td>
+<td style="text-align: right;">6.259000e+01</td>
+<td style="text-align: right;">7.000000e+00</td>
+<td style="text-align: right;">8.900000e+01</td>
+<td style="text-align: right;">1.400000e+02</td>
+<td style="text-align: right;">1.910000e+02</td>
+<td style="text-align: right;">2.430000e+02</td>
+<td style="text-align: left;">▃▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ct</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.807000e+01</td>
+<td style="text-align: right;">1.500000e+00</td>
+<td style="text-align: right;">3.102000e+01</td>
+<td style="text-align: right;">3.711000e+01</td>
+<td style="text-align: right;">3.766000e+01</td>
+<td style="text-align: right;">3.994000e+01</td>
+<td style="text-align: right;">4.000000e+01</td>
+<td style="text-align: left;">▁▁▂▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">copy_num_uL_rxn</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4.300000e-01</td>
+<td style="text-align: right;">8.700000e-01</td>
+<td style="text-align: right;">1.000000e-02</td>
+<td style="text-align: right;">1.200000e-01</td>
+<td style="text-align: right;">2.000000e-01</td>
+<td style="text-align: right;">5.200000e-01</td>
+<td style="text-align: right;">3.485000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">influent_flow_mg</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.690000e+00</td>
+<td style="text-align: right;">1.770000e+00</td>
+<td style="text-align: right;">1.280000e+00</td>
+<td style="text-align: right;">1.830000e+00</td>
+<td style="text-align: right;">3.550000e+00</td>
+<td style="text-align: right;">5.180000e+00</td>
+<td style="text-align: right;">1.311000e+01</td>
+<td style="text-align: left;">▇▆▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">influent_tss_mg_l</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.474500e+02</td>
+<td style="text-align: right;">1.690100e+02</td>
+<td style="text-align: right;">4.800000e+00</td>
+<td style="text-align: right;">1.480000e+02</td>
+<td style="text-align: right;">2.080000e+02</td>
+<td style="text-align: right;">2.840000e+02</td>
+<td style="text-align: right;">1.380000e+03</td>
+<td style="text-align: left;">▇▂▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">influent_flow_L</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.398262e+07</td>
+<td style="text-align: right;">6.684690e+06</td>
+<td style="text-align: right;">4.845327e+06</td>
+<td style="text-align: right;">6.927304e+06</td>
+<td style="text-align: right;">1.343821e+07</td>
+<td style="text-align: right;">1.960843e+07</td>
+<td style="text-align: right;">4.962675e+07</td>
+<td style="text-align: left;">▇▆▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">copy_num_L</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.697209e+05</td>
+<td style="text-align: right;">7.458327e+05</td>
+<td style="text-align: right;">8.616570e+03</td>
+<td style="text-align: right;">1.020177e+05</td>
+<td style="text-align: right;">1.725005e+05</td>
+<td style="text-align: right;">4.451149e+05</td>
+<td style="text-align: right;">2.987138e+07</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">viral_load</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4.923052e+12</td>
+<td style="text-align: right;">9.907915e+12</td>
+<td style="text-align: right;">8.344504e+10</td>
+<td style="text-align: right;">1.031717e+12</td>
+<td style="text-align: right;">2.331721e+12</td>
+<td style="text-align: right;">5.253990e+12</td>
+<td style="text-align: right;">3.595800e+14</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Count observations for each date/facility/target/collection</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>wbe_count <span class="ot">&lt;-</span> wbe <span class="sc">%&gt;%</span> <span class="fu">count</span>(date,facility,target,collection_num) <span class="co">#max is either 9 or 18</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_count, <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         date facility target collection_num  n
+1  2020-06-30        A     N1              7 18
+2  2020-06-30        A     N2              7 18
+3  2020-06-30        B     N1              7 12
+4  2020-06-30        B     N2              7 12
+5  2020-06-30        C     N1              7  3
+6  2020-06-30        C     N2              7  3
+7  2020-07-07        A     N1              8  9
+8  2020-07-07        A     N2              8  9
+9  2020-07-07        B     N1              8  6
+10 2020-07-07        B     N2              8  6</code></pre>
+</div>
+</div>
+</section>
+<section id="average-qpcr-replicates" class="level3">
+<h3 class="anchored" data-anchor-id="average-qpcr-replicates">2. Average qPCR replicates</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#group, then take the average copies per liter and standard deviation</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>wbe_avg <span class="ot">&lt;-</span> wbe <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date,facility,target,collection_num) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_copy_L =</span> <span class="fu">mean</span>(copy_num_L),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_copy_L =</span> <span class="fu">sd</span>(copy_num_L), </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">influent_flow_L =</span> <span class="fu">mean</span>(influent_flow_L),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">avg_viral_load =</span> <span class="fu">mean</span>(viral_load),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_viral_load =</span> <span class="fu">sd</span>(viral_load),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">avg_ct =</span> <span class="fu">mean</span>(ct),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_ct =</span> <span class="fu">sd</span>(ct))<span class="sc">%&gt;%</span> </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'date', 'facility', 'target'. You can
+override using the `.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_avg, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 11
+   date       facility target collecti…¹ avg_c…² sd_co…³ influ…⁴ avg_v…⁵ sd_vi…⁶
+   &lt;date&gt;     &lt;ord&gt;    &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 2020-06-30 A        N1              7 166962. 146733.  1.87e7 3.13e12 2.75e12
+ 2 2020-06-30 A        N2              7  49504.  50747.  1.87e7 9.28e11 9.51e11
+ 3 2020-06-30 B        N1              7 110644.  27866.  1.14e7 1.26e12 3.19e11
+ 4 2020-06-30 B        N2              7  33968.  13754.  1.14e7 3.88e11 1.57e11
+ 5 2020-06-30 C        N1              7 102018.      0   6.17e6 6.29e11 0      
+ 6 2020-06-30 C        N2              7  32731.      0   6.17e6 2.02e11 0      
+ 7 2020-07-07 A        N1              8 102018.      0   2.10e7 2.15e12 0      
+ 8 2020-07-07 A        N2              8  34333.   3727.  2.10e7 7.23e11 7.84e10
+ 9 2020-07-07 B        N1              8 118649.  40738.  1.29e7 1.53e12 5.26e11
+10 2020-07-07 B        N2              8  32731.      0   1.29e7 4.22e11 0      
+# … with 2 more variables: avg_ct &lt;dbl&gt;, sd_ct &lt;dbl&gt;, and abbreviated variable
+#   names ¹​collection_num, ²​avg_copy_L, ³​sd_copy_L, ⁴​influent_flow_L,
+#   ⁵​avg_viral_load, ⁶​sd_viral_load</code></pre>
+</div>
+</div>
+</section>
+<section id="sum-viral-load-across-wwtps" class="level3">
+<h3 class="anchored" data-anchor-id="sum-viral-load-across-wwtps">3. Sum Viral Load across WWTPs</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>wbe_county_avg <span class="ot">&lt;-</span> wbe_avg <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date, collection_num, target) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">viral_load =</span> <span class="fu">sum</span>(avg_viral_load)) <span class="sc">%&gt;%</span> <span class="co">#sum across WWTPs for each target</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'date', 'collection_num'. You can override
+using the `.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_county_avg, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   date       collection_num target viral_load
+   &lt;date&gt;              &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt;
+ 1 2020-06-30              7 N1        5.02e12
+ 2 2020-06-30              7 N2        1.52e12
+ 3 2020-07-07              8 N1        4.39e12
+ 4 2020-07-07              8 N2        1.42e12
+ 5 2020-07-14              9 N1        2.99e12
+ 6 2020-07-14              9 N2        1.55e12
+ 7 2020-07-21             10 N1        6.50e12
+ 8 2020-07-21             10 N2        2.61e12
+ 9 2020-07-28             11 N1        5.57e12
+10 2020-07-28             11 N2        1.86e12</code></pre>
+</div>
+</div>
+</section>
+<section id="move-n1-and-n2-to-distinct-columns-then-calculate-average" class="level3">
+<h3 class="anchored" data-anchor-id="move-n1-and-n2-to-distinct-columns-then-calculate-average">4. Move N1 and N2 to distinct columns, then calculate average</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>avg_viral_load <span class="ot">&lt;-</span> wbe_county_avg <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_vl =</span> <span class="fu">mean</span>(viral_load))</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>wbe_vl_final <span class="ot">&lt;-</span> wbe_county_avg <span class="sc">%&gt;%</span> </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from =</span> viral_load) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">n1_vl =</span> N1, <span class="at">n2_vl =</span> N2)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>wbe_vl_final <span class="ot">&lt;-</span> wbe_vl_final <span class="sc">%&gt;%</span> <span class="fu">full_join</span>(avg_viral_load, wbe_final, <span class="at">by =</span> <span class="st">"date"</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_vl_final, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 5
+   date       collection_num   n1_vl   n2_vl  avg_vl
+   &lt;date&gt;              &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 2020-06-30              7 5.02e12 1.52e12 3.27e12
+ 2 2020-07-07              8 4.39e12 1.42e12 2.91e12
+ 3 2020-07-14              9 2.99e12 1.55e12 2.27e12
+ 4 2020-07-21             10 6.50e12 2.61e12 4.56e12
+ 5 2020-07-28             11 5.57e12 1.86e12 3.71e12
+ 6 2020-08-04             12 4.20e12 1.35e12 2.78e12
+ 7 2020-08-11             13 4.08e12 1.24e12 2.66e12
+ 8 2020-08-18             14 5.18e12 1.65e12 3.41e12
+ 9 2020-08-25             15 5.68e12 1.58e12 3.63e12
+10 2020-09-01             16 8.63e12 2.94e12 5.78e12</code></pre>
+</div>
+</div>
+</section>
+<section id="calculate-qpcr-pos" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-qpcr-pos">5. Calculate qPCR % Pos</h3>
+<p>Technical replicates per bio rep/target/facility/date</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>detection_tr <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility,target,biological_replicate) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'date', 'facility', 'target'. You can
+override using the `.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_tr,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 7
+# Groups:   date, facility, target [5]
+   date       facility target biological_replicate     n n_miss n_pos
+   &lt;date&gt;     &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;                &lt;int&gt;  &lt;int&gt; &lt;int&gt;
+ 1 2020-06-30 CC       N1     C                        3      3     0
+ 2 2020-06-30 CC       N2     C                        3      3     0
+ 3 2020-06-30 MI       N1     A                        3      2     1
+ 4 2020-06-30 MI       N1     B                        3      3     0
+ 5 2020-06-30 MI       N1     C                        6      5     1
+ 6 2020-06-30 MI       N2     A                        3      3     0
+ 7 2020-06-30 MI       N2     B                        3      3     0
+ 8 2020-06-30 MI       N2     C                        6      4     2
+ 9 2020-06-30 NO       N1     A                        6      5     1
+10 2020-06-30 NO       N1     B                        3      3     0</code></pre>
+</div>
+</div>
+<p>Technical reps per target/facility/date</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>detection_target <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility,target) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'date', 'facility'. You can override using
+the `.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>detection_target_wide <span class="ot">&lt;-</span> detection_target <span class="sc">%&gt;%</span> <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from =</span> <span class="fu">c</span>(n, n_miss, n_pos, pos_rate))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_target_wide, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 10
+   date       facility  n_N1  n_N2 n_miss_N1 n_miss_N2 n_pos_N1 n_pos_N2 pos_r…¹
+   &lt;date&gt;     &lt;chr&gt;    &lt;int&gt; &lt;int&gt;     &lt;int&gt;     &lt;int&gt;    &lt;int&gt;    &lt;int&gt;   &lt;dbl&gt;
+ 1 2020-06-30 CC           3     3         3         3        0        0     0  
+ 2 2020-06-30 MI          12    12        10        10        2        2    16.7
+ 3 2020-06-30 NO          18    18        12        13        6        5    33.3
+ 4 2020-07-07 CC           6     6         5         4        1        2    16.7
+ 5 2020-07-07 MI           6     6         5         6        1        0    16.7
+ 6 2020-07-07 NO           9     9         9         7        0        2     0  
+ 7 2020-07-14 MI           3     6         3         4        0        2     0  
+ 8 2020-07-14 NO           9     9         8         5        1        4    11.1
+ 9 2020-07-21 CC           6     6         3         4        3        2    50  
+10 2020-07-21 MI           9     6         6         1        3        5    33.3
+# … with 1 more variable: pos_rate_N2 &lt;dbl&gt;, and abbreviated variable name
+#   ¹​pos_rate_N1</code></pre>
+</div>
+</div>
+<p>Technical reps per facility/date</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>detection_facility <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n)<span class="sc">*</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'date'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_facility, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 6
+# Groups:   date [4]
+   date       facility     n n_miss n_pos pos_rate
+   &lt;date&gt;     &lt;chr&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;    &lt;dbl&gt;
+ 1 2020-06-30 CC           6      6     0     0   
+ 2 2020-06-30 MI          24     20     4    16.7 
+ 3 2020-06-30 NO          36     25    11    30.6 
+ 4 2020-07-07 CC          12      9     3    25   
+ 5 2020-07-07 MI          12     11     1     8.33
+ 6 2020-07-07 NO          18     16     2    11.1 
+ 7 2020-07-14 MI           9      7     2    22.2 
+ 8 2020-07-14 NO          18     13     5    27.8 
+ 9 2020-07-21 CC          12      7     5    41.7 
+10 2020-07-21 MI          15      7     8    53.3 </code></pre>
+</div>
+</div>
+<p>Technical reps per date (targets included)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>detection_date <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,target) <span class="sc">%&gt;%</span> <span class="co">#summarize at county level for both targets</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n_reps =</span> <span class="fu">n</span>(), <span class="co">#count number of technical reps</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)), <span class="co">#count number of non detects</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n_reps<span class="sc">-</span>n_miss, <span class="co">#count number of detects</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n_reps)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="co">#calculate detection frequency</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from=</span><span class="fu">c</span>(n_reps, pos_rate, n_miss, n_pos)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#put N1 and N2 in separate columns</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_reps=</span>n_reps_N1<span class="sc">+</span>n_reps_N2, <span class="co">#add reps from both targets</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_miss=</span>n_miss_N1<span class="sc">+</span>n_miss_N2, <span class="co">#add nondetects from both targets</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_pos=</span>n_reps<span class="sc">-</span>n_miss, <span class="co">#add detects from both targets</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">avg_pos_rate =</span> (n_pos<span class="sc">/</span>n_reps)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="co">#average detection freq across targets</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(n_pos,n_miss,n_pos_N1,n_miss_N1,n_pos_N2,n_miss_N2)) <span class="co">#dump these</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'date'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_date,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 7
+   date       n_reps_N1 n_reps_N2 pos_rate_N1 pos_rate_N2 n_reps avg_pos_rate
+   &lt;date&gt;         &lt;int&gt;     &lt;int&gt;       &lt;dbl&gt;       &lt;dbl&gt;  &lt;int&gt;        &lt;dbl&gt;
+ 1 2020-06-30        33        33       24.2        21.2      66        22.7 
+ 2 2020-07-07        21        21        9.52       19.0      42        14.3 
+ 3 2020-07-14        12        15        8.33       40        27        25.9 
+ 4 2020-07-21        21        18       28.6        55.6      39        41.0 
+ 5 2020-07-28        18        18       22.2        38.9      36        30.6 
+ 6 2020-08-04        18        18        0           5.56     36         2.78
+ 7 2020-08-11        18        18       11.1         5.56     36         8.33
+ 8 2020-08-18        18        18       27.8        55.6      36        41.7 
+ 9 2020-08-25        18        18       27.8        16.7      36        22.2 
+10 2020-09-01        18        18       38.9        50        36        44.4 </code></pre>
+</div>
+</div>
+</section>
+<section id="smoosh-wbe-data-set-with-pos-data" class="level3">
+<h3 class="anchored" data-anchor-id="smoosh-wbe-data-set-with-pos-data">6. Smoosh wbe data set with %pos data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>wbe_daily <span class="ot">&lt;-</span> <span class="fu">left_join</span>(wbe_vl_final,detection_date, <span class="at">by=</span><span class="st">"date"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">yearweek</span>(date))</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_daily,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 12
+   date       collecti…¹   n1_vl   n2_vl  avg_vl n_rep…² n_rep…³ pos_r…⁴ pos_r…⁵
+   &lt;date&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 2020-06-30          7 5.02e12 1.52e12 3.27e12      33      33   24.2    21.2 
+ 2 2020-07-07          8 4.39e12 1.42e12 2.91e12      21      21    9.52   19.0 
+ 3 2020-07-14          9 2.99e12 1.55e12 2.27e12      12      15    8.33   40   
+ 4 2020-07-21         10 6.50e12 2.61e12 4.56e12      21      18   28.6    55.6 
+ 5 2020-07-28         11 5.57e12 1.86e12 3.71e12      18      18   22.2    38.9 
+ 6 2020-08-04         12 4.20e12 1.35e12 2.78e12      18      18    0       5.56
+ 7 2020-08-11         13 4.08e12 1.24e12 2.66e12      18      18   11.1     5.56
+ 8 2020-08-18         14 5.18e12 1.65e12 3.41e12      18      18   27.8    55.6 
+ 9 2020-08-25         15 5.68e12 1.58e12 3.63e12      18      18   27.8    16.7 
+10 2020-09-01         16 8.63e12 2.94e12 5.78e12      18      18   38.9    50   
+# … with 3 more variables: n_reps &lt;int&gt;, avg_pos_rate &lt;dbl&gt;, week &lt;week&gt;, and
+#   abbreviated variable names ¹​collection_num, ²​n_reps_N1, ³​n_reps_N2,
+#   ⁴​pos_rate_N1, ⁵​pos_rate_N2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(wbe_daily,<span class="fu">here</span>(<span class="st">"data/processed_data/wbe_county_avg.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculate-wbe-7-dma" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-wbe-7-dma">7. Calculate WBE 7-DMA</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>wbe_7dma <span class="ot">&lt;-</span> wbe_daily <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(avg_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_n1_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(n1_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_n2_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(n2_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(avg_pos_rate,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_n1_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pos_rate_N1,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_n2_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pos_rate_N2,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>))</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_7dma, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 18
+   date       collecti…¹   n1_vl   n2_vl  avg_vl n_rep…² n_rep…³ pos_r…⁴ pos_r…⁵
+   &lt;date&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 2020-06-30          7 5.02e12 1.52e12 3.27e12      33      33   24.2    21.2 
+ 2 2020-07-07          8 4.39e12 1.42e12 2.91e12      21      21    9.52   19.0 
+ 3 2020-07-14          9 2.99e12 1.55e12 2.27e12      12      15    8.33   40   
+ 4 2020-07-21         10 6.50e12 2.61e12 4.56e12      21      18   28.6    55.6 
+ 5 2020-07-28         11 5.57e12 1.86e12 3.71e12      18      18   22.2    38.9 
+ 6 2020-08-04         12 4.20e12 1.35e12 2.78e12      18      18    0       5.56
+ 7 2020-08-11         13 4.08e12 1.24e12 2.66e12      18      18   11.1     5.56
+ 8 2020-08-18         14 5.18e12 1.65e12 3.41e12      18      18   27.8    55.6 
+ 9 2020-08-25         15 5.68e12 1.58e12 3.63e12      18      18   27.8    16.7 
+10 2020-09-01         16 8.63e12 2.94e12 5.78e12      18      18   38.9    50   
+# … with 9 more variables: n_reps &lt;int&gt;, avg_pos_rate &lt;dbl&gt;, week &lt;week&gt;,
+#   vl_7dma &lt;dbl&gt;, vl_n1_7dma &lt;dbl&gt;, vl_n2_7dma &lt;dbl&gt;, pr_7dma &lt;dbl&gt;,
+#   pr_n1_7dma &lt;dbl&gt;, pr_n2_7dma &lt;dbl&gt;, and abbreviated variable names
+#   ¹​collection_num, ²​n_reps_N1, ³​n_reps_N2, ⁴​pos_rate_N1, ⁵​pos_rate_N2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(wbe_7dma,<span class="fu">here</span>(<span class="st">"data/processed_data/wbe_7dma.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="b-covid-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="b-covid-wrangling">B) COVID Wrangling</h2>
+<section id="subset-covid-dates" class="level3">
+<h3 class="anchored" data-anchor-id="subset-covid-dates">1. Subset COVID dates</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>covid_daily <span class="ot">&lt;-</span> covid <span class="sc">%&gt;%</span> </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2020-06-30"</span>), <span class="fu">as.Date</span>(<span class="st">"2023-01-04"</span>))) <span class="sc">%&gt;%</span>  <span class="co">#filter for surveillance time series</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as_date</span>(date),</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">week =</span> <span class="fu">yearweek</span>(date))</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_daily,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 9
+   date       cases.s…¹ cases…² pcr_t…³ pcr_pos pcr_p…⁴ pcr_p…⁵ prop_…⁶     week
+   &lt;date&gt;         &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;week&gt;
+ 1 2020-06-30        55      18     551      66    11       9.5  0.120  2020 W27
+ 2 2020-07-01        59      27     614      67    11       9.9  0.109  2020 W27
+ 3 2020-07-02        39      47     559      60    11.2    10.3  0.107  2020 W27
+ 4 2020-07-03        31      39     255      32    11.5    10.6  0.125  2020 W27
+ 5 2020-07-04        20      22      34       7    12      11.4  0.206  2020 W27
+ 6 2020-07-05        18      37     106      10    12      11.5  0.0943 2020 W27
+ 7 2020-07-06        53      17     612      93    13.1    11.8  0.152  2020 W28
+ 8 2020-07-07        67      35     649      82    13.1    12.1  0.126  2020 W28
+ 9 2020-07-08        43      43     661      60    12.9    12    0.0908 2020 W28
+10 2020-07-09        52      35     702      78    12.9    12.1  0.111  2020 W28
+# … with abbreviated variable names ¹​cases.symptom.onset, ²​cases.reported,
+#   ³​pcr_tests, ⁴​pcr_pos_7dma, ⁵​pcr_pos_14dma, ⁶​prop_pos</code></pre>
+</div>
+</div>
+</section>
+<section id="calculate-case-7-dma" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-case-7-dma">2. Calculate Case 7-DMA</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>covid_7dma <span class="ot">&lt;-</span> covid_daily <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a> <span class="at">symptom_onset_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(cases.symptom.onset,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a> <span class="at">case_report_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(cases.reported,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a> <span class="at">case_pcr_pos_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pcr_pos,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">2</span>),</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a> <span class="at">case_prop_pos_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(prop_pos,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>))</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_7dma,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 13
+   date       cases.s…¹ cases…² pcr_t…³ pcr_pos pcr_p…⁴ pcr_p…⁵ prop_…⁶     week
+   &lt;date&gt;         &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;week&gt;
+ 1 2020-06-30        55      18     551      66    11       9.5  0.120  2020 W27
+ 2 2020-07-01        59      27     614      67    11       9.9  0.109  2020 W27
+ 3 2020-07-02        39      47     559      60    11.2    10.3  0.107  2020 W27
+ 4 2020-07-03        31      39     255      32    11.5    10.6  0.125  2020 W27
+ 5 2020-07-04        20      22      34       7    12      11.4  0.206  2020 W27
+ 6 2020-07-05        18      37     106      10    12      11.5  0.0943 2020 W27
+ 7 2020-07-06        53      17     612      93    13.1    11.8  0.152  2020 W28
+ 8 2020-07-07        67      35     649      82    13.1    12.1  0.126  2020 W28
+ 9 2020-07-08        43      43     661      60    12.9    12    0.0908 2020 W28
+10 2020-07-09        52      35     702      78    12.9    12.1  0.111  2020 W28
+# … with 4 more variables: symptom_onset_7dma &lt;dbl&gt;, case_report_7dma &lt;dbl&gt;,
+#   case_pcr_pos_7dma &lt;dbl&gt;, case_prop_pos_7dma &lt;dbl&gt;, and abbreviated variable
+#   names ¹​cases.symptom.onset, ²​cases.reported, ³​pcr_tests, ⁴​pcr_pos_7dma,
+#   ⁵​pcr_pos_14dma, ⁶​prop_pos</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_7dma,<span class="fu">here</span>(<span class="st">"data/processed_data/covid_7dma.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="c-combine-wbe-covid" class="level2">
+<h2 class="anchored" data-anchor-id="c-combine-wbe-covid">C) Combine WBE &amp; COVID</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>covid_wbe_7dma <span class="ot">&lt;-</span> <span class="fu">left_join</span>(wbe_7dma, covid_7dma, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"week"</span>,<span class="st">"date"</span>))</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>covid_wbe_7dma_weekly <span class="ot">&lt;-</span> covid_wbe_7dma <span class="sc">%&gt;%</span> </span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(<span class="fu">c</span>(date,week,n1_vl,n2_vl,avg_vl,vl_n1_7dma,vl_n2_7dma,vl_7dma,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>          n_reps_N1,n_reps_N2,n_reps,pos_rate_N1,pos_rate_N2,avg_pos_rate,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>          pr_n1_7dma,pr_n2_7dma,pr_7dma,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>          cases.symptom.onset,symptom_onset_7dma,cases.reported,case_report_7dma,</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>          pcr_tests,pcr_pos,pcr_pos_7dma,case_pcr_pos_7dma,pcr_pos_14dma,</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>          prop_pos, case_prop_pos_7dma)) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_if</span>(is.numeric, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tsibble</span>(<span class="at">index =</span> <span class="st">"week"</span>)</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_wbe_7dma_weekly,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 10 x 27 [1W]
+       week   n1_vl   n2_vl  avg_vl vl_n1_7dma vl_n2_7dma   vl_7dma n_reps_N1
+     &lt;week&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+ 1 2020 W27 5.02e12 1.52e12 3.27e12  NaN        NaN       NaN              33
+ 2 2020 W28 4.39e12 1.42e12 2.91e12  NaN        NaN       NaN              21
+ 3 2020 W29 2.99e12 1.55e12 2.27e12  NaN        NaN       NaN              12
+ 4 2020 W30 6.50e12 2.61e12 4.56e12  NaN        NaN       NaN              21
+ 5 2020 W31 5.57e12 1.86e12 3.71e12  NaN        NaN       NaN              18
+ 6 2020 W32 4.20e12 1.35e12 2.78e12  NaN        NaN       NaN              18
+ 7 2020 W33 4.08e12 1.24e12 2.66e12    4.68e12    1.65e12   3.16e12        18
+ 8 2020 W34 5.18e12 1.65e12 3.41e12    4.70e12    1.67e12   3.18e12        18
+ 9 2020 W35 5.68e12 1.58e12 3.63e12    4.89e12    1.69e12   3.29e12        18
+10 2020 W36 8.63e12 2.94e12 5.78e12    5.69e12    1.89e12   3.79e12        18
+# … with 19 more variables: n_reps_N2 &lt;dbl&gt;, n_reps &lt;dbl&gt;, pos_rate_N1 &lt;dbl&gt;,
+#   pos_rate_N2 &lt;dbl&gt;, avg_pos_rate &lt;dbl&gt;, pr_n1_7dma &lt;dbl&gt;, pr_n2_7dma &lt;dbl&gt;,
+#   pr_7dma &lt;dbl&gt;, cases.symptom.onset &lt;dbl&gt;, symptom_onset_7dma &lt;dbl&gt;,
+#   cases.reported &lt;dbl&gt;, case_report_7dma &lt;dbl&gt;, pcr_tests &lt;dbl&gt;,
+#   pcr_pos &lt;dbl&gt;, pcr_pos_7dma &lt;dbl&gt;, case_pcr_pos_7dma &lt;dbl&gt;,
+#   pcr_pos_14dma &lt;dbl&gt;, prop_pos &lt;dbl&gt;, case_prop_pos_7dma &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_wbe_7dma_weekly,<span class="fu">here</span>(<span class="st">"data/processed_data/covid_wbe_7dma_weekly.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

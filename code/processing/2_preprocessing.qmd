@@ -1,0 +1,253 @@
+---
+title: "Pre-processing"
+author: "Leah Lariscy"
+date: "2023-09-15"
+format: html
+editor: visual
+toc: true
+toc-depth: 4
+---
+
+## Info
+
+This pre-processing script does the following:
+
+-   WBE technical replicates are averaged
+
+-   Viral load is summed across WWTPs per date per target
+
+-   Viral load is averaged across targets (N1 and N2) per date
+
+-   WW qPCR assay detection frequency is calculated
+
+-   7 day moving average is calculated for all variables of interest
+
+-    WBE and COVID data are combined and weekly averages are calculated
+
+-   Hospitalization data will also be added in the future
+
+## Load packages
+
+```{r,message=FALSE}
+library(tidyverse)
+library(here)
+library(fpp3)
+library(skimr)
+library(ggpubr)
+```
+
+## Load data
+
+```{r}
+#WBE file from processing script
+wbe <- read_rds(here("data/processed_data/qpcr_plant_all.rds"))
+
+#COVID file from processing script
+covid <- read_rds(here("data/processed_data/all_covid_combined.rds"))
+
+#Hospitalization data from processing script
+hospital <- read_rds(here("data/processed_data/athens_hospitalizations.rds"))
+
+#Load qPCR file with ct NAs from processing script
+qpcr_na <- read_rds(here("data/processed_data/qpcr_na.rds"))
+```
+
+## A) WBE Wrangling
+
+### 1. More cleaning
+
+```{r}
+#Remove observations when Cts = NA, this means that collection is missing or not part of the surveillance study
+wbe <- wbe %>% na.omit(ct)
+
+#Check for NAs in the rest of the data
+skim(wbe) #yay nothing is missing
+
+#Count observations for each date/facility/target/collection
+wbe_count <- wbe %>% count(date,facility,target,collection_num) #max is either 9 or 18
+head(wbe_count, n = 10)
+```
+
+### 2. Average qPCR replicates
+
+```{r}
+#group, then take the average copies per liter and standard deviation
+wbe_avg <- wbe %>% 
+  group_by(date,facility,target,collection_num) %>% 
+  summarize(avg_copy_L = mean(copy_num_L),
+            sd_copy_L = sd(copy_num_L), 
+            influent_flow_L = mean(influent_flow_L),
+            avg_viral_load = mean(viral_load),
+            sd_viral_load = sd(viral_load),
+            avg_ct = mean(ct),
+            sd_ct = sd(ct))%>% 
+  ungroup()
+head(wbe_avg, n=10)
+```
+
+### 3. Sum Viral Load across WWTPs
+
+```{r}
+wbe_county_avg <- wbe_avg %>% 
+  group_by(date, collection_num, target) %>% 
+  summarize(viral_load = sum(avg_viral_load)) %>% #sum across WWTPs for each target
+  ungroup()
+
+head(wbe_county_avg, n=10)
+```
+
+### 4. Move N1 and N2 to distinct columns, then calculate average
+
+```{r}
+avg_viral_load <- wbe_county_avg %>% 
+  group_by(date) %>% 
+  summarize(avg_vl = mean(viral_load))
+
+wbe_vl_final <- wbe_county_avg %>% 
+  pivot_wider(names_from = target, values_from = viral_load) %>% 
+  rename(n1_vl = N1, n2_vl = N2)
+
+wbe_vl_final <- wbe_vl_final %>% full_join(avg_viral_load, wbe_final, by = "date")
+head(wbe_vl_final, n=10)
+```
+
+### 5. Calculate qPCR % Pos
+
+Technical replicates per bio rep/target/facility/date
+
+```{r}
+detection_tr <- qpcr_na %>% 
+  select(c(date,facility,target,biological_replicate,ct)) %>% 
+        group_by(date,facility,target,biological_replicate) %>% 
+        summarize(n = n(), 
+                  n_miss = sum(is.na(ct)),
+                  n_pos = n-n_miss)
+head(detection_tr,n=10)
+```
+
+Technical reps per target/facility/date
+
+```{r}
+detection_target <- qpcr_na %>% 
+  select(c(date,facility,target,biological_replicate,ct)) %>% 
+        group_by(date,facility,target) %>% 
+        summarize(n = n(), 
+                  n_miss = sum(is.na(ct)),
+                  n_pos = n-n_miss,
+                  pos_rate = (n_pos/n)*100) %>% 
+  ungroup()
+
+detection_target_wide <- detection_target %>% pivot_wider(names_from = target, values_from = c(n, n_miss, n_pos, pos_rate))
+
+head(detection_target_wide, n=10)
+```
+
+Technical reps per facility/date
+
+```{r}
+detection_facility <- qpcr_na %>% 
+  select(c(date,facility,target,biological_replicate,ct)) %>% 
+        group_by(date,facility) %>% 
+        summarize(n = n(), 
+                  n_miss = sum(is.na(ct)),
+                  n_pos = n-n_miss,
+                  pos_rate = (n_pos/n)*100)
+
+head(detection_facility, n=10)
+```
+
+Technical reps per date (targets included)
+
+```{r}
+detection_date <- qpcr_na %>% 
+  select(c(date,facility,target,biological_replicate,ct)) %>% 
+        group_by(date,target) %>% #summarize at county level for both targets
+        summarize(n_reps = n(), #count number of technical reps
+                  n_miss = sum(is.na(ct)), #count number of non detects
+                  n_pos = n_reps-n_miss, #count number of detects
+                  pos_rate = (n_pos/n_reps)*100) %>% #calculate detection frequency
+  ungroup() %>% 
+  pivot_wider(names_from = target, values_from=c(n_reps, pos_rate, n_miss, n_pos)) %>%
+  #put N1 and N2 in separate columns
+  mutate(n_reps=n_reps_N1+n_reps_N2, #add reps from both targets
+         n_miss=n_miss_N1+n_miss_N2, #add nondetects from both targets
+         n_pos=n_reps-n_miss, #add detects from both targets
+         avg_pos_rate = (n_pos/n_reps)*100) %>% #average detection freq across targets
+  select(!c(n_pos,n_miss,n_pos_N1,n_miss_N1,n_pos_N2,n_miss_N2)) #dump these
+
+head(detection_date,n=10)
+```
+
+### 6. Smoosh wbe data set with %pos data
+
+```{r}
+wbe_daily <- left_join(wbe_vl_final,detection_date, by="date") %>% 
+  mutate(week = yearweek(date))
+
+head(wbe_daily,n=10)
+
+saveRDS(wbe_daily,here("data/processed_data/wbe_county_avg.rds"))
+```
+
+### 7. Calculate WBE 7-DMA
+
+```{r}
+wbe_7dma <- wbe_daily %>% mutate(
+  vl_7dma=stats::filter(avg_vl,filter=rep(1/7,7),method= 'convolution',sides=1),
+  vl_n1_7dma=stats::filter(n1_vl,filter=rep(1/7,7),method= 'convolution',sides=1),
+  vl_n2_7dma=stats::filter(n2_vl,filter=rep(1/7,7),method= 'convolution',sides=1),
+  pr_7dma=stats::filter(avg_pos_rate,filter=rep(1/7,7),method= 'convolution',sides=1),
+  pr_n1_7dma=stats::filter(pos_rate_N1,filter=rep(1/7,7),method= 'convolution',sides=1),
+  pr_n2_7dma=stats::filter(pos_rate_N2,filter=rep(1/7,7),method= 'convolution',sides=1))
+head(wbe_7dma, n=10)
+
+saveRDS(wbe_7dma,here("data/processed_data/wbe_7dma.rds"))
+```
+
+## B) COVID Wrangling
+
+### 1. Subset COVID dates
+
+```{r}
+covid_daily <- covid %>% 
+  filter(between(date, as.Date("2020-06-30"), as.Date("2023-01-04"))) %>%  #filter for surveillance time series
+  mutate(date = as_date(date),
+         week = yearweek(date))
+
+head(covid_daily,n=10)
+```
+
+### 2. Calculate Case 7-DMA
+
+```{r}
+covid_7dma <- covid_daily %>% mutate(
+ symptom_onset_7dma=stats::filter(cases.symptom.onset,filter=rep(1/7,7),method= 'convolution',sides=1),
+ case_report_7dma=stats::filter(cases.reported,filter=rep(1/7,7),method= 'convolution',sides=1),
+ case_pcr_pos_7dma=stats::filter(pcr_pos,filter=rep(1/7,7),method= 'convolution',sides=2),
+ case_prop_pos_7dma=stats::filter(prop_pos,filter=rep(1/7,7),method= 'convolution',sides=1))
+
+head(covid_7dma,n=10)
+
+saveRDS(covid_7dma,here("data/processed_data/covid_7dma.rds"))
+```
+
+## C) Combine WBE & COVID
+
+```{r}
+covid_wbe_7dma <- left_join(wbe_7dma, covid_7dma, by = c("week","date"))
+covid_wbe_7dma_weekly <- covid_wbe_7dma %>% 
+select(c(date,week,n1_vl,n2_vl,avg_vl,vl_n1_7dma,vl_n2_7dma,vl_7dma,
+          n_reps_N1,n_reps_N2,n_reps,pos_rate_N1,pos_rate_N2,avg_pos_rate,
+          pr_n1_7dma,pr_n2_7dma,pr_7dma,
+          cases.symptom.onset,symptom_onset_7dma,cases.reported,case_report_7dma,
+          pcr_tests,pcr_pos,pcr_pos_7dma,case_pcr_pos_7dma,pcr_pos_14dma,
+          prop_pos, case_prop_pos_7dma)) %>% 
+  group_by(week) %>% 
+  summarize_if(is.numeric, mean, na.rm = TRUE) %>% 
+  ungroup() %>% 
+  as_tsibble(index = "week")
+
+head(covid_wbe_7dma_weekly,n=10)
+
+saveRDS(covid_wbe_7dma_weekly,here("data/processed_data/covid_wbe_7dma_weekly.rds"))
+```

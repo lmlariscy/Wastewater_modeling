@@ -1,0 +1,533 @@
+---
+title: "Raw data processing"
+author: "Leah Lariscy"
+date: "2023-09-01"
+format: html
+editor: visual
+toc: true
+---
+
+
+# Processing
+
+## Load packages
+
+
+```{r, message=FALSE}
+library(tidyverse)
+library(skimr)
+library(here)
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(stats)
+```
+
+
+## Load raw data
+
+
+```{r,message=FALSE}
+# Load N1 data
+n1_stepone_v2 <- read_csv(here("data/raw_data/updated_data/stepone_n1_FINAL_UPDATE.csv")) #year 1 data
+n1_cfx_v2 <- read_csv(here("data/raw_data/updated_data/cfx_n1_FINAL_UPDATE.csv")) #year 2 data
+
+# Load N2 data
+n2_stepone_v2 <- read_csv(here("data/raw_data/updated_data/stepone_n2_FINAL_UPDATE.csv")) #year 1 data
+n2_cfx_v2 <- read_csv(here("data/raw_data/updated_data/cfx_n2_FINAL_UPDATE.csv")) #year 2 data
+
+# Load Plant data
+plant_v2 <- read_csv(here("data/raw_data/updated_data/plant_data_UPDATED.csv"))
+
+# Load COVID-19 Symptom data
+covid_symptom <- read_csv(here("data/raw_data/ga_covid_data/epicurve_symptom_date.csv")) %>% 
+  filter(county=="Clarke") %>% 
+  select(symptom.date=`symptom date`, 
+         cases, moving_avg_cases)
+
+#Load COVID-19 Confirmed Case Data
+covid_case <- read_csv(here("data/raw_data/ga_covid_data/epicurve_rpt_date.csv")) %>% 
+  filter(county=="Clarke") %>% 
+  select(report_date, 
+         cases, 
+         moving_avg_cases)
+
+#Load COVID-19 Testing Data
+covid_testing <- read_csv(here("data/raw_data/ga_covid_data/pcr_antigen_col.csv")) %>% 
+  filter(county=="Clarke") %>% 
+  select(collection_date = collection_dt, 
+         pcr_tests = `ALL PCR tests performed`, 
+         pcr_pos = `All PCR positive tests`, 
+         pcr_pos_7dma = `7 day percent positive`,
+         pcr_pos_14dma = `14 day percent positive`)
+
+#Load CFX recovery data
+recovery_output <- read_csv(here("data/raw_data/recovery_data.csv"))
+recovery_input <- read_csv(here("data/raw_data/calfguard.csv"))
+```
+
+
+## Create df to check for missing collections
+
+
+```{r}
+#Year 1
+numbers <- 7:92
+numbers_tbl <- tibble("collection_num"=numbers)
+
+#Year 2
+numbers2 <- 93:243
+numbers2_tbl <- tibble("collection_num" =numbers2)
+
+#full time series (for plant data)
+numbers3 <- 7:243
+numbers3_tbl <- tibble("Collection" =numbers3)
+```
+
+
+## Glance at data
+
+### StepOne N1
+
+#### Count observations for each collection number
+
+
+```{r}
+#count observations for each collection date, then visualize
+n1_stepone_v2 %>% count(collection_num) %>% ggplot(aes(n)) +
+  geom_histogram()
+n1_stepone_v2 %>% ggplot(aes(collection_num)) + 
+  geom_histogram(binwidth = 1) #max should be either 27 or 54
+```
+
+
+#### Count observations for each biological replicate
+
+
+```{r}
+#count observations for each sample id/biological rep, then visualize
+n1_stepone_v2 %>% count(sample_id) %>% ggplot(aes(n)) + 
+  geom_histogram() #there should be 3 technical reps
+
+#check which collections have more than 3 technical reps
+n1_stepone_v2 %>% count(sample_id) %>% filter(n>3)
+```
+
+
+#### Merge data with number tibble to check missing collections
+
+
+```{r}
+#count observations for each collection number
+#merge with numbers tibble to check for missing collections
+count_n1_stepone <- n1_stepone_v2 %>% count(collection_num) 
+count_n1_stepone <- merge(count_n1_stepone, numbers_tbl, by="collection_num", all.y=T)
+
+count_n1_stepone
+#collection 40 is missing, but this is expected
+```
+
+
+### StepOne N2
+
+#### Merge data with number tibble to check missing collections
+
+
+```{r}
+#count observations for each collection number
+#merge with numbers tibble to check for missing collections
+count_n2_stepone <- n2_stepone_v2 %>% count(collection_num) 
+count_n2_stepone <- merge(count_n2_stepone, numbers_tbl, by="collection_num", all.y=T)
+
+count_n2_stepone
+#collection 40 is missing, but this is expected
+```
+
+
+#### Count observations for each collection number
+
+
+```{r}
+#count observations for each collection date, then visualize
+n2_stepone_v2 %>% count(collection_num) %>% ggplot(aes(n)) +
+  geom_histogram()
+n2_stepone_v2 %>% ggplot(aes(collection_num)) + 
+  geom_histogram(binwidth = 1) #max should be either 27 or 54
+```
+
+
+#### Count observations for each biological replicate
+
+
+```{r}
+#count observations for each sample id/biological rep, then visualize
+n2_stepone_v2 %>% count(sample_id) %>% ggplot(aes(n)) + 
+  geom_histogram() #there should be 3 technical reps
+
+#check which collections have more than 3 technical reps
+n2_stepone_v2 %>% count(sample_id) %>% filter(n>3)
+```
+
+
+### CFX N1
+
+#### Merge data with number tibble to check missing collections
+
+
+```{r}
+#count observations for each collection number
+#merge with numbers tibble to check for missing collections
+count_n1_cfx <- n1_cfx_v2 %>% count(collection_num) 
+count_n1_cfx <- merge(count_n1_cfx, numbers2_tbl, by="collection_num", all.y=T)
+count_n1_cfx
+```
+
+
+#### Count observations for each collection number
+
+
+```{r}
+#count observations for each collection date, then visualize
+n1_cfx_v2 %>% count(collection_num) %>% ggplot(aes(n)) +
+  geom_histogram()
+n1_cfx_v2 %>% ggplot(aes(collection_num)) + 
+  geom_histogram(binwidth = 1) #max should be 54
+
+```
+
+
+#### Check which collections are doubled
+
+
+```{r}
+#check which collections are doubled
+count_n1_cfx %>% filter(n==108)
+```
+
+
+#### Count observations for each biological replicate
+
+
+```{r}
+#count observations for each sample id/biological rep, then visualize
+n1_cfx_v2 %>% count(sample_id) %>% ggplot(aes(n)) + 
+  geom_histogram() #there should be 3 technical reps
+
+#almost all have 3 replicates, but there is a small amount with 6
+
+#check which collections have more than 3 technical reps
+n1_cfx_v2 %>% count(sample_id) %>% filter(n>3)
+```
+
+
+### CFX N2
+
+#### Merge data with number tibble to check missing collections
+
+
+```{r}
+#count observations for each collection number
+#merge with numbers tibble to check for missing collections
+count_n2_cfx <- n2_cfx_v2 %>% count(collection_num) 
+count_n2_cfx <- merge(count_n2_cfx, numbers2_tbl, by="collection_num", all.y=T)
+count_n2_cfx
+```
+
+
+#### Check which collections are doubled
+
+
+```{r}
+#check which collections are doubled
+count_n2_cfx %>% filter(n==108)
+
+```
+
+
+#### Count observations for each biological replicate
+
+
+```{r}
+#count observations for each sample id/biological rep, then visualize
+n2_cfx_v2 %>% count(sample_id) %>% ggplot(aes(n)) + 
+  geom_histogram() #there should be 3 technical reps
+
+#almost all have 3 replicates, but there is a small amount with 6 and some with 2
+
+#check which collections have more than 3 technical reps
+n2_cfx_v2 %>% count(sample_id) %>% filter(n>3)
+```
+
+
+#### Count observations for each collection number
+
+
+```{r}
+#count observations for each collection date, then visualize
+n2_cfx_v2 %>% count(collection_num) %>% ggplot(aes(n)) +
+  geom_histogram()
+
+n2_cfx_v2 %>% ggplot(aes(collection_num)) + 
+  geom_histogram(binwidth = 1) #max should be 54
+```
+
+
+### Plant data
+
+#### Merge data with number tibble to check missing collections
+
+
+```{r}
+#count observations for each collection number
+#merge with numbers tibble to check for missing collections
+count_plant <- plant_v2 %>% count(Collection, date) 
+count_plant <- merge(count_plant, numbers3_tbl, by="Collection", all.y=T)
+count_plant
+```
+
+
+#### Count observations for each collection date
+
+
+```{r}
+plant_v2 %>% ggplot(aes(Collection)) + 
+  geom_histogram(binwidth = 1) #max should be 3
+```
+
+
+## Cleaning and merging
+
+### qPCR data
+
+#### Select for important variables, convert non-detects to NAs
+
+
+```{r}
+#Select date, collection number, sample id/bio rep, target, and ct
+#Convert Undetermined Cts to NAs
+
+#StepOne N1
+n1_stepone_clean <- n1_stepone_v2 %>% select(c(sample_date, collection_num, sample_id, target, ct)) %>% 
+  mutate(ct=as.numeric(ifelse(ct=="Undetermined", NA, ct)))
+
+#StepOne N2
+n2_stepone_clean <- n2_stepone_v2 %>% select(c(sample_date, collection_num, sample_id, target, ct)) %>% 
+  mutate(ct=as.numeric(ifelse(ct=="Undetermined", NA, ct)))
+
+#CFX N1
+n1_cfx_clean <- n1_cfx_v2 %>% select(c(sample_date, collection_num, sample_id, target, ct)) %>% 
+  mutate(ct=as.numeric(ifelse(ct=="Undetermined", NA, ct)))
+
+#CFX N2
+n2_cfx_clean <- n2_cfx_v2 %>% select(c(sample_date, collection_num, sample_id, target, ct)) %>% 
+  mutate(ct=as.numeric(ifelse(ct=="Undetermined", NA, ct)))
+```
+
+
+#### Calculate LOD and LOQ for qPCR data
+
+
+```{r}
+#Determine the LOD and LOQ by plotting the Normal QQ-Plot
+qqnorm.ct.n1.stepone <- qqnorm(n1_stepone_clean$ct, plot.it = T) %>% as.data.frame()
+qqnorm.ct.n2.stepone <- qqnorm(n2_stepone_clean$ct, plot.it = T) %>% as.data.frame()
+qqnorm.ct.n1.cfx <- qqnorm(n1_cfx_clean$ct, plot.it = T) %>% as.data.frame()
+qqnorm.ct.n2.cfx <- qqnorm(n2_cfx_clean$ct, plot.it = T) %>% as.data.frame()
+
+tiff(filename = "figures/detection_lims.tiff", height = 9, width = 8, units = "in", res = 600)
+
+#Create function to compute LOD and lOQ
+qqnorm.Explorer.ct <- function(qqnorm.ct){
+  qqnorm.ct <- qqnorm.ct[which(complete.cases(qqnorm.ct)),]
+  qqnorm.ct <- qqnorm.ct[order(qqnorm.ct$x),]
+  qqnorm.ct <- cbind(qqnorm.ct, rbind(NA, qqnorm.ct[-nrow(qqnorm.ct),])) %>% setNames(., nm = c("x", "y", "x-1", "y-1"))
+  qqnorm.ct %<>% mutate(rise = y-`y-1`, run = x-`x-1`) %>% mutate(slope = rise / run)
+  qqnorm.ct$lod <- NA
+  qqnorm.ct$loq <- NA
+  prev.slope <- 1
+  lod.found <- 0
+  for(i in nrow(qqnorm.ct):2){
+    if(lod.found==0){
+      if(qqnorm.ct$slope[i]<1 & prev.slope <1){
+        qqnorm.ct$lod[i] <- 1
+        lod.found <- 1
+      }else{
+        prev.slope <- qqnorm.ct$slope[i]
+      }
+    }
+    if(lod.found==1){
+      if(qqnorm.ct$slope[i]>1){
+        qqnorm.ct$loq[i] <- 1
+        break
+      }else{
+        prev.slope <- qqnorm.ct$slope[i]
+      }
+    }
+  }
+  lod.ct <- qqnorm.ct$y[which(qqnorm.ct$lod==1)]
+  loq.ct <- qqnorm.ct$y[which(qqnorm.ct$loq==1)]
+  return(list(qqnorm.dataset = qqnorm.ct, lod = lod.ct, loq = loq.ct))
+}
+
+#Run function on each data set
+qqnorm.ct.n1.stepone <- qqnorm.Explorer.ct(qqnorm.ct.n1.stepone)
+qqnorm.ct.n2.stepone <- qqnorm.Explorer.ct(qqnorm.ct.n2.stepone)
+qqnorm.ct.n1.cfx <- qqnorm.Explorer.ct(qqnorm.ct.n1.cfx)
+qqnorm.ct.n2.cfx <- qqnorm.Explorer.ct(qqnorm.ct.n2.cfx)
+
+#Save LOD and LOQ for each data set
+n1_stepone_lod <- qqnorm.ct.n1.stepone$lod
+n1_stepone_loq <- qqnorm.ct.n1.stepone$loq
+n2_stepone_lod <- qqnorm.ct.n2.stepone$lod
+n2_stepone_loq <- qqnorm.ct.n2.stepone$loq
+
+n1_cfx_lod <- qqnorm.ct.n1.cfx$lod
+n1_cfx_loq <- qqnorm.ct.n1.cfx$loq
+n2_cfx_lod <- qqnorm.ct.n2.cfx$lod
+n2_cfx_loq <- qqnorm.ct.n2.cfx$loq
+```
+
+
+#### Transform Ct to calculate SARS-CoV-2 copies
+
+
+```{r}
+#Replace NAs with limit of detection
+#Use standard curve slope for each target
+
+#StepOne N1
+n1_stepone_clean <- n1_stepone_clean %>% 
+  mutate(ct = replace_na(ct, n1_stepone_lod),
+         copy_num_uL_rxn = as.numeric(10^((ct-34.008)/-3.389)))
+
+#StepOne N2
+n2_stepone_clean <- n2_stepone_clean %>% 
+  mutate(ct = replace_na(ct, n2_stepone_lod),
+         copy_num_uL_rxn = as.numeric(10^((ct-32.416)/-3.3084)))
+
+#CFX N1
+n1_cfx_clean <- n1_cfx_clean %>% 
+  mutate(ct = replace_na(ct, n1_cfx_lod), 
+         copy_num_uL_rxn = as.numeric(10^((ct-36.046)/-3.5293)))
+
+#CFX N2
+n2_cfx_clean <- n2_cfx_clean %>% 
+  mutate(ct = replace_na(ct, n2_cfx_lod),
+         copy_num_uL_rxn = as.numeric(10^((ct-37.731)/-3.2505)))
+```
+
+
+#### Quick look at Ct distribution
+
+
+```{r}
+#N1 StepOne
+n1_stepone_clean %>% ggplot(aes(ct)) + geom_histogram()
+
+#N2 StepOne
+n2_stepone_clean %>% ggplot(aes(ct)) + geom_histogram()
+
+#N1 CFX
+n1_cfx_clean %>% ggplot(aes(ct)) + geom_histogram()
+
+#N2 CFX
+n2_cfx_clean %>% ggplot(aes(ct)) + geom_histogram()
+
+#loooooots of non-detects
+```
+
+
+#### Bind all qPCR data sets
+
+
+```{r}
+#Bind qpcr data
+qpcr_all <- bind_rows(n1_stepone_clean, n2_stepone_clean, n1_cfx_clean, n2_cfx_clean) %>% 
+  mutate(
+    date = sample_date,
+    facility=substr(sample_id, 1,2), #first two letters in sample_id is treatment facility ID
+    biological_replicate=substr(sample_id, nchar(sample_id), nchar(sample_id))) %>% #last number in sample_id is the biological rep
+ arrange(date, facility, target, biological_replicate) %>% 
+  select(date, facility, target, biological_replicate, collection_num, ct, copy_num_uL_rxn)#select necessary variables
+  
+#Save to processed data folder
+saveRDS(qpcr_all, here("data/processed_data/qpcr_all.rds"))
+```
+
+
+### Combine plant and qPCR data sets
+
+
+```{r}
+#Change plant variable names to match qPCR names, remove notes variable, convert millions of gallons to liters
+plant_v2<- plant_v2 %>% rename(collection_num = Collection, facility = wrf) %>% 
+  select(!notes) %>% 
+  mutate(influent_flow_L = influent_flow_mg*1e6*231*(0.0254^3)*1000)
+
+#Select qPCR variables to merge
+qpcr_all <- qpcr_all %>% select(!date)
+
+#Merge and mutate
+qpcr_plant_all <- merge(qpcr_all, plant_v2, by = c("collection_num", "facility"), all = T) %>% 
+  mutate(facility = as.factor(facility), #code each facility as a factor
+         facility = recode(facility, NO = "A", MI = "B", CC = "C"), #de-identify treatment facility
+         facility = ordered(facility, levels = c("A", "B", "C")), #set facility factor levels
+         copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000,
+         viral_load = copy_num_L*influent_flow_L) #transform copies per uL of reaction to copies per liter
+
+#Save to processed data folder
+saveRDS(qpcr_plant_all, here("data/processed_data/qpcr_plant_all.rds"))
+```
+
+
+### Quick look at WBE data
+
+
+```{r}
+#Filter for correct date range, then visualize observations for each collection
+qpcr_plant_all %>% filter(between(collection_num, 7, 243)) %>% 
+  ggplot(aes(collection_num)) +
+  geom_bar()
+```
+
+```{r}
+#which observations are low?
+qpcr_plant_all %>% count(collection_num) %>% 
+  filter(between(collection_num, 7, 243), n < 10)
+```
+
+
+### Combine DPH COVID data sets
+
+
+```{r}
+covid <- full_join(
+  covid_symptom%>%
+    select(cases.symptom.onset=cases, date=symptom.date), 
+  covid_case%>%
+    select(cases.reported=cases, date=report_date), 
+  by = "date"
+) %>% 
+  full_join(
+    covid_testing%>%
+      rename(date=collection_date), 
+    by="date"
+  ) %>%
+  select(date, cases.symptom.onset, cases.reported, pcr_tests, pcr_pos, pcr_pos_7dma, pcr_pos_14dma) %>% 
+
+  mutate(prop_pos = pcr_pos/pcr_tests)
+
+#Save to processed data folder
+saveRDS(covid, here("data/processed_data/all_covid_combined.rds"))
+covid
+```
+
+
+### Combine WBE and COVID data sets
+
+
+```{r}
+wbe_covid <- merge(qpcr_plant_all, covid, by = "date", all = T) %>% 
+  filter(between(date, as.Date("2020-06-30"), as.Date("2023-01-04")))
+```
+

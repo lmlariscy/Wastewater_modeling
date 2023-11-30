@@ -1,0 +1,38 @@
+---
+title: "Processing folder Read Me"
+author: "Leah Lariscy"
+date: "2023-09-14"
+output: html_document
+---
+
+# Data info
+
+Hospitalization data downloaded from [healthdata.gov](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/anag-cw7u) on 10/25/2023
+
+COVID-19 data downloaded from
+
+# Missing Data
+
+## StepOne (Year 1)
+
+Collection 40 (N1 and N2)
+
+## CFX (Year 2)
+
+Collection 94 (N1 and N2)
+
+Collection 135 (N1 and N2)
+
+Collection 157 (N2 only)
+
+Collection 177 (N1 and N2)
+
+Collection 185 (N2 only)
+
+Collection 213 ((N1 and N2)
+
+## Plant Data (full time series)
+
+Collection 177
+
+# Processing script
