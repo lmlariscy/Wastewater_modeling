@@ -1,7 +1,6 @@
 ---
 title: "Univariate Linear Regressions"
 author: "Leah Lariscy"
-date: "2023-09-01"
 format: html
 editor: visual
 toc: true
@@ -9,6 +8,10 @@ toc-depth: 4
 ---
 
 ## Load packages
+
+```{r}
+knitr::opts_chunk$set(message=F)
+```
 
 ```{r,message=FALSE}
 library(tidyverse)

@@ -1,7 +1,6 @@
 ---
 title: "Raw data processing"
 author: "Leah Lariscy"
-date: "2023-09-01"
 format: html
 editor: visual
 toc: true
@@ -27,6 +26,10 @@ This script does the following:
 -   Binds all DPH COVID data
 
 ## Load packages
+
+```{r}
+knitr::opts_chunk$set(message=F)
+```
 
 ```{r, message=FALSE}
 library(tidyverse)

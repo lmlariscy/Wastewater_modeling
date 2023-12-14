@@ -209,9 +209,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#model-6" id="toc-model-6" class="nav-link" data-scroll-target="#model-6">Model</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#log-qpcr-positivity-rate-as-predictor" id="toc-log-qpcr-positivity-rate-as-predictor" class="nav-link" data-scroll-target="#log-qpcr-positivity-rate-as-predictor">4. Log qPCR positivity rate as predictor</a>
+  <li><a href="#c-log-qpcr-positivity-rate-as-predictor" id="toc-c-log-qpcr-positivity-rate-as-predictor" class="nav-link" data-scroll-target="#c-log-qpcr-positivity-rate-as-predictor">C) Log qPCR positivity rate as predictor</a>
   <ul>
-  <li><a href="#test-positivity-rate-7dma-log-ww-pr" id="toc-test-positivity-rate-7dma-log-ww-pr" class="nav-link" data-scroll-target="#test-positivity-rate-7dma-log-ww-pr">Test positivity rate 7DMA ~ Log WW PR</a>
+  <li><a href="#test-positivity-rate-7dma-log-ww-pr" id="toc-test-positivity-rate-7dma-log-ww-pr" class="nav-link" data-scroll-target="#test-positivity-rate-7dma-log-ww-pr">1. Test positivity rate 7DMA ~ Log WW PR</a>
   <ul class="collapse">
   <li><a href="#viz-4" id="toc-viz-4" class="nav-link" data-scroll-target="#viz-4">Viz</a></li>
   <li><a href="#model-7" id="toc-model-7" class="nav-link" data-scroll-target="#model-7">Model</a></li>
@@ -335,28 +335,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit1) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
-  term          estimate std.error statistic     p.value
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
-1 (Intercept)     -802.      150.      -5.34 0.00000125 
-2 log10_vl_7dma     65.7      11.7      5.60 0.000000449</code></pre>
+  term          estimate std.error statistic       p.value
+  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
+1 (Intercept)     -1338.     204.      -6.56 0.0000000104 
+2 log10_vl_7dma     108.      15.9      6.78 0.00000000428</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>aug_train1 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit1, train)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>aug_train1 <span class="sc">%&gt;%</span> <span class="fu">select</span>(case_pcr_pos_7dma, .pred) <span class="co">#make predictions on train data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73 × 2
-   case_pcr_pos_7dma .pred
-               &lt;dbl&gt; &lt;dbl&gt;
- 1            34.3    19.6
- 2            98.6    80.1
- 3            16.2    52.9
- 4            76.6    82.6
- 5             9.36   20.7
- 6             9      43.2
- 7            13      26.9
- 8             0.643  14.4
- 9             2.86   44.6
-10            64.4    30.4
+   case_pcr_pos_7dma  .pred
+               &lt;dbl&gt;  &lt;dbl&gt;
+ 1             11.9   51.7 
+ 2            115.    17.7 
+ 3              8.07   7.70
+ 4             16.5   71.4 
+ 5             54.6  NaN   
+ 6             75.4   50.1 
+ 7             19.9   20.0 
+ 8             48.6  102.  
+ 9             62.6   18.7 
+10             58.1  NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -382,8 +382,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator   mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   33.6      25  1.66   Preprocessor1_Model1
-2 rsq     standard    0.326    25  0.0488 Preprocessor1_Model1</code></pre>
+1 rmse    standard   46.8      25  2.16   Preprocessor1_Model1
+2 rsq     standard    0.425    25  0.0376 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>workflow_null1 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -397,7 +397,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard    37.8    25    2.17 Preprocessor1_Model1
+1 rmse    standard    55.7    25    3.85 Preprocessor1_Model1
 2 rsq     standard   NaN       0   NA    Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -409,18 +409,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard      32.9  
-2 rsq     standard       0.322</code></pre>
+1 rmse    standard      46.0  
+2 rsq     standard       0.414</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>aug_train1 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(case_pcr_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
@@ -463,28 +463,28 @@ The number of observations in each quantile is below the recommended threshold o
 <span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit2) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
-  term          estimate std.error statistic   p.value
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 (Intercept)     -21.1      5.09      -4.14 0.000100 
-2 log10_vl_7dma     1.89     0.397      4.74 0.0000116</code></pre>
+  term          estimate std.error statistic    p.value
+  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 (Intercept)     -23.0      4.84      -4.76 0.0000112 
+2 log10_vl_7dma     2.03     0.377      5.39 0.00000105</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>aug_train2 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit2, train)</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>aug_train2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(log_case_pos_7dma, .pred) <span class="co">#make predictions on train data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73 × 2
-   log_case_pos_7dma .pred
-               &lt;dbl&gt; &lt;dbl&gt;
- 1             3.53   2.49
- 2             4.59   4.23
- 3             2.79   3.45
- 4             4.34   4.30
- 5             2.24   2.52
- 6             2.20   3.17
- 7             2.56   2.70
- 8            -0.442  2.34
- 9             1.05   3.21
-10             4.17   2.80
+   log_case_pos_7dma  .pred
+               &lt;dbl&gt;  &lt;dbl&gt;
+ 1              2.47   3.17
+ 2              4.74   2.53
+ 3              2.09   2.34
+ 4              2.80   3.54
+ 5              4.00 NaN   
+ 6              4.32   3.14
+ 7              2.99   2.57
+ 8              3.88   4.12
+ 9              4.14   2.55
+10              4.06 NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -510,8 +510,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   1.12     25  0.0411 Preprocessor1_Model1
-2 rsq     standard   0.273    25  0.0305 Preprocessor1_Model1</code></pre>
+1 rmse    standard   1.10     25  0.0298 Preprocessor1_Model1
+2 rsq     standard   0.312    25  0.0293 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>workflow_null2 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -525,7 +525,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator   mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     1.25    25  0.0445 Preprocessor1_Model1
+1 rmse    standard     1.27    25  0.0487 Preprocessor1_Model1
 2 rsq     standard   NaN        0 NA      Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -537,18 +537,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       1.11 
-2 rsq     standard       0.254</code></pre>
+1 rmse    standard       1.09 
+2 rsq     standard       0.309</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>aug_train2 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(log_case_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
@@ -590,26 +590,26 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 5
   term          estimate std.error statistic  p.value
   &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)     -164.      24.1      -6.82 3.41e- 9
-2 log10_vl_7dma     13.6      1.88      7.21 6.75e-10</code></pre>
+1 (Intercept)     -204.      25.4      -8.03 2.56e-11
+2 log10_vl_7dma     16.7      1.98      8.41 5.40e-12</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>aug_train3 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit3, train)</span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>aug_train3 <span class="sc">%&gt;%</span> <span class="fu">select</span>(case_prop_pos_7dma, .pred) <span class="co">#make predictions on train data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73 × 2
-   case_prop_pos_7dma .pred
-                &lt;dbl&gt; &lt;dbl&gt;
- 1              9.02   5.36
- 2             15.5   17.8 
- 3              5.70  12.2 
- 4             15.0   18.3 
- 5              3.83   5.58
- 6              4.03  10.2 
- 7              4.36   6.86
- 8              0.592  4.28
- 9              1.84  10.5 
-10              9.99   7.60
+   case_prop_pos_7dma  .pred
+                &lt;dbl&gt;  &lt;dbl&gt;
+ 1               3.99  10.7 
+ 2              15.7    5.48
+ 3               4.76   3.93
+ 4               5.73  13.8 
+ 5              12.0  NaN   
+ 6              15.1   10.5 
+ 7               4.91   5.83
+ 8              12.0   18.5 
+ 9              14.1    5.62
+10              13.1  NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -635,8 +635,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   5.37     25  0.197  Preprocessor1_Model1
-2 rsq     standard   0.472    25  0.0248 Preprocessor1_Model1</code></pre>
+1 rmse    standard   5.83     25  0.169  Preprocessor1_Model1
+2 rsq     standard   0.522    25  0.0369 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>workflow_null3 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -650,7 +650,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator   mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     6.70    25   0.321 Preprocessor1_Model1
+1 rmse    standard     7.87    25   0.357 Preprocessor1_Model1
 2 rsq     standard   NaN        0  NA     Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -662,18 +662,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       5.27 
-2 rsq     standard       0.441</code></pre>
+1 rmse    standard       5.72 
+2 rsq     standard       0.521</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>aug_train3 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(case_prop_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
@@ -713,28 +713,28 @@ The number of observations in each quantile is below the recommended threshold o
 <span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit4) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
-  term          estimate std.error statistic      p.value
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
-1 (Intercept)     -15.8      2.94      -5.38 0.00000105  
-2 log10_vl_7dma     1.39     0.230      6.05 0.0000000758</code></pre>
+  term          estimate std.error statistic       p.value
+  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
+1 (Intercept)     -15.8      2.60      -6.07 0.0000000731 
+2 log10_vl_7dma     1.38     0.203      6.83 0.00000000347</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>aug_train4 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit4, train)</span>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>aug_train4 <span class="sc">%&gt;%</span> <span class="fu">select</span>(log_case_prop_pos_7dma, .pred) <span class="co">#make predictions on train data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73 × 2
-   log_case_prop_pos_7dma .pred
-                    &lt;dbl&gt; &lt;dbl&gt;
- 1                  2.20   1.54
- 2                  2.74   2.82
- 3                  1.74   2.25
- 4                  2.71   2.88
- 5                  1.34   1.57
- 6                  1.39   2.04
- 7                  1.47   1.70
- 8                 -0.524  1.43
- 9                  0.607  2.07
-10                  2.30   1.77
+   log_case_prop_pos_7dma  .pred
+                    &lt;dbl&gt;  &lt;dbl&gt;
+ 1                   1.38   2.06
+ 2                   2.75   1.62
+ 3                   1.56   1.49
+ 4                   1.75   2.31
+ 5                   2.48 NaN   
+ 6                   2.72   2.04
+ 7                   1.59   1.65
+ 8                   2.48   2.70
+ 9                   2.64   1.63
+10                   2.58 NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -760,8 +760,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   0.651    25  0.0209 Preprocessor1_Model1
-2 rsq     standard   0.384    25  0.0186 Preprocessor1_Model1</code></pre>
+1 rmse    standard   0.583    25  0.0194 Preprocessor1_Model1
+2 rsq     standard   0.416    25  0.0361 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>workflow_null4 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -775,7 +775,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator    mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;        &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     0.779    25  0.0288 Preprocessor1_Model1
+1 rmse    standard     0.746    25  0.0214 Preprocessor1_Model1
 2 rsq     standard   NaN         0 NA      Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -787,18 +787,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       0.644
-2 rsq     standard       0.357</code></pre>
+1 rmse    standard       0.585
+2 rsq     standard       0.418</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>aug_train4 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(log_case_prop_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 5 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 6 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
@@ -848,28 +848,28 @@ The number of observations in each quantile is below the recommended threshold o
 <span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit5) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
-  term        estimate std.error statistic       p.value
-  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
-1 (Intercept)     5.56     6.18      0.900 0.372        
-2 pr_7dma         1.03     0.144     7.11  0.00000000117</code></pre>
+  term        estimate std.error statistic      p.value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
+1 (Intercept)    -4.38     9.98     -0.439 0.662       
+2 pr_7dma         1.50     0.236     6.36  0.0000000273</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>aug_train5 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit5, train)</span>
 <span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>aug_train5 <span class="sc">%&gt;%</span> <span class="fu">select</span>(case_pcr_pos_7dma, .pred) <span class="co">#make predictions on train data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73 × 2
-   case_pcr_pos_7dma .pred
-               &lt;dbl&gt; &lt;dbl&gt;
- 1            34.3   26.9 
- 2            98.6   93.7 
- 3            16.2   47.7 
- 4            76.6   97.8 
- 5             9.36  14.6 
- 6             9     33.1 
- 7            13     42.0 
- 8             0.643  8.68
- 9             2.86  23.1 
-10            64.4   34.3 
+   case_pcr_pos_7dma  .pred
+               &lt;dbl&gt;  &lt;dbl&gt;
+ 1             11.9   40.4 
+ 2            115.    36.5 
+ 3              8.07   3.91
+ 4             16.5   72.1 
+ 5             54.6  NaN   
+ 6             75.4   61.1 
+ 7             19.9   47.6 
+ 8             48.6  123.  
+ 9             62.6   40.9 
+10             58.1  NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -895,8 +895,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator   mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   30.5      25  1.56   Preprocessor1_Model1
-2 rsq     standard    0.437    25  0.0504 Preprocessor1_Model1</code></pre>
+1 rmse    standard   48.3      25  2.89   Preprocessor1_Model1
+2 rsq     standard    0.480    25  0.0416 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>workflow_null5 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -910,7 +910,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard    37.8    25    2.17 Preprocessor1_Model1
+1 rmse    standard    55.7    25    3.85 Preprocessor1_Model1
 2 rsq     standard   NaN       0   NA    Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -922,18 +922,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard      30.0  
-2 rsq     standard       0.442</code></pre>
+1 rmse    standard      47.3  
+2 rsq     standard       0.395</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>aug_train5 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(case_pcr_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
@@ -961,26 +961,26 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 5
   term        estimate std.error statistic  p.value
   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)   2.01     0.197       10.2  5.09e-15
-2 pr_7dma       0.0324   0.00460      7.05 1.53e- 9</code></pre>
+1 (Intercept)   1.94     0.197        9.87 2.50e-14
+2 pr_7dma       0.0347   0.00465      7.46 3.45e-10</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>aug_train6 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit6, train)</span>
 <span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>aug_train6 <span class="sc">%&gt;%</span> <span class="fu">select</span>(log_case_pos_7dma, .pred) <span class="co">#make predictions on train data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73 × 2
-   log_case_pos_7dma .pred
-               &lt;dbl&gt; &lt;dbl&gt;
- 1             3.53   2.68
- 2             4.59   4.79
- 3             2.79   3.34
- 4             4.34   4.92
- 5             2.24   2.29
- 6             2.20   2.88
- 7             2.56   3.16
- 8            -0.442  2.11
- 9             1.05   2.56
-10             4.17   2.92
+   log_case_pos_7dma  .pred
+               &lt;dbl&gt;  &lt;dbl&gt;
+ 1              2.47   2.98
+ 2              4.74   2.89
+ 3              2.09   2.13
+ 4              2.80   3.71
+ 5              4.00 NaN   
+ 6              4.32   3.46
+ 7              2.99   3.15
+ 8              3.88   4.89
+ 9              4.14   2.99
+10              4.06 NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -1006,8 +1006,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   0.960    25  0.0399 Preprocessor1_Model1
-2 rsq     standard   0.462    25  0.0329 Preprocessor1_Model1</code></pre>
+1 rmse    standard   0.952    25  0.0290 Preprocessor1_Model1
+2 rsq     standard   0.498    25  0.0279 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>workflow_null6 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -1021,7 +1021,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator   mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     1.25    25  0.0445 Preprocessor1_Model1
+1 rmse    standard     1.27    25  0.0487 Preprocessor1_Model1
 2 rsq     standard   NaN        0 NA      Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -1033,18 +1033,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       0.956
-2 rsq     standard       0.437</code></pre>
+1 rmse    standard       0.933
+2 rsq     standard       0.473</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>aug_train6 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(log_case_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
@@ -1089,26 +1089,26 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 5
   term        estimate std.error statistic  p.value
   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)    2.63     0.959       2.74 7.92e- 3
-2 pr_7dma        0.206    0.0224      9.17 2.82e-13</code></pre>
+1 (Intercept)    1.62     1.18        1.38 1.72e- 1
+2 pr_7dma        0.244    0.0278      8.79 1.70e-12</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>aug_train7 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit7, train)</span>
 <span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>aug_train7 <span class="sc">%&gt;%</span> <span class="fu">select</span>(case_prop_pos_7dma, .pred) <span class="co">#make predictions on train data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73 × 2
-   case_prop_pos_7dma .pred
-                &lt;dbl&gt; &lt;dbl&gt;
- 1              9.02   6.91
- 2             15.5   20.3 
- 3              5.70  11.1 
- 4             15.0   21.1 
- 5              3.83   4.43
- 6              4.03   8.15
- 7              4.36   9.92
- 8              0.592  3.25
- 9              1.84   6.15
-10              9.99   8.39
+   case_prop_pos_7dma  .pred
+                &lt;dbl&gt;  &lt;dbl&gt;
+ 1               3.99   8.91
+ 2              15.7    8.29
+ 3               4.76   2.97
+ 4               5.73  14.1 
+ 5              12.0  NaN   
+ 6              15.1   12.3 
+ 7               4.91  10.1 
+ 8              12.0   22.4 
+ 9              14.1    8.99
+10              13.1  NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -1134,8 +1134,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   4.90     25  0.183  Preprocessor1_Model1
-2 rsq     standard   0.637    25  0.0277 Preprocessor1_Model1</code></pre>
+1 rmse    standard   5.85     25  0.347  Preprocessor1_Model1
+2 rsq     standard   0.613    25  0.0317 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>workflow_null7 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -1149,7 +1149,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator   mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     6.70    25   0.321 Preprocessor1_Model1
+1 rmse    standard     7.87    25   0.357 Preprocessor1_Model1
 2 rsq     standard   NaN        0  NA     Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -1161,18 +1161,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       4.65 
-2 rsq     standard       0.568</code></pre>
+1 rmse    standard       5.57 
+2 rsq     standard       0.555</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>aug_train7 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(case_prop_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb126-4"><a href="#cb126-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
@@ -1181,10 +1181,10 @@ The number of observations in each quantile is below the recommended threshold o
 </section>
 </section>
 </section>
-<section id="log-qpcr-positivity-rate-as-predictor" class="level2">
-<h2 class="anchored" data-anchor-id="log-qpcr-positivity-rate-as-predictor">4. Log qPCR positivity rate as predictor</h2>
+<section id="c-log-qpcr-positivity-rate-as-predictor" class="level2">
+<h2 class="anchored" data-anchor-id="c-log-qpcr-positivity-rate-as-predictor">C) Log qPCR positivity rate as predictor</h2>
 <section id="test-positivity-rate-7dma-log-ww-pr" class="level3">
-<h3 class="anchored" data-anchor-id="test-positivity-rate-7dma-log-ww-pr">Test positivity rate 7DMA ~ Log WW PR</h3>
+<h3 class="anchored" data-anchor-id="test-positivity-rate-7dma-log-ww-pr">1. Test positivity rate 7DMA ~ Log WW PR</h3>
 <section id="viz-4" class="level4">
 <h4 class="anchored" data-anchor-id="viz-4">Viz</h4>
 <div class="cell">
@@ -1218,10 +1218,10 @@ The number of observations in each quantile is below the recommended threshold o
 <span id="cb132-11"><a href="#cb132-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit8) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
-  term        estimate std.error statistic  p.value
-  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)    -6.56     2.21      -2.96 4.26e- 3
-2 log_pr_7dma     5.11     0.669      7.64 1.37e-10</code></pre>
+  term        estimate std.error statistic       p.value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
+1 (Intercept)    -8.83     2.93      -3.01 0.00378      
+2 log_pr_7dma     5.88     0.886      6.64 0.00000000913</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a>aug_train8 <span class="ot">&lt;-</span> <span class="fu">augment</span>(fit8, train)</span>
@@ -1230,16 +1230,16 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 73 × 2
    case_prop_pos_7dma  .pred
                 &lt;dbl&gt;  &lt;dbl&gt;
- 1              9.02   8.96 
- 2             15.5   16.2  
- 3              5.70  12.4  
- 4             15.0   16.4  
- 5              3.83   4.55 
- 6              4.03  10.3  
- 7              4.36  11.7  
- 8              0.592 -0.868
- 9              1.84   7.96 
-10              9.99  10.5  
+ 1               3.99  11.1 
+ 2              15.7   10.6 
+ 3               4.76   1.22
+ 4               5.73  14.3 
+ 5              12.0  NaN   
+ 6              15.1   13.4 
+ 7               4.91  12.0 
+ 8              12.0   17.3 
+ 9              14.1   11.2 
+10              13.1  NaN   
 # … with 63 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -1265,8 +1265,8 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator  mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard   5.10     25  0.286  Preprocessor1_Model1
-2 rsq     standard   0.561    25  0.0214 Preprocessor1_Model1</code></pre>
+1 rmse    standard   6.49     25  0.247  Preprocessor1_Model1
+2 rsq     standard   0.464    25  0.0214 Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a>workflow_null8 <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
@@ -1280,7 +1280,7 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 6
   .metric .estimator   mean     n std_err .config             
   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 rmse    standard     6.70    25   0.321 Preprocessor1_Model1
+1 rmse    standard     7.87    25   0.357 Preprocessor1_Model1
 2 rsq     standard   NaN        0  NA     Preprocessor1_Model1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
@@ -1292,18 +1292,18 @@ The number of observations in each quantile is below the recommended threshold o
 <pre><code># A tibble: 2 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       5.12 
-2 rsq     standard       0.477</code></pre>
+1 rmse    standard       6.39 
+2 rsq     standard       0.415</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="do">####################################################################################</span></span>
 <span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>aug_train8 <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(case_prop_pos_7dma, .pred)) <span class="sc">+</span></span>
 <span id="cb144-3"><a href="#cb144-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb144-4"><a href="#cb144-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="co">#check actual vs predicted</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing non-finite values (`stat_smooth()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing non-finite values (`stat_smooth()`).</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 7 rows containing missing values (`geom_point()`).</code></pre>
+<pre><code>Warning: Removed 9 rows containing missing values (`geom_point()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="4_univariate_regressions_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>

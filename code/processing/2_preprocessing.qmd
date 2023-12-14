@@ -22,11 +22,15 @@ This pre-processing script does the following:
 
 -   7 day moving average is calculated for all variables of interest
 
--    WBE and COVID data are combined and weekly averages are calculated
+-   WBE and COVID data are combined and weekly averages are calculated
 
 -   Hospitalization data will also be added in the future
 
 ## Load packages
+
+```{r}
+knitr::opts_chunk$set(message=F)
+```
 
 ```{r,message=FALSE}
 library(tidyverse)

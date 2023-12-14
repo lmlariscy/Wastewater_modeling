@@ -1,5 +1,6 @@
 ---
 title: "Exploratory - Time series"
+author: "Leah Lariscy"
 format: html
 editor: visual
 toc: true
@@ -8,7 +9,11 @@ toc-depth: 4
 
 ## Load packages
 
-```{r,message=FALSE}
+```{r}
+knitr::opts_chunk$set(message=F)
+```
+
+```{r}
 library(tidyverse)
 library(here)
 library(fpp3)
