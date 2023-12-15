@@ -5,6 +5,8 @@ format: html
 editor: visual
 toc: true
 toc-depth: 4
+df-print: paged
+code-overflow: wrap
 ---
 
 ## Load packages
@@ -24,6 +26,8 @@ library(fpp3)
 ```{r}
 data <- readRDS(here("data/processed_data/covid_wbe_7dma_weekly.rds"))
 #from pre_processing script
+
+data
 ```
 
 ## Look at time series

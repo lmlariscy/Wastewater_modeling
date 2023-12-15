@@ -1,0 +1,59 @@
+---
+title: "Read Me"
+author: "Leah Lariscy"
+format: html
+editor: visual
+---
+
+## Data Legends
+
+### General descriptions
+
+| Abbreviation | Description                                        |
+|--------------|----------------------------------------------------|
+| N1           | N1 target on SARSCOV2 genome, used for qPCR        |
+| N2           | N2 target on SARSCOV2 genome, used for qPCR        |
+| WBE          | Wastewater-based epidemiology                      |
+| VL           | Wastewater viral load (total copies per day)       |
+| 7-DMA        | Seven-day moving average                           |
+| WWTP         | Wastewater treatment plant                         |
+| PR           | Positivity rate (detection frequency)              |
+| COVID        | Generally refers to clinical data sets from GA DPH |
+
+### Cleaned data (weekly)
+
+To understand how these data were generated, please see scripts 1 and 2.
+
+Generally speaking, this data set has been summarized by week, so there is one observation per week for the entire series.
+
+*Variables of interest are italicized*.
+
+| Name                 | Description                                                         |
+|--------------------|----------------------------------------------------|
+| week                 | Year, week of observation                                           |
+| n1_vl                | Viral load estimated by N1 qPCR assay                               |
+| n2_vl                | Viral load estimated by N2 qPCR assay                               |
+| *avg_vl*             | *Viral load averaged across N1 and N2 assays*                       |
+| vl_n1_7dma           | N1 viral load 7-day moving average                                  |
+| vl_n2_7dma           | N2 viral load 7-day moving average                                  |
+| *vl_7dma*            | *Viral load 7-day moving average, N1/N2 averaged*                   |
+| n_reps_N1            | Number of total N1 qPCR reactions                                   |
+| n_reps_N2            | Number of total N2 qPCR reactions                                   |
+| n_reps               | Number of total qPCR reactions                                      |
+| pos_rate_N1          | Positivity rate of N1 qPCR reactions                                |
+| pos_rate_N2          | Positivity rate of N2 qPCR reactions                                |
+| *avg_pos_rate*       | *Average positivity rate of all qPCR reactions*                     |
+| pr_n1_7dma           | Positivity rate 7-day moving average, N1                            |
+| pr_n2_7dma           | Positivity rate 7-day moving average, N2                            |
+| *pr_7dma*            | *Positivity rate 7-day moving average, N1/N2 averaged*              |
+| cases.symptom.onset  | DPH data, number of cases with symptoms that began                  |
+| symptom_onset_7dma   | Case symptom onset 7-day moving average                             |
+| cases.reported       | DPH data, number of cases reported                                  |
+| *case_report_7dma*   | *Cases reported 7-day moving average*                               |
+| pcr_tests            | DPH data, number of PCR tests administered                          |
+| pcr_pos              | DPH data, number of positive PCR tests                              |
+| *pcr_pos_7dma*       | *Positive test 7-day moving average*                                |
+| case_pcr_pos_7dma    | DPH data (not calculated by me) positive test 7-day moving average  |
+| pcr_pos_14dma        | DPH data (not calculated by me) positive test 14-day moving average |
+| *prop_pos*           | *Positivity rate of clinical tests*                                 |
+| *case_prop_pos_7dma* | *Positivity rate of clinical tests 7-day moving average*            |

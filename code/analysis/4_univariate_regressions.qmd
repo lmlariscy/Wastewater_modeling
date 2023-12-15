@@ -5,6 +5,8 @@ format: html
 editor: visual
 toc: true
 toc-depth: 4
+df-print: paged
+code-overflow: wrap
 ---
 
 ## Load packages
@@ -33,6 +35,7 @@ data <- readRDS(here("data/processed_data/covid_wbe_7dma_weekly.rds")) %>%
 #certain variables have been transformed due to distribution abnormality, with some distributions being normalized by certain transformations
 
 #i wanted to build models with both transformed and non-transformed data to compare performances
+
 ```
 
 ## Data splitting

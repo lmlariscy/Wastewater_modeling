@@ -96,6 +96,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+<link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -576,109 +579,80 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Count observations for each date/facility/target/collection</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>wbe_count <span class="ot">&lt;-</span> wbe <span class="sc">%&gt;%</span> <span class="fu">count</span>(date,facility,target,collection_num) <span class="co">#max is either 9 or 18</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_count, <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         date facility target collection_num  n
-1  2020-06-30        A     N1              7 18
-2  2020-06-30        A     N2              7 18
-3  2020-06-30        B     N1              7 12
-4  2020-06-30        B     N2              7 12
-5  2020-06-30        C     N1              7  3
-6  2020-06-30        C     N2              7  3
-7  2020-07-07        A     N1              8  9
-8  2020-07-07        A     N2              8  9
-9  2020-07-07        B     N1              8  6
-10 2020-07-07        B     N2              8  6</code></pre>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["facility"],"name":[2],"type":["ord"],"align":["right"]},{"label":["target"],"name":[3],"type":["chr"],"align":["left"]},{"label":["collection_num"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"A","3":"N1","4":"7","5":"18","_rn_":"1"},{"1":"2020-06-30","2":"A","3":"N2","4":"7","5":"18","_rn_":"2"},{"1":"2020-06-30","2":"B","3":"N1","4":"7","5":"12","_rn_":"3"},{"1":"2020-06-30","2":"B","3":"N2","4":"7","5":"12","_rn_":"4"},{"1":"2020-06-30","2":"C","3":"N1","4":"7","5":"3","_rn_":"5"},{"1":"2020-06-30","2":"C","3":"N2","4":"7","5":"3","_rn_":"6"},{"1":"2020-07-07","2":"A","3":"N1","4":"8","5":"9","_rn_":"7"},{"1":"2020-07-07","2":"A","3":"N2","4":"8","5":"9","_rn_":"8"},{"1":"2020-07-07","2":"B","3":"N1","4":"8","5":"6","_rn_":"9"},{"1":"2020-07-07","2":"B","3":"N2","4":"8","5":"6","_rn_":"10"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
 <section id="average-qpcr-replicates" class="level3">
 <h3 class="anchored" data-anchor-id="average-qpcr-replicates">2. Average qPCR replicates</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#group, then take the average copies per liter and standard deviation</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>wbe_avg <span class="ot">&lt;-</span> wbe <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date,facility,target,collection_num) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_copy_L =</span> <span class="fu">mean</span>(copy_num_L),</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_copy_L =</span> <span class="fu">sd</span>(copy_num_L), </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">influent_flow_L =</span> <span class="fu">mean</span>(influent_flow_L),</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">avg_viral_load =</span> <span class="fu">mean</span>(viral_load),</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_viral_load =</span> <span class="fu">sd</span>(viral_load),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">avg_ct =</span> <span class="fu">mean</span>(ct),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_ct =</span> <span class="fu">sd</span>(ct))<span class="sc">%&gt;%</span> </span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_avg, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 11
-   date       facility target collecti…¹ avg_c…² sd_co…³ influ…⁴ avg_v…⁵ sd_vi…⁶
-   &lt;date&gt;     &lt;ord&gt;    &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
- 1 2020-06-30 A        N1              7 166962. 146733.  1.87e7 3.13e12 2.75e12
- 2 2020-06-30 A        N2              7  49504.  50747.  1.87e7 9.28e11 9.51e11
- 3 2020-06-30 B        N1              7 110644.  27866.  1.14e7 1.26e12 3.19e11
- 4 2020-06-30 B        N2              7  33968.  13754.  1.14e7 3.88e11 1.57e11
- 5 2020-06-30 C        N1              7 102018.      0   6.17e6 6.29e11 0      
- 6 2020-06-30 C        N2              7  32731.      0   6.17e6 2.02e11 0      
- 7 2020-07-07 A        N1              8 102018.      0   2.10e7 2.15e12 0      
- 8 2020-07-07 A        N2              8  34333.   3727.  2.10e7 7.23e11 7.84e10
- 9 2020-07-07 B        N1              8 118649.  40738.  1.29e7 1.53e12 5.26e11
-10 2020-07-07 B        N2              8  32731.      0   1.29e7 4.22e11 0      
-# … with 2 more variables: avg_ct &lt;dbl&gt;, sd_ct &lt;dbl&gt;, and abbreviated variable
-#   names ¹​collection_num, ²​avg_copy_L, ³​sd_copy_L, ⁴​influent_flow_L,
-#   ⁵​avg_viral_load, ⁶​sd_viral_load</code></pre>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#group, then take the average copies per liter and standard deviation</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>wbe_avg <span class="ot">&lt;-</span> wbe <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date,facility,target,collection_num) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_copy_L =</span> <span class="fu">mean</span>(copy_num_L),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_copy_L =</span> <span class="fu">sd</span>(copy_num_L), </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">influent_flow_L =</span> <span class="fu">mean</span>(influent_flow_L),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">avg_viral_load =</span> <span class="fu">mean</span>(viral_load),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_viral_load =</span> <span class="fu">sd</span>(viral_load),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">avg_ct =</span> <span class="fu">mean</span>(ct),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_ct =</span> <span class="fu">sd</span>(ct))<span class="sc">%&gt;%</span> </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_avg, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["facility"],"name":[2],"type":["ord"],"align":["right"]},{"label":["target"],"name":[3],"type":["chr"],"align":["left"]},{"label":["collection_num"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["avg_copy_L"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["sd_copy_L"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["influent_flow_L"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["avg_viral_load"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["sd_viral_load"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["avg_ct"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["sd_ct"],"name":[11],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"A","3":"N1","4":"7","5":"166961.68","6":"146733.098","7":"18737788","8":"3.128493e+12","9":"2.749454e+12","10":"36.70637","11":"0.8180778"},{"1":"2020-06-30","2":"A","3":"N2","4":"7","5":"49503.76","6":"50747.102","7":"18737788","8":"9.275911e+11","9":"9.508885e+11","10":"36.82874","11":"0.7859600"},{"1":"2020-06-30","2":"B","3":"N1","4":"7","5":"110643.53","6":"27866.002","7":"11431944","8":"1.264871e+12","9":"3.185626e+11","10":"37.05112","11":"0.2825516"},{"1":"2020-06-30","2":"B","3":"N2","4":"7","5":"33967.73","6":"13753.562","7":"11431944","8":"3.883172e+11","9":"1.572299e+11","10":"37.17356","11":"0.6670184"},{"1":"2020-06-30","2":"C","3":"N1","4":"7","5":"102017.66","6":"0.000","7":"6170221","8":"6.294715e+11","9":"0.000000e+00","10":"37.14072","11":"0.0000000"},{"1":"2020-06-30","2":"C","3":"N2","4":"7","5":"32730.87","6":"0.000","7":"6170221","8":"2.019567e+11","9":"0.000000e+00","10":"37.10763","11":"0.0000000"},{"1":"2020-07-07","2":"A","3":"N1","4":"8","5":"102017.66","6":"0.000","7":"21046890","8":"2.147154e+12","9":"0.000000e+00","10":"37.14072","11":"0.0000000"},{"1":"2020-07-07","2":"A","3":"N2","4":"8","5":"34332.55","6":"3727.358","7":"21046890","8":"7.225934e+11","9":"7.844929e+10","10":"37.04561","11":"0.1417215"},{"1":"2020-07-07","2":"B","3":"N1","4":"8","5":"118648.79","6":"40737.772","7":"12908254","8":"1.531549e+12","9":"5.258535e+11","10":"36.97338","11":"0.4098851"},{"1":"2020-07-07","2":"B","3":"N2","4":"8","5":"32730.87","6":"0.000","7":"12908254","8":"4.224983e+11","9":"0.000000e+00","10":"37.10763","11":"0.0000000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
 <section id="sum-viral-load-across-wwtps" class="level3">
 <h3 class="anchored" data-anchor-id="sum-viral-load-across-wwtps">3. Sum Viral Load across WWTPs</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>wbe_county_avg <span class="ot">&lt;-</span> wbe_avg <span class="sc">%&gt;%</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date, collection_num, target) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">viral_load =</span> <span class="fu">sum</span>(avg_viral_load)) <span class="sc">%&gt;%</span> <span class="co">#sum across WWTPs for each target</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_county_avg, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 4
-   date       collection_num target viral_load
-   &lt;date&gt;              &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt;
- 1 2020-06-30              7 N1        5.02e12
- 2 2020-06-30              7 N2        1.52e12
- 3 2020-07-07              8 N1        4.39e12
- 4 2020-07-07              8 N2        1.42e12
- 5 2020-07-14              9 N1        2.99e12
- 6 2020-07-14              9 N2        1.55e12
- 7 2020-07-21             10 N1        6.50e12
- 8 2020-07-21             10 N2        2.61e12
- 9 2020-07-28             11 N1        5.57e12
-10 2020-07-28             11 N2        1.86e12</code></pre>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wbe_county_avg <span class="ot">&lt;-</span> wbe_avg <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date, collection_num, target) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">viral_load =</span> <span class="fu">sum</span>(avg_viral_load)) <span class="sc">%&gt;%</span> <span class="co">#sum across WWTPs for each target</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_county_avg, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["collection_num"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["target"],"name":[3],"type":["chr"],"align":["left"]},{"label":["viral_load"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"7","3":"N1","4":"5.022835e+12"},{"1":"2020-06-30","2":"7","3":"N2","4":"1.517865e+12"},{"1":"2020-07-07","2":"8","3":"N1","4":"4.391880e+12"},{"1":"2020-07-07","2":"8","3":"N2","4":"1.418198e+12"},{"1":"2020-07-14","2":"9","3":"N1","4":"2.994341e+12"},{"1":"2020-07-14","2":"9","3":"N2","4":"1.546468e+12"},{"1":"2020-07-21","2":"10","3":"N1","4":"6.504681e+12"},{"1":"2020-07-21","2":"10","3":"N2","4":"2.608337e+12"},{"1":"2020-07-28","2":"11","3":"N1","4":"5.565039e+12"},{"1":"2020-07-28","2":"11","3":"N2","4":"1.859388e+12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
 <section id="move-n1-and-n2-to-distinct-columns-then-calculate-average" class="level3">
 <h3 class="anchored" data-anchor-id="move-n1-and-n2-to-distinct-columns-then-calculate-average">4. Move N1 and N2 to distinct columns, then calculate average</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>avg_viral_load <span class="ot">&lt;-</span> wbe_county_avg <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_vl =</span> <span class="fu">mean</span>(viral_load))</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>wbe_vl_final <span class="ot">&lt;-</span> wbe_county_avg <span class="sc">%&gt;%</span> </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from =</span> viral_load) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">n1_vl =</span> N1, <span class="at">n2_vl =</span> N2)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>wbe_vl_final <span class="ot">&lt;-</span> wbe_vl_final <span class="sc">%&gt;%</span> <span class="fu">full_join</span>(avg_viral_load, wbe_final, <span class="at">by =</span> <span class="st">"date"</span>)</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_vl_final, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 5
-   date       collection_num   n1_vl   n2_vl  avg_vl
-   &lt;date&gt;              &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
- 1 2020-06-30              7 5.02e12 1.52e12 3.27e12
- 2 2020-07-07              8 4.39e12 1.42e12 2.91e12
- 3 2020-07-14              9 2.99e12 1.55e12 2.27e12
- 4 2020-07-21             10 6.50e12 2.61e12 4.56e12
- 5 2020-07-28             11 5.57e12 1.86e12 3.71e12
- 6 2020-08-04             12 4.20e12 1.35e12 2.78e12
- 7 2020-08-11             13 4.08e12 1.24e12 2.66e12
- 8 2020-08-18             14 5.18e12 1.65e12 3.41e12
- 9 2020-08-25             15 5.68e12 1.58e12 3.63e12
-10 2020-09-01             16 8.63e12 2.94e12 5.78e12</code></pre>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>avg_viral_load <span class="ot">&lt;-</span> wbe_county_avg <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(date) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_vl =</span> <span class="fu">mean</span>(viral_load))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>wbe_vl_final <span class="ot">&lt;-</span> wbe_county_avg <span class="sc">%&gt;%</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from =</span> viral_load) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">n1_vl =</span> N1, <span class="at">n2_vl =</span> N2)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>wbe_vl_final <span class="ot">&lt;-</span> wbe_vl_final <span class="sc">%&gt;%</span> <span class="fu">full_join</span>(avg_viral_load, wbe_final, <span class="at">by =</span> <span class="st">"date"</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_vl_final, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["collection_num"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["n1_vl"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["n2_vl"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["avg_vl"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"7","3":"5.022835e+12","4":"1.517865e+12","5":"3.270350e+12"},{"1":"2020-07-07","2":"8","3":"4.391880e+12","4":"1.418198e+12","5":"2.905039e+12"},{"1":"2020-07-14","2":"9","3":"2.994341e+12","4":"1.546468e+12","5":"2.270405e+12"},{"1":"2020-07-21","2":"10","3":"6.504681e+12","4":"2.608337e+12","5":"4.556509e+12"},{"1":"2020-07-28","2":"11","3":"5.565039e+12","4":"1.859388e+12","5":"3.712214e+12"},{"1":"2020-08-04","2":"12","3":"4.201626e+12","4":"1.349613e+12","5":"2.775619e+12"},{"1":"2020-08-11","2":"13","3":"4.079725e+12","4":"1.236168e+12","5":"2.657947e+12"},{"1":"2020-08-18","2":"14","3":"5.181684e+12","4":"1.645117e+12","5":"3.413400e+12"},{"1":"2020-08-25","2":"15","3":"5.682700e+12","4":"1.581362e+12","5":"3.632031e+12"},{"1":"2020-09-01","2":"16","3":"8.630286e+12","4":"2.935681e+12","5":"5.782984e+12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
@@ -686,185 +660,132 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="calculate-qpcr-pos">5. Calculate qPCR % Pos</h3>
 <p>Technical replicates per bio rep/target/facility/date</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>detection_tr <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility,target,biological_replicate) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_tr,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 7
-# Groups:   date, facility, target [5]
-   date       facility target biological_replicate     n n_miss n_pos
-   &lt;date&gt;     &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;                &lt;int&gt;  &lt;int&gt; &lt;int&gt;
- 1 2020-06-30 CC       N1     C                        3      3     0
- 2 2020-06-30 CC       N2     C                        3      3     0
- 3 2020-06-30 MI       N1     A                        3      2     1
- 4 2020-06-30 MI       N1     B                        3      3     0
- 5 2020-06-30 MI       N1     C                        6      5     1
- 6 2020-06-30 MI       N2     A                        3      3     0
- 7 2020-06-30 MI       N2     B                        3      3     0
- 8 2020-06-30 MI       N2     C                        6      4     2
- 9 2020-06-30 NO       N1     A                        6      5     1
-10 2020-06-30 NO       N1     B                        3      3     0</code></pre>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>detection_tr <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility,target,biological_replicate) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_tr,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["facility"],"name":[2],"type":["chr"],"align":["left"]},{"label":["target"],"name":[3],"type":["chr"],"align":["left"]},{"label":["biological_replicate"],"name":[4],"type":["chr"],"align":["left"]},{"label":["n"],"name":[5],"type":["int"],"align":["right"]},{"label":["n_miss"],"name":[6],"type":["int"],"align":["right"]},{"label":["n_pos"],"name":[7],"type":["int"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"CC","3":"N1","4":"C","5":"3","6":"3","7":"0"},{"1":"2020-06-30","2":"CC","3":"N2","4":"C","5":"3","6":"3","7":"0"},{"1":"2020-06-30","2":"MI","3":"N1","4":"A","5":"3","6":"2","7":"1"},{"1":"2020-06-30","2":"MI","3":"N1","4":"B","5":"3","6":"3","7":"0"},{"1":"2020-06-30","2":"MI","3":"N1","4":"C","5":"6","6":"5","7":"1"},{"1":"2020-06-30","2":"MI","3":"N2","4":"A","5":"3","6":"3","7":"0"},{"1":"2020-06-30","2":"MI","3":"N2","4":"B","5":"3","6":"3","7":"0"},{"1":"2020-06-30","2":"MI","3":"N2","4":"C","5":"6","6":"4","7":"2"},{"1":"2020-06-30","2":"NO","3":"N1","4":"A","5":"6","6":"5","7":"1"},{"1":"2020-06-30","2":"NO","3":"N1","4":"B","5":"3","6":"3","7":"0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 <p>Technical reps per target/facility/date</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>detection_target <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility,target) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss,</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>detection_target_wide <span class="ot">&lt;-</span> detection_target <span class="sc">%&gt;%</span> <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from =</span> <span class="fu">c</span>(n, n_miss, n_pos, pos_rate))</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_target_wide, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 10
-   date       facility  n_N1  n_N2 n_miss_N1 n_miss_N2 n_pos_N1 n_pos_N2 pos_r…¹
-   &lt;date&gt;     &lt;chr&gt;    &lt;int&gt; &lt;int&gt;     &lt;int&gt;     &lt;int&gt;    &lt;int&gt;    &lt;int&gt;   &lt;dbl&gt;
- 1 2020-06-30 CC           3     3         3         3        0        0     0  
- 2 2020-06-30 MI          12    12        10        10        2        2    16.7
- 3 2020-06-30 NO          18    18        12        13        6        5    33.3
- 4 2020-07-07 CC           6     6         5         4        1        2    16.7
- 5 2020-07-07 MI           6     6         5         6        1        0    16.7
- 6 2020-07-07 NO           9     9         9         7        0        2     0  
- 7 2020-07-14 MI           3     6         3         4        0        2     0  
- 8 2020-07-14 NO           9     9         8         5        1        4    11.1
- 9 2020-07-21 CC           6     6         3         4        3        2    50  
-10 2020-07-21 MI           9     6         6         1        3        5    33.3
-# … with 1 more variable: pos_rate_N2 &lt;dbl&gt;, and abbreviated variable name
-#   ¹​pos_rate_N1</code></pre>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>detection_target <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility,target) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>detection_target_wide <span class="ot">&lt;-</span> detection_target <span class="sc">%&gt;%</span> <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from =</span> <span class="fu">c</span>(n, n_miss, n_pos, pos_rate))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_target_wide, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["facility"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n_N1"],"name":[3],"type":["int"],"align":["right"]},{"label":["n_N2"],"name":[4],"type":["int"],"align":["right"]},{"label":["n_miss_N1"],"name":[5],"type":["int"],"align":["right"]},{"label":["n_miss_N2"],"name":[6],"type":["int"],"align":["right"]},{"label":["n_pos_N1"],"name":[7],"type":["int"],"align":["right"]},{"label":["n_pos_N2"],"name":[8],"type":["int"],"align":["right"]},{"label":["pos_rate_N1"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["pos_rate_N2"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"CC","3":"3","4":"3","5":"3","6":"3","7":"0","8":"0","9":"0.00000","10":"0.00000"},{"1":"2020-06-30","2":"MI","3":"12","4":"12","5":"10","6":"10","7":"2","8":"2","9":"16.66667","10":"16.66667"},{"1":"2020-06-30","2":"NO","3":"18","4":"18","5":"12","6":"13","7":"6","8":"5","9":"33.33333","10":"27.77778"},{"1":"2020-07-07","2":"CC","3":"6","4":"6","5":"5","6":"4","7":"1","8":"2","9":"16.66667","10":"33.33333"},{"1":"2020-07-07","2":"MI","3":"6","4":"6","5":"5","6":"6","7":"1","8":"0","9":"16.66667","10":"0.00000"},{"1":"2020-07-07","2":"NO","3":"9","4":"9","5":"9","6":"7","7":"0","8":"2","9":"0.00000","10":"22.22222"},{"1":"2020-07-14","2":"MI","3":"3","4":"6","5":"3","6":"4","7":"0","8":"2","9":"0.00000","10":"33.33333"},{"1":"2020-07-14","2":"NO","3":"9","4":"9","5":"8","6":"5","7":"1","8":"4","9":"11.11111","10":"44.44444"},{"1":"2020-07-21","2":"CC","3":"6","4":"6","5":"3","6":"4","7":"3","8":"2","9":"50.00000","10":"33.33333"},{"1":"2020-07-21","2":"MI","3":"9","4":"6","5":"6","6":"1","7":"3","8":"5","9":"33.33333","10":"83.33333"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 <p>Technical reps per facility/date</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>detection_facility <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss,</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n)<span class="sc">*</span><span class="dv">100</span>)</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_facility, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 6
-# Groups:   date [4]
-   date       facility     n n_miss n_pos pos_rate
-   &lt;date&gt;     &lt;chr&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;    &lt;dbl&gt;
- 1 2020-06-30 CC           6      6     0     0   
- 2 2020-06-30 MI          24     20     4    16.7 
- 3 2020-06-30 NO          36     25    11    30.6 
- 4 2020-07-07 CC          12      9     3    25   
- 5 2020-07-07 MI          12     11     1     8.33
- 6 2020-07-07 NO          18     16     2    11.1 
- 7 2020-07-14 MI           9      7     2    22.2 
- 8 2020-07-14 NO          18     13     5    27.8 
- 9 2020-07-21 CC          12      7     5    41.7 
-10 2020-07-21 MI          15      7     8    53.3 </code></pre>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>detection_facility <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,facility) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n<span class="sc">-</span>n_miss,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n)<span class="sc">*</span><span class="dv">100</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_facility, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["facility"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]},{"label":["n_miss"],"name":[4],"type":["int"],"align":["right"]},{"label":["n_pos"],"name":[5],"type":["int"],"align":["right"]},{"label":["pos_rate"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"CC","3":"6","4":"6","5":"0","6":"0.000000"},{"1":"2020-06-30","2":"MI","3":"24","4":"20","5":"4","6":"16.666667"},{"1":"2020-06-30","2":"NO","3":"36","4":"25","5":"11","6":"30.555556"},{"1":"2020-07-07","2":"CC","3":"12","4":"9","5":"3","6":"25.000000"},{"1":"2020-07-07","2":"MI","3":"12","4":"11","5":"1","6":"8.333333"},{"1":"2020-07-07","2":"NO","3":"18","4":"16","5":"2","6":"11.111111"},{"1":"2020-07-14","2":"MI","3":"9","4":"7","5":"2","6":"22.222222"},{"1":"2020-07-14","2":"NO","3":"18","4":"13","5":"5","6":"27.777778"},{"1":"2020-07-21","2":"CC","3":"12","4":"7","5":"5","6":"41.666667"},{"1":"2020-07-21","2":"MI","3":"15","4":"7","5":"8","6":"53.333333"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 <p>Technical reps per date (targets included)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>detection_date <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,target) <span class="sc">%&gt;%</span> <span class="co">#summarize at county level for both targets</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n_reps =</span> <span class="fu">n</span>(), <span class="co">#count number of technical reps</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)), <span class="co">#count number of non detects</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n_reps<span class="sc">-</span>n_miss, <span class="co">#count number of detects</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n_reps)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="co">#calculate detection frequency</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from=</span><span class="fu">c</span>(n_reps, pos_rate, n_miss, n_pos)) <span class="sc">%&gt;%</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#put N1 and N2 in separate columns</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_reps=</span>n_reps_N1<span class="sc">+</span>n_reps_N2, <span class="co">#add reps from both targets</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_miss=</span>n_miss_N1<span class="sc">+</span>n_miss_N2, <span class="co">#add nondetects from both targets</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_pos=</span>n_reps<span class="sc">-</span>n_miss, <span class="co">#add detects from both targets</span></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">avg_pos_rate =</span> (n_pos<span class="sc">/</span>n_reps)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="co">#average detection freq across targets</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(n_pos,n_miss,n_pos_N1,n_miss_N1,n_pos_N2,n_miss_N2)) <span class="co">#dump these</span></span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_date,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 7
-   date       n_reps_N1 n_reps_N2 pos_rate_N1 pos_rate_N2 n_reps avg_pos_rate
-   &lt;date&gt;         &lt;int&gt;     &lt;int&gt;       &lt;dbl&gt;       &lt;dbl&gt;  &lt;int&gt;        &lt;dbl&gt;
- 1 2020-06-30        33        33       24.2        21.2      66        22.7 
- 2 2020-07-07        21        21        9.52       19.0      42        14.3 
- 3 2020-07-14        12        15        8.33       40        27        25.9 
- 4 2020-07-21        21        18       28.6        55.6      39        41.0 
- 5 2020-07-28        18        18       22.2        38.9      36        30.6 
- 6 2020-08-04        18        18        0           5.56     36         2.78
- 7 2020-08-11        18        18       11.1         5.56     36         8.33
- 8 2020-08-18        18        18       27.8        55.6      36        41.7 
- 9 2020-08-25        18        18       27.8        16.7      36        22.2 
-10 2020-09-01        18        18       38.9        50        36        44.4 </code></pre>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>detection_date <span class="ot">&lt;-</span> qpcr_na <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(date,facility,target,biological_replicate,ct)) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">group_by</span>(date,target) <span class="sc">%&gt;%</span> <span class="co">#summarize at county level for both targets</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">summarize</span>(<span class="at">n_reps =</span> <span class="fu">n</span>(), <span class="co">#count number of technical reps</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_miss =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(ct)), <span class="co">#count number of non detects</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_pos =</span> n_reps<span class="sc">-</span>n_miss, <span class="co">#count number of detects</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pos_rate =</span> (n_pos<span class="sc">/</span>n_reps)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="co">#calculate detection frequency</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> target, <span class="at">values_from=</span><span class="fu">c</span>(n_reps, pos_rate, n_miss, n_pos)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#put N1 and N2 in separate columns</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_reps=</span>n_reps_N1<span class="sc">+</span>n_reps_N2, <span class="co">#add reps from both targets</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_miss=</span>n_miss_N1<span class="sc">+</span>n_miss_N2, <span class="co">#add nondetects from both targets</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_pos=</span>n_reps<span class="sc">-</span>n_miss, <span class="co">#add detects from both targets</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">avg_pos_rate =</span> (n_pos<span class="sc">/</span>n_reps)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="co">#average detection freq across targets</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(n_pos,n_miss,n_pos_N1,n_miss_N1,n_pos_N2,n_miss_N2)) <span class="co">#dump these</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(detection_date,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["n_reps_N1"],"name":[2],"type":["int"],"align":["right"]},{"label":["n_reps_N2"],"name":[3],"type":["int"],"align":["right"]},{"label":["pos_rate_N1"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["pos_rate_N2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["n_reps"],"name":[6],"type":["int"],"align":["right"]},{"label":["avg_pos_rate"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"33","3":"33","4":"24.242424","5":"21.212121","6":"66","7":"22.727273"},{"1":"2020-07-07","2":"21","3":"21","4":"9.523810","5":"19.047619","6":"42","7":"14.285714"},{"1":"2020-07-14","2":"12","3":"15","4":"8.333333","5":"40.000000","6":"27","7":"25.925926"},{"1":"2020-07-21","2":"21","3":"18","4":"28.571429","5":"55.555556","6":"39","7":"41.025641"},{"1":"2020-07-28","2":"18","3":"18","4":"22.222222","5":"38.888889","6":"36","7":"30.555556"},{"1":"2020-08-04","2":"18","3":"18","4":"0.000000","5":"5.555556","6":"36","7":"2.777778"},{"1":"2020-08-11","2":"18","3":"18","4":"11.111111","5":"5.555556","6":"36","7":"8.333333"},{"1":"2020-08-18","2":"18","3":"18","4":"27.777778","5":"55.555556","6":"36","7":"41.666667"},{"1":"2020-08-25","2":"18","3":"18","4":"27.777778","5":"16.666667","6":"36","7":"22.222222"},{"1":"2020-09-01","2":"18","3":"18","4":"38.888889","5":"50.000000","6":"36","7":"44.444444"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
 <section id="smoosh-wbe-data-set-with-pos-data" class="level3">
 <h3 class="anchored" data-anchor-id="smoosh-wbe-data-set-with-pos-data">6. Smoosh wbe data set with %pos data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>wbe_daily <span class="ot">&lt;-</span> <span class="fu">left_join</span>(wbe_vl_final,detection_date, <span class="at">by=</span><span class="st">"date"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">yearweek</span>(date))</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_daily,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 12
-   date       collecti…¹   n1_vl   n2_vl  avg_vl n_rep…² n_rep…³ pos_r…⁴ pos_r…⁵
-   &lt;date&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;
- 1 2020-06-30          7 5.02e12 1.52e12 3.27e12      33      33   24.2    21.2 
- 2 2020-07-07          8 4.39e12 1.42e12 2.91e12      21      21    9.52   19.0 
- 3 2020-07-14          9 2.99e12 1.55e12 2.27e12      12      15    8.33   40   
- 4 2020-07-21         10 6.50e12 2.61e12 4.56e12      21      18   28.6    55.6 
- 5 2020-07-28         11 5.57e12 1.86e12 3.71e12      18      18   22.2    38.9 
- 6 2020-08-04         12 4.20e12 1.35e12 2.78e12      18      18    0       5.56
- 7 2020-08-11         13 4.08e12 1.24e12 2.66e12      18      18   11.1     5.56
- 8 2020-08-18         14 5.18e12 1.65e12 3.41e12      18      18   27.8    55.6 
- 9 2020-08-25         15 5.68e12 1.58e12 3.63e12      18      18   27.8    16.7 
-10 2020-09-01         16 8.63e12 2.94e12 5.78e12      18      18   38.9    50   
-# … with 3 more variables: n_reps &lt;int&gt;, avg_pos_rate &lt;dbl&gt;, week &lt;week&gt;, and
-#   abbreviated variable names ¹​collection_num, ²​n_reps_N1, ³​n_reps_N2,
-#   ⁴​pos_rate_N1, ⁵​pos_rate_N2</code></pre>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>wbe_daily <span class="ot">&lt;-</span> <span class="fu">left_join</span>(wbe_vl_final,detection_date, <span class="at">by=</span><span class="st">"date"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">yearweek</span>(date))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_daily,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["collection_num"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["n1_vl"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["n2_vl"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["avg_vl"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["n_reps_N1"],"name":[6],"type":["int"],"align":["right"]},{"label":["n_reps_N2"],"name":[7],"type":["int"],"align":["right"]},{"label":["pos_rate_N1"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["pos_rate_N2"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n_reps"],"name":[10],"type":["int"],"align":["right"]},{"label":["avg_pos_rate"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["week"],"name":[12],"type":["week"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"7","3":"5.022835e+12","4":"1.517865e+12","5":"3.270350e+12","6":"33","7":"33","8":"24.242424","9":"21.212121","10":"66","11":"22.727273","12":"2020 W27"},{"1":"2020-07-07","2":"8","3":"4.391880e+12","4":"1.418198e+12","5":"2.905039e+12","6":"21","7":"21","8":"9.523810","9":"19.047619","10":"42","11":"14.285714","12":"2020 W28"},{"1":"2020-07-14","2":"9","3":"2.994341e+12","4":"1.546468e+12","5":"2.270405e+12","6":"12","7":"15","8":"8.333333","9":"40.000000","10":"27","11":"25.925926","12":"2020 W29"},{"1":"2020-07-21","2":"10","3":"6.504681e+12","4":"2.608337e+12","5":"4.556509e+12","6":"21","7":"18","8":"28.571429","9":"55.555556","10":"39","11":"41.025641","12":"2020 W30"},{"1":"2020-07-28","2":"11","3":"5.565039e+12","4":"1.859388e+12","5":"3.712214e+12","6":"18","7":"18","8":"22.222222","9":"38.888889","10":"36","11":"30.555556","12":"2020 W31"},{"1":"2020-08-04","2":"12","3":"4.201626e+12","4":"1.349613e+12","5":"2.775619e+12","6":"18","7":"18","8":"0.000000","9":"5.555556","10":"36","11":"2.777778","12":"2020 W32"},{"1":"2020-08-11","2":"13","3":"4.079725e+12","4":"1.236168e+12","5":"2.657947e+12","6":"18","7":"18","8":"11.111111","9":"5.555556","10":"36","11":"8.333333","12":"2020 W33"},{"1":"2020-08-18","2":"14","3":"5.181684e+12","4":"1.645117e+12","5":"3.413400e+12","6":"18","7":"18","8":"27.777778","9":"55.555556","10":"36","11":"41.666667","12":"2020 W34"},{"1":"2020-08-25","2":"15","3":"5.682700e+12","4":"1.581362e+12","5":"3.632031e+12","6":"18","7":"18","8":"27.777778","9":"16.666667","10":"36","11":"22.222222","12":"2020 W35"},{"1":"2020-09-01","2":"16","3":"8.630286e+12","4":"2.935681e+12","5":"5.782984e+12","6":"18","7":"18","8":"38.888889","9":"50.000000","10":"36","11":"44.444444","12":"2020 W36"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(wbe_daily,<span class="fu">here</span>(<span class="st">"data/processed_data/wbe_county_avg.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(wbe_daily,<span class="fu">here</span>(<span class="st">"data/processed_data/wbe_county_avg.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="calculate-wbe-7-dma" class="level3">
 <h3 class="anchored" data-anchor-id="calculate-wbe-7-dma">7. Calculate WBE 7-DMA</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>wbe_7dma <span class="ot">&lt;-</span> wbe_daily <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(avg_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_n1_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(n1_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_n2_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(n2_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(avg_pos_rate,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_n1_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pos_rate_N1,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_n2_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pos_rate_N2,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>))</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_7dma, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 18
-   date       collecti…¹   n1_vl   n2_vl  avg_vl n_rep…² n_rep…³ pos_r…⁴ pos_r…⁵
-   &lt;date&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;
- 1 2020-06-30          7 5.02e12 1.52e12 3.27e12      33      33   24.2    21.2 
- 2 2020-07-07          8 4.39e12 1.42e12 2.91e12      21      21    9.52   19.0 
- 3 2020-07-14          9 2.99e12 1.55e12 2.27e12      12      15    8.33   40   
- 4 2020-07-21         10 6.50e12 2.61e12 4.56e12      21      18   28.6    55.6 
- 5 2020-07-28         11 5.57e12 1.86e12 3.71e12      18      18   22.2    38.9 
- 6 2020-08-04         12 4.20e12 1.35e12 2.78e12      18      18    0       5.56
- 7 2020-08-11         13 4.08e12 1.24e12 2.66e12      18      18   11.1     5.56
- 8 2020-08-18         14 5.18e12 1.65e12 3.41e12      18      18   27.8    55.6 
- 9 2020-08-25         15 5.68e12 1.58e12 3.63e12      18      18   27.8    16.7 
-10 2020-09-01         16 8.63e12 2.94e12 5.78e12      18      18   38.9    50   
-# … with 9 more variables: n_reps &lt;int&gt;, avg_pos_rate &lt;dbl&gt;, week &lt;week&gt;,
-#   vl_7dma &lt;dbl&gt;, vl_n1_7dma &lt;dbl&gt;, vl_n2_7dma &lt;dbl&gt;, pr_7dma &lt;dbl&gt;,
-#   pr_n1_7dma &lt;dbl&gt;, pr_n2_7dma &lt;dbl&gt;, and abbreviated variable names
-#   ¹​collection_num, ²​n_reps_N1, ³​n_reps_N2, ⁴​pos_rate_N1, ⁵​pos_rate_N2</code></pre>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>wbe_7dma <span class="ot">&lt;-</span> wbe_daily <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(avg_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_n1_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(n1_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vl_n2_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(n2_vl,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(avg_pos_rate,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_n1_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pos_rate_N1,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">pr_n2_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pos_rate_N2,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>))</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wbe_7dma, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["collection_num"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["n1_vl"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["n2_vl"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["avg_vl"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["n_reps_N1"],"name":[6],"type":["int"],"align":["right"]},{"label":["n_reps_N2"],"name":[7],"type":["int"],"align":["right"]},{"label":["pos_rate_N1"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["pos_rate_N2"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n_reps"],"name":[10],"type":["int"],"align":["right"]},{"label":["avg_pos_rate"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["week"],"name":[12],"type":["week"],"align":["right"]},{"label":["vl_7dma"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["vl_n1_7dma"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["vl_n2_7dma"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["pr_7dma"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["pr_n1_7dma"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["pr_n2_7dma"],"name":[18],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"7","3":"5.022835e+12","4":"1.517865e+12","5":"3.270350e+12","6":"33","7":"33","8":"24.242424","9":"21.212121","10":"66","11":"22.727273","12":"2020 W27","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA"},{"1":"2020-07-07","2":"8","3":"4.391880e+12","4":"1.418198e+12","5":"2.905039e+12","6":"21","7":"21","8":"9.523810","9":"19.047619","10":"42","11":"14.285714","12":"2020 W28","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA"},{"1":"2020-07-14","2":"9","3":"2.994341e+12","4":"1.546468e+12","5":"2.270405e+12","6":"12","7":"15","8":"8.333333","9":"40.000000","10":"27","11":"25.925926","12":"2020 W29","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA"},{"1":"2020-07-21","2":"10","3":"6.504681e+12","4":"2.608337e+12","5":"4.556509e+12","6":"21","7":"18","8":"28.571429","9":"55.555556","10":"39","11":"41.025641","12":"2020 W30","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA"},{"1":"2020-07-28","2":"11","3":"5.565039e+12","4":"1.859388e+12","5":"3.712214e+12","6":"18","7":"18","8":"22.222222","9":"38.888889","10":"36","11":"30.555556","12":"2020 W31","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA"},{"1":"2020-08-04","2":"12","3":"4.201626e+12","4":"1.349613e+12","5":"2.775619e+12","6":"18","7":"18","8":"0.000000","9":"5.555556","10":"36","11":"2.777778","12":"2020 W32","13":"NA","14":"NA","15":"NA","16":"NA","17":"NA","18":"NA"},{"1":"2020-08-11","2":"13","3":"4.079725e+12","4":"1.236168e+12","5":"2.657947e+12","6":"18","7":"18","8":"11.111111","9":"5.555556","10":"36","11":"8.333333","12":"2020 W33","13":"3.164012e+12","14":"4.680018e+12","15":"1.648005e+12","16":"20.80446","17":"14.85776","18":"26.54504"},{"1":"2020-08-18","2":"14","3":"5.181684e+12","4":"1.645117e+12","5":"3.413400e+12","6":"18","7":"18","8":"27.777778","9":"55.555556","10":"36","11":"41.666667","12":"2020 W34","13":"3.184447e+12","14":"4.702711e+12","15":"1.666184e+12","16":"23.51009","17":"15.36281","18":"31.45125"},{"1":"2020-08-25","2":"15","3":"5.682700e+12","4":"1.581362e+12","5":"3.632031e+12","6":"18","7":"18","8":"27.777778","9":"16.666667","10":"36","11":"22.222222","12":"2020 W35","13":"3.288303e+12","14":"4.887114e+12","15":"1.689493e+12","16":"24.64387","17":"17.97052","18":"31.11111"},{"1":"2020-09-01","2":"16","3":"8.630286e+12","4":"2.935681e+12","5":"5.782984e+12","6":"18","7":"18","8":"38.888889","9":"50.000000","10":"36","11":"44.444444","12":"2020 W36","13":"3.790100e+12","14":"5.692249e+12","15":"1.887952e+12","16":"27.28938","17":"22.33560","18":"32.53968"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(wbe_7dma,<span class="fu">here</span>(<span class="st">"data/processed_data/wbe_7dma.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(wbe_7dma,<span class="fu">here</span>(<span class="st">"data/processed_data/wbe_7dma.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -873,103 +794,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="subset-covid-dates" class="level3">
 <h3 class="anchored" data-anchor-id="subset-covid-dates">1. Subset COVID dates</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>covid_daily <span class="ot">&lt;-</span> covid <span class="sc">%&gt;%</span> </span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2020-06-30"</span>), <span class="fu">as.Date</span>(<span class="st">"2023-01-04"</span>))) <span class="sc">%&gt;%</span>  <span class="co">#filter for surveillance time series</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as_date</span>(date),</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">week =</span> <span class="fu">yearweek</span>(date))</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_daily,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 9
-   date       cases.s…¹ cases…² pcr_t…³ pcr_pos pcr_p…⁴ pcr_p…⁵ prop_…⁶     week
-   &lt;date&gt;         &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;week&gt;
- 1 2020-06-30        55      18     551      66    11       9.5  0.120  2020 W27
- 2 2020-07-01        59      27     614      67    11       9.9  0.109  2020 W27
- 3 2020-07-02        39      47     559      60    11.2    10.3  0.107  2020 W27
- 4 2020-07-03        31      39     255      32    11.5    10.6  0.125  2020 W27
- 5 2020-07-04        20      22      34       7    12      11.4  0.206  2020 W27
- 6 2020-07-05        18      37     106      10    12      11.5  0.0943 2020 W27
- 7 2020-07-06        53      17     612      93    13.1    11.8  0.152  2020 W28
- 8 2020-07-07        67      35     649      82    13.1    12.1  0.126  2020 W28
- 9 2020-07-08        43      43     661      60    12.9    12    0.0908 2020 W28
-10 2020-07-09        52      35     702      78    12.9    12.1  0.111  2020 W28
-# … with abbreviated variable names ¹​cases.symptom.onset, ²​cases.reported,
-#   ³​pcr_tests, ⁴​pcr_pos_7dma, ⁵​pcr_pos_14dma, ⁶​prop_pos</code></pre>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>covid_daily <span class="ot">&lt;-</span> covid <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(date, <span class="fu">as.Date</span>(<span class="st">"2020-06-30"</span>), <span class="fu">as.Date</span>(<span class="st">"2023-01-04"</span>))) <span class="sc">%&gt;%</span>  <span class="co">#filter for surveillance time series</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as_date</span>(date),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">week =</span> <span class="fu">yearweek</span>(date))</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_daily,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["cases.symptom.onset"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["cases.reported"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["pcr_tests"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["pcr_pos"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["pcr_pos_7dma"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["pcr_pos_14dma"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["prop_pos"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["week"],"name":[9],"type":["week"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"55","3":"18","4":"551","5":"66","6":"11.0","7":"9.5","8":"0.11978221","9":"2020 W27"},{"1":"2020-07-01","2":"59","3":"27","4":"614","5":"67","6":"11.0","7":"9.9","8":"0.10912052","9":"2020 W27"},{"1":"2020-07-02","2":"39","3":"47","4":"559","5":"60","6":"11.2","7":"10.3","8":"0.10733453","9":"2020 W27"},{"1":"2020-07-03","2":"31","3":"39","4":"255","5":"32","6":"11.5","7":"10.6","8":"0.12549020","9":"2020 W27"},{"1":"2020-07-04","2":"20","3":"22","4":"34","5":"7","6":"12.0","7":"11.4","8":"0.20588235","9":"2020 W27"},{"1":"2020-07-05","2":"18","3":"37","4":"106","5":"10","6":"12.0","7":"11.5","8":"0.09433962","9":"2020 W27"},{"1":"2020-07-06","2":"53","3":"17","4":"612","5":"93","6":"13.1","7":"11.8","8":"0.15196078","9":"2020 W28"},{"1":"2020-07-07","2":"67","3":"35","4":"649","5":"82","6":"13.1","7":"12.1","8":"0.12634823","9":"2020 W28"},{"1":"2020-07-08","2":"43","3":"43","4":"661","5":"60","6":"12.9","7":"12.0","8":"0.09077156","9":"2020 W28"},{"1":"2020-07-09","2":"52","3":"35","4":"702","5":"78","6":"12.9","7":"12.1","8":"0.11111111","9":"2020 W28"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
 <section id="calculate-case-7-dma" class="level3">
 <h3 class="anchored" data-anchor-id="calculate-case-7-dma">2. Calculate Case 7-DMA</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>covid_7dma <span class="ot">&lt;-</span> covid_daily <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a> <span class="at">symptom_onset_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(cases.symptom.onset,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a> <span class="at">case_report_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(cases.reported,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a> <span class="at">case_pcr_pos_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pcr_pos,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">2</span>),</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a> <span class="at">case_prop_pos_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(prop_pos,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>))</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_7dma,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 13
-   date       cases.s…¹ cases…² pcr_t…³ pcr_pos pcr_p…⁴ pcr_p…⁵ prop_…⁶     week
-   &lt;date&gt;         &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;week&gt;
- 1 2020-06-30        55      18     551      66    11       9.5  0.120  2020 W27
- 2 2020-07-01        59      27     614      67    11       9.9  0.109  2020 W27
- 3 2020-07-02        39      47     559      60    11.2    10.3  0.107  2020 W27
- 4 2020-07-03        31      39     255      32    11.5    10.6  0.125  2020 W27
- 5 2020-07-04        20      22      34       7    12      11.4  0.206  2020 W27
- 6 2020-07-05        18      37     106      10    12      11.5  0.0943 2020 W27
- 7 2020-07-06        53      17     612      93    13.1    11.8  0.152  2020 W28
- 8 2020-07-07        67      35     649      82    13.1    12.1  0.126  2020 W28
- 9 2020-07-08        43      43     661      60    12.9    12    0.0908 2020 W28
-10 2020-07-09        52      35     702      78    12.9    12.1  0.111  2020 W28
-# … with 4 more variables: symptom_onset_7dma &lt;dbl&gt;, case_report_7dma &lt;dbl&gt;,
-#   case_pcr_pos_7dma &lt;dbl&gt;, case_prop_pos_7dma &lt;dbl&gt;, and abbreviated variable
-#   names ¹​cases.symptom.onset, ²​cases.reported, ³​pcr_tests, ⁴​pcr_pos_7dma,
-#   ⁵​pcr_pos_14dma, ⁶​prop_pos</code></pre>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>covid_7dma <span class="ot">&lt;-</span> covid_daily <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a> <span class="at">symptom_onset_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(cases.symptom.onset,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a> <span class="at">case_report_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(cases.reported,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>),</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a> <span class="at">case_pcr_pos_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(pcr_pos,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">2</span>),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a> <span class="at">case_prop_pos_7dma=</span>stats<span class="sc">::</span><span class="fu">filter</span>(prop_pos,<span class="at">filter=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>,<span class="dv">7</span>),<span class="at">method=</span> <span class="st">'convolution'</span>,<span class="at">sides=</span><span class="dv">1</span>))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_7dma,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["date"],"name":[1],"type":["date"],"align":["right"]},{"label":["cases.symptom.onset"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["cases.reported"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["pcr_tests"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["pcr_pos"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["pcr_pos_7dma"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["pcr_pos_14dma"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["prop_pos"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["week"],"name":[9],"type":["week"],"align":["right"]},{"label":["symptom_onset_7dma"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["case_report_7dma"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["case_pcr_pos_7dma"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["case_prop_pos_7dma"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-06-30","2":"55","3":"18","4":"551","5":"66","6":"11.0","7":"9.5","8":"0.11978221","9":"2020 W27","10":"NA","11":"NA","12":"NA","13":"NA"},{"1":"2020-07-01","2":"59","3":"27","4":"614","5":"67","6":"11.0","7":"9.9","8":"0.10912052","9":"2020 W27","10":"NA","11":"NA","12":"NA","13":"NA"},{"1":"2020-07-02","2":"39","3":"47","4":"559","5":"60","6":"11.2","7":"10.3","8":"0.10733453","9":"2020 W27","10":"NA","11":"NA","12":"NA","13":"NA"},{"1":"2020-07-03","2":"31","3":"39","4":"255","5":"32","6":"11.5","7":"10.6","8":"0.12549020","9":"2020 W27","10":"NA","11":"NA","12":"47.85714","13":"NA"},{"1":"2020-07-04","2":"20","3":"22","4":"34","5":"7","6":"12.0","7":"11.4","8":"0.20588235","9":"2020 W27","10":"NA","11":"NA","12":"50.14286","13":"NA"},{"1":"2020-07-05","2":"18","3":"37","4":"106","5":"10","6":"12.0","7":"11.5","8":"0.09433962","9":"2020 W27","10":"NA","11":"NA","12":"49.14286","13":"NA"},{"1":"2020-07-06","2":"53","3":"17","4":"612","5":"93","6":"13.1","7":"11.8","8":"0.15196078","9":"2020 W28","10":"39.28571","11":"29.57143","12":"51.71429","13":"0.1305586"},{"1":"2020-07-07","2":"67","3":"35","4":"649","5":"82","6":"13.1","7":"12.1","8":"0.12634823","9":"2020 W28","10":"41.00000","11":"32.00000","12":"58.14286","13":"0.1314966"},{"1":"2020-07-08","2":"43","3":"43","4":"661","5":"60","6":"12.9","7":"12.0","8":"0.09077156","9":"2020 W28","10":"38.71429","11":"34.28571","12":"61.71429","13":"0.1288753"},{"1":"2020-07-09","2":"52","3":"35","4":"702","5":"78","6":"12.9","7":"12.1","8":"0.11111111","9":"2020 W28","10":"40.57143","11":"32.57143","12":"61.57143","13":"0.1294148"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_7dma,<span class="fu">here</span>(<span class="st">"data/processed_data/covid_7dma.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_7dma,<span class="fu">here</span>(<span class="st">"data/processed_data/covid_7dma.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="c-combine-wbe-covid" class="level2">
 <h2 class="anchored" data-anchor-id="c-combine-wbe-covid">C) Combine WBE &amp; COVID</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>covid_wbe_7dma <span class="ot">&lt;-</span> <span class="fu">left_join</span>(wbe_7dma, covid_7dma, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"week"</span>,<span class="st">"date"</span>))</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>covid_wbe_7dma_weekly <span class="ot">&lt;-</span> covid_wbe_7dma <span class="sc">%&gt;%</span> </span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(<span class="fu">c</span>(date,week,n1_vl,n2_vl,avg_vl,vl_n1_7dma,vl_n2_7dma,vl_7dma,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>          n_reps_N1,n_reps_N2,n_reps,pos_rate_N1,pos_rate_N2,avg_pos_rate,</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>          pr_n1_7dma,pr_n2_7dma,pr_7dma,</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>          cases.symptom.onset,symptom_onset_7dma,cases.reported,case_report_7dma,</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>          pcr_tests,pcr_pos,pcr_pos_7dma,case_pcr_pos_7dma,pcr_pos_14dma,</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>          prop_pos, case_prop_pos_7dma)) <span class="sc">%&gt;%</span> </span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">%&gt;%</span> </span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_if</span>(is.numeric, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tsibble</span>(<span class="at">index =</span> <span class="st">"week"</span>)</span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_wbe_7dma_weekly,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tsibble: 10 x 27 [1W]
-       week   n1_vl   n2_vl  avg_vl vl_n1_7dma vl_n2_7dma   vl_7dma n_reps_N1
-     &lt;week&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
- 1 2020 W27 5.02e12 1.52e12 3.27e12  NaN        NaN       NaN              33
- 2 2020 W28 4.39e12 1.42e12 2.91e12  NaN        NaN       NaN              21
- 3 2020 W29 2.99e12 1.55e12 2.27e12  NaN        NaN       NaN              12
- 4 2020 W30 6.50e12 2.61e12 4.56e12  NaN        NaN       NaN              21
- 5 2020 W31 5.57e12 1.86e12 3.71e12  NaN        NaN       NaN              18
- 6 2020 W32 4.20e12 1.35e12 2.78e12  NaN        NaN       NaN              18
- 7 2020 W33 4.08e12 1.24e12 2.66e12    4.68e12    1.65e12   3.16e12        18
- 8 2020 W34 5.18e12 1.65e12 3.41e12    4.70e12    1.67e12   3.18e12        18
- 9 2020 W35 5.68e12 1.58e12 3.63e12    4.89e12    1.69e12   3.29e12        18
-10 2020 W36 8.63e12 2.94e12 5.78e12    5.69e12    1.89e12   3.79e12        18
-# … with 19 more variables: n_reps_N2 &lt;dbl&gt;, n_reps &lt;dbl&gt;, pos_rate_N1 &lt;dbl&gt;,
-#   pos_rate_N2 &lt;dbl&gt;, avg_pos_rate &lt;dbl&gt;, pr_n1_7dma &lt;dbl&gt;, pr_n2_7dma &lt;dbl&gt;,
-#   pr_7dma &lt;dbl&gt;, cases.symptom.onset &lt;dbl&gt;, symptom_onset_7dma &lt;dbl&gt;,
-#   cases.reported &lt;dbl&gt;, case_report_7dma &lt;dbl&gt;, pcr_tests &lt;dbl&gt;,
-#   pcr_pos &lt;dbl&gt;, pcr_pos_7dma &lt;dbl&gt;, case_pcr_pos_7dma &lt;dbl&gt;,
-#   pcr_pos_14dma &lt;dbl&gt;, prop_pos &lt;dbl&gt;, case_prop_pos_7dma &lt;dbl&gt;</code></pre>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>covid_wbe_7dma <span class="ot">&lt;-</span> <span class="fu">left_join</span>(wbe_7dma, covid_7dma, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"week"</span>,<span class="st">"date"</span>))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>covid_wbe_7dma_weekly <span class="ot">&lt;-</span> covid_wbe_7dma <span class="sc">%&gt;%</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(<span class="fu">c</span>(date,week,n1_vl,n2_vl,avg_vl,vl_n1_7dma,vl_n2_7dma,vl_7dma,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>          n_reps_N1,n_reps_N2,n_reps,pos_rate_N1,pos_rate_N2,avg_pos_rate,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>          pr_n1_7dma,pr_n2_7dma,pr_7dma,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>          cases.symptom.onset,symptom_onset_7dma,cases.reported,case_report_7dma,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>          pcr_tests,pcr_pos,pcr_pos_7dma,case_pcr_pos_7dma,pcr_pos_14dma,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>          prop_pos, case_prop_pos_7dma)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_if</span>(is.numeric, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tsibble</span>(<span class="at">index =</span> <span class="st">"week"</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid_wbe_7dma_weekly,<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["week"],"name":[1],"type":["week"],"align":["right"]},{"label":["n1_vl"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["n2_vl"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["avg_vl"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["vl_n1_7dma"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["vl_n2_7dma"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["vl_7dma"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n_reps_N1"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n_reps_N2"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n_reps"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["pos_rate_N1"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["pos_rate_N2"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["avg_pos_rate"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["pr_n1_7dma"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["pr_n2_7dma"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["pr_7dma"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["cases.symptom.onset"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["symptom_onset_7dma"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["cases.reported"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["case_report_7dma"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["pcr_tests"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["pcr_pos"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["pcr_pos_7dma"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["case_pcr_pos_7dma"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["pcr_pos_14dma"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["prop_pos"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["case_prop_pos_7dma"],"name":[27],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020 W27","2":"5.022835e+12","3":"1.517865e+12","4":"3.270350e+12","5":"NaN","6":"NaN","7":"NaN","8":"33","9":"33","10":"66","11":"24.242424","12":"21.212121","13":"22.727273","14":"NaN","15":"NaN","16":"NaN","17":"55","18":"NaN","19":"18","20":"NaN","21":"551","22":"66","23":"11.0","24":"NaN","25":"9.5","26":"0.11978221","27":"NaN"},{"1":"2020 W28","2":"4.391880e+12","3":"1.418198e+12","4":"2.905039e+12","5":"NaN","6":"NaN","7":"NaN","8":"21","9":"21","10":"42","11":"9.523810","12":"19.047619","13":"14.285714","14":"NaN","15":"NaN","16":"NaN","17":"67","18":"41.00000","19":"35","20":"32.00000","21":"649","22":"82","23":"13.1","24":"58.14286","25":"12.1","26":"0.12634823","27":"0.13149660"},{"1":"2020 W29","2":"2.994341e+12","3":"1.546468e+12","4":"2.270405e+12","5":"NaN","6":"NaN","7":"NaN","8":"12","9":"15","10":"27","11":"8.333333","12":"40.000000","13":"25.925926","14":"NaN","15":"NaN","16":"NaN","17":"58","18":"42.71429","19":"30","20":"35.00000","21":"729","22":"78","23":"12.0","24":"54.57143","25":"12.6","26":"0.10699588","27":"0.11954327"},{"1":"2020 W30","2":"6.504681e+12","3":"2.608337e+12","4":"4.556509e+12","5":"NaN","6":"NaN","7":"NaN","8":"21","9":"18","10":"39","11":"28.571429","12":"55.555556","13":"41.025641","14":"NaN","15":"NaN","16":"NaN","17":"38","18":"41.28571","19":"27","20":"39.57143","21":"586","22":"58","23":"10.4","24":"46.57143","25":"11.2","26":"0.09897611","27":"0.10445752"},{"1":"2020 W31","2":"5.565039e+12","3":"1.859388e+12","4":"3.712214e+12","5":"NaN","6":"NaN","7":"NaN","8":"18","9":"18","10":"36","11":"22.222222","12":"38.888889","13":"30.555556","14":"NaN","15":"NaN","16":"NaN","17":"41","18":"35.85714","19":"23","20":"32.42857","21":"566","22":"60","23":"10.1","24":"41.85714","25":"10.3","26":"0.10600707","27":"0.10142220"},{"1":"2020 W32","2":"4.201626e+12","3":"1.349613e+12","4":"2.775619e+12","5":"NaN","6":"NaN","7":"NaN","8":"18","9":"18","10":"36","11":"0.000000","12":"5.555556","13":"2.777778","14":"NaN","15":"NaN","16":"NaN","17":"41","18":"34.00000","19":"29","20":"41.57143","21":"494","22":"57","23":"11.0","24":"35.14286","25":"10.6","26":"0.11538462","27":"0.10993589"},{"1":"2020 W33","2":"4.079725e+12","3":"1.236168e+12","4":"2.657947e+12","5":"4.680018e+12","6":"1.648005e+12","7":"3.164012e+12","8":"18","9":"18","10":"36","11":"11.111111","12":"5.555556","13":"8.333333","14":"14.85776","15":"26.54504","16":"20.80446","17":"33","18":"27.57143","19":"25","20":"47.42857","21":"627","22":"32","23":"9.0","24":"34.28571","25":"10.0","26":"0.05103668","27":"0.09015922"},{"1":"2020 W34","2":"5.181684e+12","3":"1.645117e+12","4":"3.413400e+12","5":"4.702711e+12","6":"1.666184e+12","7":"3.184447e+12","8":"18","9":"18","10":"36","11":"27.777778","12":"55.555556","13":"41.666667","14":"15.36281","15":"31.45125","16":"23.51009","17":"52","18":"34.14286","19":"38","20":"28.14286","21":"778","22":"55","23":"8.6","24":"39.57143","25":"8.8","26":"0.07069409","27":"0.08616152"},{"1":"2020 W35","2":"5.682700e+12","3":"1.581362e+12","4":"3.632031e+12","5":"4.887114e+12","6":"1.689493e+12","7":"3.288303e+12","8":"18","9":"18","10":"36","11":"27.777778","12":"16.666667","13":"22.222222","14":"17.97052","15":"31.11111","16":"24.64387","17":"84","18":"57.71429","19":"40","20":"37.00000","21":"763","22":"49","23":"9.5","24":"72.14286","25":"9.0","26":"0.06422018","27":"0.09481099"},{"1":"2020 W36","2":"8.630286e+12","3":"2.935681e+12","4":"5.782984e+12","5":"5.692249e+12","6":"1.887952e+12","7":"3.790100e+12","8":"18","9":"18","10":"36","11":"38.888889","12":"50.000000","13":"44.444444","14":"22.33560","15":"32.53968","16":"27.28938","17":"222","18":"160.00000","19":"168","20":"78.71429","21":"920","22":"182","23":"15.7","24":"114.57143","25":"12.6","26":"0.19782609","27":"0.15652615"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_wbe_7dma_weekly,<span class="fu">here</span>(<span class="st">"data/processed_data/covid_wbe_7dma_weekly.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_wbe_7dma_weekly,<span class="fu">here</span>(<span class="st">"data/processed_data/covid_wbe_7dma_weekly.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

@@ -5,6 +5,8 @@ format: html
 editor: visual
 toc: true
 toc-depth: 4
+df-print: paged
+code-overflow: wrap
 ---
 
 ## Info
