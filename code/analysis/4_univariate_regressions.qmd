@@ -44,7 +44,6 @@ data
 See notes on script 3 for details
 
 ```{r}
-
 data_train_dates <- data %>% head(n = 92) #selects dates before or on the 13th week of 2022 (end of March)
 split <- initial_split(data_train_dates, prop=8/10) #reserve 20% of observations at random to do validation
 set.seed(13)
@@ -68,14 +67,20 @@ null <- null_model() %>% set_engine("parsnip") %>% set_mode("regression")
 #### Viz
 
 ```{r}
-hist(log(data$case_pcr_pos_7dma)) #check distribution of dependent variable (more normal when natural log transformed)
+#check distribution of outcome (more normal when natural log transformed)
+hist(log(data$case_pcr_pos_7dma))
 
-hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normally distributed)
+#non log transformed positive tests
+hist(data$case_pcr_pos_7dma)
 
+#distribution of predictor (somewhat normally distributed)
+hist(log10(data$vl_7dma)) 
+
+# Viral Load vs Positive Test Count
 plot(log10(case_pcr_pos_7dma)~ log10(vl_7dma), data=data)
 ```
 
-#### Model
+#### Model (Viral Load 7DMA predicts Positive Test 7DMA)
 
 ```{r,message=FALSE}
 recipe1 <- recipe(case_pcr_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -124,14 +129,17 @@ aug_train1 %>% ggplot(aes(case_pcr_pos_7dma, .pred)) +
 #### Viz
 
 ```{r}
-hist(data$log_case_pos_7dma) #check distribution of dependent variable (more normal when natural log transformed)
+#check distribution of outcome variable (more normal when natural log transformed)
+hist(data$log_case_pos_7dma) 
 
-hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normally distributed)
+#distribution of predictor variable (somewhat normally distributed)
+hist(log10(data$vl_7dma)) 
 
+# Viral Load vs Log Positive Test Count
 plot(log_case_pos_7dma~ log10(vl_7dma), data=data)
 ```
 
-#### Model
+#### Model (Viral Load 7DMA predicts Log Positive Test 7DMA)
 
 ```{r,message=FALSE}
 recipe2 <- recipe(log_case_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -178,14 +186,15 @@ aug_train2 %>% ggplot(aes(log_case_pos_7dma, .pred)) +
 ### 3. Test positivity rate 7DMA \~ log10 VL 7DMA
 
 ```{r}
-hist(data$case_prop_pos_7dma) #check distribution of dependent variable (somewhat skewed)
+hist(data$case_prop_pos_7dma) #check distribution of outcome variable (somewhat skewed)
 
-hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normally except for observations near LOD
+hist(log10(data$vl_7dma)) #distribution of predictor variable (somewhat normally except for observations near LOD
 
+# Viral Load vs Test PR
 plot(case_prop_pos_7dma ~ log10(vl_7dma), data=data)
 ```
 
-#### Model
+#### Model (Viral Load 7DMA predicts Test Pos Rate 7DMA)
 
 ```{r,message=FALSE}
 recipe3 <- recipe(case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -232,14 +241,15 @@ aug_train3 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
 ### 4. Natural log test positivity rate 7DMA \~ log10 VL 7DMA
 
 ```{r}
-hist(data$log_case_prop_pos_7dma*100) #check distribution of dependent variable (more normally distributed)
+hist(data$log_case_prop_pos_7dma*100) #check distribution of outcome variable (more normally distributed)
 
-hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normally distributed except values near LOD)
+hist(log10(data$vl_7dma)) #distribution of predictor variable (somewhat normally distributed except values near LOD)
 
+# Viral Load vs Log Test PR
 plot(log_case_prop_pos_7dma*100 ~ log10(vl_7dma), data=data)
 ```
 
-#### Model
+#### Model (Viral Load 7DMA predicts Log Test Pos Rate 7DMA)
 
 ```{r,message=FALSE}
 recipe4 <- recipe(log_case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -290,16 +300,17 @@ aug_train4 %>% ggplot(aes(log_case_prop_pos_7dma, .pred)) +
 #### Viz
 
 ```{r}
-hist(log10(data$case_pcr_pos_7dma)) #check distribution of dependent variable, more normal when log transformed
+hist(log10(data$case_pcr_pos_7dma)) #check distribution of outcome variable, more normal when log transformed
 
-hist(data$pr_7dma) #distribution of independent variable 
+hist(data$pr_7dma) #distribution of predictor variable 
 
 plot(log10(case_pcr_pos_7dma) ~ pr_7dma, data=data) #log-transformed looks better
 
+#WW PR vs Test Pos
 plot(case_pcr_pos_7dma ~ pr_7dma, data=data) 
 ```
 
-#### Model
+#### Model (WW PR 7DMA predicts Test Positive 7DMA)
 
 ```{r,message=FALSE}
 recipe5 <- recipe(case_pcr_pos_7dma ~ pr_7dma, data = train) #recipe 

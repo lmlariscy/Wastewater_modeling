@@ -15,10 +15,11 @@ code-overflow: wrap
 knitr::opts_chunk$set(message=F)
 ```
 
-```{r}
+```{r,message=FALSE}
 library(tidyverse)
 library(here)
 library(fpp3)
+library(ggthemes)
 ```
 
 ## Load data
@@ -35,74 +36,87 @@ data
 ### 1. Viral Load
 
 ```{r}
-data %>% na.omit() %>% autoplot(log10(vl_7dma)) #smoothed avg viral load
-
-data %>% na.omit() %>% autoplot(log10(avg_vl)) #non-smoothed avg viral load
+data %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=log10(vl_7dma),color="VL 7DMA")) +
+  geom_line(aes(y=log10(avg_vl),color="VL")) +
+  theme_bw() +
+  labs(title = "Viral Load vs Viral Load 7DMA") +
+  ylab("Log10 Weekly Average Copies per Day")
 
 ```
 
 ### 2. qPCR positivity rate
 
 ```{r}
-data %>% na.omit() %>% autoplot(avg_pos_rate) #non-smoothed
-
-data %>% na.omit() %>% autoplot(pr_7dma) #smoothed
+data %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=avg_pos_rate,color="WW PR")) +
+  geom_line(aes(y=pr_7dma,color="WW PR 7DMA")) +
+  theme_bw() +
+  labs(title = "Wastewater Pos Rate vs Wastewater Pos Rate 7DMA") +
+  ylab("Weekly Average Percent Positive qPCR Reactions")
 ```
 
 ### 3. Case symptom onset
 
 ```{r}
-data %>% na.omit() %>% autoplot(cases.symptom.onset) #non-smoothed
-
-data %>% na.omit() %>% autoplot(symptom_onset_7dma) #smoothed
+data %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=cases.symptom.onset,color="Symptom onset")) +
+  geom_line(aes(y=symptom_onset_7dma,color="Symptom onset 7DMA")) +
+  theme_bw() +
+  labs(title = "Symptom Onset vs Symptom Onset 7DMA") +
+  ylab("Weekly Average Case Symptom Onset")
 ```
 
 ### 4. Cases reported
 
 ```{r}
-data %>% na.omit() %>% autoplot(cases.reported) #non-smoothed
-
-data %>% na.omit() %>% autoplot(case_report_7dma) #smoothed
+data %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=cases.reported,color="Cases reported")) +
+  geom_line(aes(y=case_report_7dma,color="Cases reported 7DMA")) +
+  theme_bw() +
+  labs(title = "Cases Reported vs Cases Reported 7DMA") +
+  ylab("Weekly Average Cases Reported")
 ```
 
 ### 5. Case test positives
 
 ```{r}
-data %>% na.omit() %>% autoplot(pcr_pos) #non-smoothed
-
-data %>% na.omit() %>% autoplot(case_pcr_pos_7dma) #smoothed by me
-
-data %>% na.omit() %>% autoplot(pcr_pos_7dma) #smoothed by DPH
+data %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=pcr_pos,color="Pos clinical tests")) +
+  geom_line(aes(y=case_pcr_pos_7dma,color="Pos clinical tests 7DMA")) +
+  geom_line(aes(y=pcr_pos_7dma,color="7DMA calculated by DPH")) +
+  theme_bw() +
+  labs(title = "Positive Clinical Tests vs Positive Clinical Test 7DMA") +
+  ylab("Weekly Average Positive PCR Tests")
 ```
 
 ### 6. Case test positivity rate
 
 ```{r}
-data %>% na.omit() %>% autoplot(prop_pos) #non-smoothed
+data %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=prop_pos*100,color="Clinical Test PR")) +
+  geom_line(aes(y=case_prop_pos_7dma,color="Clinical Test PR 7DMA")) +
+  theme_bw() +
+  labs(title = "Clinical Positivity Rate vs Clinical Positivity Rate 7DMA") +
+  ylab("Weekly Average Percent Positive PCR Tests")
 
-data %>% na.omit() %>% autoplot(case_prop_pos_7dma) #smoothed
 ```
 
-### 7. qPCR PR and test PR comparison
+### 9. Clinical test admin
 
 ```{r}
-data %>% na.omit() %>% ggplot(aes(x=week)) +
-  geom_line(aes(y=case_prop_pos_7dma*100)) +
-  geom_line(aes(y=pr_7dma, color="red"))
-```
-
-### 8. VL and test PR comparison
-
-```{r}
-data %>% na.omit() %>% ggplot(aes(x=week)) +
-  geom_line(aes(y=case_pcr_pos_7dma)) +
-  geom_line(aes(y=pr_7dma, color="red"))
-```
-
-### 9. Test admin
-
-```{r}
-data %>% na.omit() %>% autoplot(pcr_tests)
+data %>% na.omit() %>% 
+  ggplot(aes(week, pcr_tests)) +
+  geom_line() +
+  theme_bw() +
+  labs(title = "Clinical Tests Administered Over Time") +
+  ylab("Weekly Average Clinical Tests")
 ```
 
 ## Notes

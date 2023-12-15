@@ -14,6 +14,7 @@ editor: visual
 | N1           | N1 target on SARSCOV2 genome, used for qPCR        |
 | N2           | N2 target on SARSCOV2 genome, used for qPCR        |
 | WBE          | Wastewater-based epidemiology                      |
+| WW           | Wastewater                                         |
 | VL           | Wastewater viral load (total copies per day)       |
 | 7-DMA        | Seven-day moving average                           |
 | WWTP         | Wastewater treatment plant                         |
@@ -29,7 +30,7 @@ Generally speaking, this data set has been summarized by week, so there is one o
 *Variables of interest are italicized*.
 
 | Name                 | Description                                                         |
-|--------------------|----------------------------------------------------|
+|---------------------|---------------------------------------------------|
 | week                 | Year, week of observation                                           |
 | n1_vl                | Viral load estimated by N1 qPCR assay                               |
 | n2_vl                | Viral load estimated by N2 qPCR assay                               |
