@@ -151,7 +151,7 @@
     "href": "index.html",
     "title": "My Data Repository",
     "section": "",
-    "text": "Purpose\nPhD Chapter 1 data repository\nExploring COVID-19 forecasting methods using wastewater surveillance data\n\n\nScripts\n\nInitial Data Cleaning\nData Preprocessing\nExploratory Time Series Analysis\nUnivariate Linear Regressions"
+    "text": "Purpose\nPhD Chapter 1 data repository\nExploring COVID-19 forecasting methods using wastewater surveillance data\n\n\nScripts\n\nFor data legends and other info, see the Read Me file\n\nInitial Data Cleaning\nData Preprocessing\nExploratory Time Series Analysis\nUnivariate Linear Regressions"
   },
   {
     "objectID": "code/analysis/4_univariate_regressions.html",

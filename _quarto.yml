@@ -10,8 +10,6 @@ website:
         href: ./aboutme.html
       - text: "Scripts"
         menu:
-          - text: "Read Me"
-          - href: ./ReadMe.html
           - text: "1. Initial Data Cleaning"
             href: ./code/processing/1_initial_cleaning.html
           - text: "2. Data Preprocessing"
@@ -20,6 +18,8 @@ website:
             href: ./code/analysis/3_exploratory_timeseries.html
           - text: "4. Univariate Linear Regressions"
             href: ./code/analysis/4_univariate_regressions.html
+          - text: "Read Me"
+          - href: ./ReadMe.html
     right:
       - icon: github 
         href: https://github.com/lmlariscy/WW_Forecasting        

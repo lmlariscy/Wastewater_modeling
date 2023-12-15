@@ -13,6 +13,8 @@ Exploring COVID-19 forecasting methods using wastewater surveillance data
 
 ### Scripts
 
+#### For data legends and other info, see the Read Me file
+
 1.  Initial Data Cleaning
 2.  Data Preprocessing
 3.  Exploratory Time Series Analysis

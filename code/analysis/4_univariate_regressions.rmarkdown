@@ -9,7 +9,9 @@ df-print: paged
 code-overflow: wrap
 ---
 
+
 ## Load packages
+
 
 ```{r}
 knitr::opts_chunk$set(message=F)
@@ -22,7 +24,9 @@ library(forecast)
 library(tidymodels)
 ```
 
+
 ## Load data
+
 
 ```{r}
 data <- readRDS(here("data/processed_data/covid_wbe_7dma_weekly.rds")) %>% 
@@ -39,9 +43,11 @@ data <- readRDS(here("data/processed_data/covid_wbe_7dma_weekly.rds")) %>%
 data
 ```
 
+
 ## Data splitting
 
 See notes on script 3 for details
+
 
 ```{r}
 
@@ -54,18 +60,22 @@ set.seed(16)
 test <- testing(split) #create smaller dataset to do model performance validation with
 ```
 
+
 ## Define model
+
 
 ```{r}
 lr <- linear_reg()
 null <- null_model() %>% set_engine("parsnip") %>% set_mode("regression")
 ```
 
+
 ## A) Log10 Viral load as predictor
 
 ### 1. Positive test count 7DMA \~ VL 7DMA
 
 #### Viz
+
 
 ```{r}
 hist(log(data$case_pcr_pos_7dma)) #check distribution of dependent variable (more normal when natural log transformed)
@@ -75,7 +85,9 @@ hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normal
 plot(log10(case_pcr_pos_7dma)~ log10(vl_7dma), data=data)
 ```
 
+
 #### Model
+
 
 ```{r,message=FALSE}
 recipe1 <- recipe(case_pcr_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -119,9 +131,11 @@ aug_train1 %>% ggplot(aes(case_pcr_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ### 2. Natural log positive test count 7DMA \~ log10 VL 7DMA
 
 #### Viz
+
 
 ```{r}
 hist(data$log_case_pos_7dma) #check distribution of dependent variable (more normal when natural log transformed)
@@ -131,7 +145,9 @@ hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normal
 plot(log_case_pos_7dma~ log10(vl_7dma), data=data)
 ```
 
+
 #### Model
+
 
 ```{r,message=FALSE}
 recipe2 <- recipe(log_case_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -175,7 +191,9 @@ aug_train2 %>% ggplot(aes(log_case_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ### 3. Test positivity rate 7DMA \~ log10 VL 7DMA
+
 
 ```{r}
 hist(data$case_prop_pos_7dma) #check distribution of dependent variable (somewhat skewed)
@@ -185,7 +203,9 @@ hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normal
 plot(case_prop_pos_7dma ~ log10(vl_7dma), data=data)
 ```
 
+
 #### Model
+
 
 ```{r,message=FALSE}
 recipe3 <- recipe(case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -229,7 +249,9 @@ aug_train3 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ### 4. Natural log test positivity rate 7DMA \~ log10 VL 7DMA
+
 
 ```{r}
 hist(data$log_case_prop_pos_7dma*100) #check distribution of dependent variable (more normally distributed)
@@ -239,7 +261,9 @@ hist(log10(data$vl_7dma)) #distribution of independent variable (somewhat normal
 plot(log_case_prop_pos_7dma*100 ~ log10(vl_7dma), data=data)
 ```
 
+
 #### Model
+
 
 ```{r,message=FALSE}
 recipe4 <- recipe(log_case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
@@ -283,11 +307,13 @@ aug_train4 %>% ggplot(aes(log_case_prop_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ## B) qPCR positivity rate as predictor
 
 ### 1. Positive test 7DMA \~ WW PR 7DMA
 
 #### Viz
+
 
 ```{r}
 hist(log10(data$case_pcr_pos_7dma)) #check distribution of dependent variable, more normal when log transformed
@@ -299,7 +325,9 @@ plot(log10(case_pcr_pos_7dma) ~ pr_7dma, data=data) #log-transformed looks bette
 plot(case_pcr_pos_7dma ~ pr_7dma, data=data) 
 ```
 
+
 #### Model
+
 
 ```{r,message=FALSE}
 recipe5 <- recipe(case_pcr_pos_7dma ~ pr_7dma, data = train) #recipe 
@@ -343,9 +371,11 @@ aug_train5 %>% ggplot(aes(case_pcr_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ### 2. Natural log positive test count
 
 #### Model
+
 
 ```{r,message=FALSE}
 recipe6 <- recipe(log_case_pos_7dma ~ pr_7dma, data = train) #recipe 
@@ -389,9 +419,11 @@ aug_train6 %>% ggplot(aes(log_case_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ### 3. Test positivity rate 7DMA \~ WW PR 7DMA
 
 #### Viz
+
 
 ```{r}
 hist(data$case_prop_pos_7dma) #check distribution of dependent variable 
@@ -401,7 +433,9 @@ hist(data$pr_7dma) #distribution of independent variable
 plot(case_prop_pos_7dma ~ pr_7dma, data=data)
 ```
 
+
 #### Model
+
 
 ```{r,message=FALSE}
 recipe7 <- recipe(case_prop_pos_7dma ~ pr_7dma, data = train) #recipe 
@@ -445,11 +479,13 @@ aug_train7 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ## C) Log qPCR positivity rate as predictor
 
 ### 1. Test positivity rate 7DMA \~ Log WW PR
 
 #### Viz
+
 
 ```{r}
 hist(data$case_prop_pos_7dma) #check distribution of dependent variable 
@@ -459,7 +495,9 @@ hist(data$log_pr_7dma) #distribution of independent variable
 plot(case_prop_pos_7dma ~ log_pr_7dma, data=data)
 ```
 
+
 #### Model
+
 
 ```{r,message=FALSE}
 recipe8 <- recipe(case_prop_pos_7dma ~ log_pr_7dma, data = train) #recipe 
@@ -503,6 +541,7 @@ aug_train8 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
   stat_smooth(method = "lm") #check actual vs predicted
 ```
 
+
 ## Notes
 
 -   Model B3 seems to be performing the best so far (out of A1-4, B1-4) but no model is significantly out-performing the others yet
@@ -518,3 +557,4 @@ aug_train8 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
 -   need to see how models will perform on the testing dates (April 2022-end of series)
 
 -   need to build more univariate models, then move on to multivariates
+
