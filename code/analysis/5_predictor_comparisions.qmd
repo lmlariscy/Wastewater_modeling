@@ -1,0 +1,61 @@
+---
+title: "5_predictor_comparisons"
+editor: visual
+---
+
+## Load packages
+
+```{r}
+knitr::opts_chunk$set(message=F)
+```
+
+```{r,message=F}
+library(tidyverse)
+library(here)
+library(forecast)
+library(tidymodels)
+```
+
+## Load data
+
+```{r}
+data <- readRDS(here("data/processed_data/covid_wbe_7dma_weekly.rds")) %>% 
+  select(c(week,avg_vl,vl_7dma,avg_pos_rate,pr_7dma,cases.symptom.onset,
+           symptom_onset_7dma,cases.reported,case_report_7dma,pcr_pos,
+           pcr_pos_7dma,prop_pos,case_prop_pos_7dma))
+```
+
+## Split data by date
+
+```{r}
+early_dates <- data %>% head(n = 92) #selects dates before or on the 13th week of 2022 (end of March)
+#compare results between full data set and early dates (i hypothesize that correlations will be weaker in the full data due to testing drop off)
+```
+
+## Compare R-squared values
+
+### Viral Load as predictor
+
+#### Predicting
+
+```{r}
+data %>% ggplot(aes(avg_vl,))
+```
+
+### Viral Load 7DMA as predictor
+
+```{r}
+
+```
+
+### Detection Frequency as predictor
+
+```{r}
+
+```
+
+### Detection Frequency 7DMA as predictor
+
+```{r}
+
+```

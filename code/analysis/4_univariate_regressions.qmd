@@ -20,6 +20,8 @@ library(tidyverse)
 library(here)
 library(forecast)
 library(tidymodels)
+library(ggpubr)
+library(ggpmisc)
 ```
 
 ## Load data
@@ -30,7 +32,11 @@ data <- readRDS(here("data/processed_data/covid_wbe_7dma_weekly.rds")) %>%
          log_case_pos_7dma=log(case_pcr_pos_7dma),
          case_prop_pos_7dma=case_prop_pos_7dma*100,
          log_case_prop_pos_7dma=log(case_prop_pos_7dma),
-         log_pr_7dma=log(pr_7dma))
+         log_pr_7dma=log(pr_7dma),
+         log10_vl=log10(avg_vl),
+         log_case_prop_pos=log(prop_pos*100),
+         log_qpcr_pos=log(avg_pos_rate)) %>% 
+  filter(log_qpcr_pos>-Inf)
 
 #certain variables have been transformed due to distribution abnormality, with some distributions being normalized by certain transformations
 
@@ -45,6 +51,9 @@ See notes on script 3 for details
 
 ```{r}
 data_train_dates <- data %>% head(n = 92) #selects dates before or on the 13th week of 2022 (end of March)
+
+data_test_dates <- data %>% tail(39) #selects dates on or after the 14th week of 2022
+
 split <- initial_split(data_train_dates, prop=8/10) #reserve 20% of observations at random to do validation
 set.seed(13)
 train <- training(split) #create dataset to train models with
@@ -60,420 +69,28 @@ lr <- linear_reg()
 null <- null_model() %>% set_engine("parsnip") %>% set_mode("regression")
 ```
 
-## A) Log10 Viral load as predictor
+## A) Log10 Viral Load as predictor
 
-### 1. Positive test count 7DMA \~ VL 7DMA
-
-#### Viz
-
-```{r}
-#check distribution of outcome (more normal when natural log transformed)
-hist(log(data$case_pcr_pos_7dma))
-
-#non log transformed positive tests
-hist(data$case_pcr_pos_7dma)
-
-#distribution of predictor (somewhat normally distributed)
-hist(log10(data$vl_7dma)) 
-
-# Viral Load vs Positive Test Count
-plot(log10(case_pcr_pos_7dma)~ log10(vl_7dma), data=data)
-```
-
-#### Model (Viral Load 7DMA predicts Positive Test 7DMA)
-
-```{r,message=FALSE}
-recipe1 <- recipe(case_pcr_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
-####################################################################################
-workflow1 <- workflow() %>% 
-  add_model(lr) %>% 
-  add_recipe(recipe1) #model workflow
-####################################################################################
-set.seed(13)
-fit1 <- workflow1 %>% 
-  fit(data = train) #fit model to data
-
-tidy(fit1) 
-####################################################################################
-aug_train1 <- augment(fit1, train)
-aug_train1 %>% select(case_pcr_pos_7dma, .pred) #make predictions on train data
-####################################################################################
-set.seed(13)
-folds1 <- vfold_cv(train, v = 5, repeats = 5, strata = case_pcr_pos_7dma)
-
-set.seed(13)
-cv1 <- fit_resamples(workflow1, resamples = folds1)
-cv1_metrics <- collect_metrics(cv1)
-cv1_metrics #check cross validation metrics
-####################################################################################
-workflow_null1 <- workflow() %>% 
-  add_model(null) %>% 
-  add_recipe(recipe1)
-
-null_cv_metrics1 <- fit_resamples(workflow_null1, resamples = folds1)
-
-collect_metrics(null_cv_metrics1) #check null model
-####################################################################################
-rmse1 <- aug_train1 %>% rmse(truth = case_pcr_pos_7dma, .pred)
-rsq1 <- aug_train1 %>% rsq(truth = case_pcr_pos_7dma, .pred)
-m1_metrics <- full_join(rmse1, rsq1)
-m1_metrics #check metrics of predictions on train data
-####################################################################################
-aug_train1 %>% ggplot(aes(case_pcr_pos_7dma, .pred)) +
-  geom_point() +
-  stat_smooth(method = "lm") #check actual vs predicted
-```
-
-### 2. Natural log positive test count 7DMA \~ log10 VL 7DMA
+### 1. M8 Test positivity rate
 
 #### Viz
 
 ```{r}
-#check distribution of outcome variable (more normal when natural log transformed)
-hist(data$log_case_pos_7dma) 
+hist(data$prop_pos) #check distribution of dependent variable 
 
-#distribution of predictor variable (somewhat normally distributed)
-hist(log10(data$vl_7dma)) 
+hist(data$avg_vl) #distribution of independent variable 
 
-# Viral Load vs Log Positive Test Count
-plot(log_case_pos_7dma~ log10(vl_7dma), data=data)
-```
+plot(prop_pos ~ log10_vl, data=data)
 
-#### Model (Viral Load 7DMA predicts Log Positive Test 7DMA)
-
-```{r,message=FALSE}
-recipe2 <- recipe(log_case_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
-####################################################################################
-workflow2 <- workflow() %>% 
-  add_model(lr) %>% 
-  add_recipe(recipe2) #model workflow
-####################################################################################
-set.seed(13)
-fit2 <- workflow2 %>% 
-  fit(data = train) #fit model to data
-
-tidy(fit2) 
-####################################################################################
-aug_train2 <- augment(fit2, train)
-aug_train2 %>% select(log_case_pos_7dma, .pred) #make predictions on train data
-####################################################################################
-set.seed(13)
-folds2 <- vfold_cv(train, v = 5, repeats = 5, strata = log_case_pos_7dma)
-
-set.seed(13)
-cv2 <- fit_resamples(workflow2, resamples = folds2)
-cv2_metrics <- collect_metrics(cv2)
-cv2_metrics #check cross validation metrics
-####################################################################################
-workflow_null2 <- workflow() %>% 
-  add_model(null) %>% 
-  add_recipe(recipe2)
-
-null_cv_metrics2 <- fit_resamples(workflow_null2, resamples = folds2)
-
-collect_metrics(null_cv_metrics2) #check null model
-####################################################################################
-rmse2 <- aug_train2 %>% rmse(truth = log_case_pos_7dma, .pred)
-rsq2 <- aug_train2 %>% rsq(truth = log_case_pos_7dma, .pred)
-m2_metrics <- full_join(rmse2, rsq2)
-m2_metrics #check metrics of predictions on train data
-####################################################################################
-aug_train2 %>% ggplot(aes(log_case_pos_7dma, .pred)) +
-  geom_point() +
-  stat_smooth(method = "lm") #check actual vs predicted
-```
-
-### 3. Test positivity rate 7DMA \~ log10 VL 7DMA
-
-```{r}
-hist(data$case_prop_pos_7dma) #check distribution of outcome variable (somewhat skewed)
-
-hist(log10(data$vl_7dma)) #distribution of predictor variable (somewhat normally except for observations near LOD
-
-# Viral Load vs Test PR
-plot(case_prop_pos_7dma ~ log10(vl_7dma), data=data)
-```
-
-#### Model (Viral Load 7DMA predicts Test Pos Rate 7DMA)
-
-```{r,message=FALSE}
-recipe3 <- recipe(case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
-####################################################################################
-workflow3 <- workflow() %>% 
-  add_model(lr) %>% 
-  add_recipe(recipe3) #model workflow
-####################################################################################
-set.seed(13)
-fit3 <- workflow3 %>% 
-  fit(data = train) #fit model to data
-
-tidy(fit3) 
-####################################################################################
-aug_train3 <- augment(fit3, train)
-aug_train3 %>% select(case_prop_pos_7dma, .pred) #make predictions on train data
-####################################################################################
-set.seed(13)
-folds3 <- vfold_cv(train, v = 5, repeats = 5, strata = case_prop_pos_7dma)
-
-set.seed(13)
-cv3 <- fit_resamples(workflow3, resamples = folds3)
-cv3_metrics <- collect_metrics(cv3)
-cv3_metrics #check cross validation metrics
-####################################################################################
-workflow_null3 <- workflow() %>% 
-  add_model(null) %>% 
-  add_recipe(recipe3)
-
-null_cv_metrics3 <- fit_resamples(workflow_null3, resamples = folds3)
-
-collect_metrics(null_cv_metrics3) #check null model
-####################################################################################
-rmse3 <- aug_train3 %>% rmse(truth = case_prop_pos_7dma, .pred)
-rsq3 <- aug_train3 %>% rsq(truth = case_prop_pos_7dma, .pred)
-m3_metrics <- full_join(rmse3, rsq3)
-m3_metrics #check metrics of predictions on train data
-####################################################################################
-aug_train3 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
-  geom_point() +
-  stat_smooth(method = "lm") #check actual vs predicted
-```
-
-### 4. Natural log test positivity rate 7DMA \~ log10 VL 7DMA
-
-```{r}
-hist(data$log_case_prop_pos_7dma*100) #check distribution of outcome variable (more normally distributed)
-
-hist(log10(data$vl_7dma)) #distribution of predictor variable (somewhat normally distributed except values near LOD)
-
-# Viral Load vs Log Test PR
-plot(log_case_prop_pos_7dma*100 ~ log10(vl_7dma), data=data)
-```
-
-#### Model (Viral Load 7DMA predicts Log Test Pos Rate 7DMA)
-
-```{r,message=FALSE}
-recipe4 <- recipe(log_case_prop_pos_7dma ~ log10_vl_7dma, data = train) #recipe 
-####################################################################################
-workflow4 <- workflow() %>% 
-  add_model(lr) %>% 
-  add_recipe(recipe4) #model workflow
-####################################################################################
-set.seed(13)
-fit4 <- workflow4 %>% 
-  fit(data = train) #fit model to data
-
-tidy(fit4) 
-####################################################################################
-aug_train4 <- augment(fit4, train)
-aug_train4 %>% select(log_case_prop_pos_7dma, .pred) #make predictions on train data
-####################################################################################
-set.seed(13)
-folds4 <- vfold_cv(train, v = 5, repeats = 5, strata = log_case_prop_pos_7dma)
-
-set.seed(13)
-cv4 <- fit_resamples(workflow4, resamples = folds4)
-cv4_metrics <- collect_metrics(cv4)
-cv4_metrics #check cross validation metrics
-####################################################################################
-workflow_null4 <- workflow() %>% 
-  add_model(null) %>% 
-  add_recipe(recipe4)
-
-null_cv_metrics4 <- fit_resamples(workflow_null4, resamples = folds4)
-
-collect_metrics(null_cv_metrics4) #check null model
-####################################################################################
-rmse4 <- aug_train4 %>% rmse(truth = log_case_prop_pos_7dma, .pred)
-rsq4 <- aug_train4 %>% rsq(truth = log_case_prop_pos_7dma, .pred)
-m4_metrics <- full_join(rmse4, rsq4)
-m4_metrics #check metrics of predictions on train data
-####################################################################################
-aug_train4 %>% ggplot(aes(log_case_prop_pos_7dma, .pred)) +
-  geom_point() +
-  stat_smooth(method = "lm") #check actual vs predicted
-```
-
-## B) qPCR positivity rate as predictor
-
-### 1. Positive test 7DMA \~ WW PR 7DMA
-
-#### Viz
-
-```{r}
-hist(log10(data$case_pcr_pos_7dma)) #check distribution of outcome variable, more normal when log transformed
-
-hist(data$pr_7dma) #distribution of predictor variable 
-
-plot(log10(case_pcr_pos_7dma) ~ pr_7dma, data=data) #log-transformed looks better
-
-#WW PR vs Test Pos
-plot(case_pcr_pos_7dma ~ pr_7dma, data=data) 
-```
-
-#### Model (WW PR 7DMA predicts Test Positive 7DMA)
-
-```{r,message=FALSE}
-recipe5 <- recipe(case_pcr_pos_7dma ~ pr_7dma, data = train) #recipe 
-####################################################################################
-workflow5 <- workflow() %>% 
-  add_model(lr) %>% 
-  add_recipe(recipe5) #model workflow
-####################################################################################
-set.seed(13)
-fit5 <- workflow5 %>% 
-  fit(data = train) #fit model to data
-
-tidy(fit5) 
-####################################################################################
-aug_train5 <- augment(fit5, train)
-aug_train5 %>% select(case_pcr_pos_7dma, .pred) #make predictions on train data
-####################################################################################
-set.seed(13)
-folds5 <- vfold_cv(train, v = 5, repeats = 5, strata = case_pcr_pos_7dma)
-
-set.seed(13)
-cv5 <- fit_resamples(workflow5, resamples = folds5)
-cv5_metrics <- collect_metrics(cv5)
-cv5_metrics #check cross validation metrics
-####################################################################################
-workflow_null5 <- workflow() %>% 
-  add_model(null) %>% 
-  add_recipe(recipe5)
-
-null_cv_metrics5 <- fit_resamples(workflow_null5, resamples = folds5)
-
-collect_metrics(null_cv_metrics5) #check null model
-####################################################################################
-rmse5 <- aug_train5 %>% rmse(truth = case_pcr_pos_7dma, .pred)
-rsq5 <- aug_train5 %>% rsq(truth = case_pcr_pos_7dma, .pred)
-m5_metrics <- full_join(rmse5, rsq5)
-m5_metrics #check metrics of predictions on train data
-####################################################################################
-aug_train5 %>% ggplot(aes(case_pcr_pos_7dma, .pred)) +
-  geom_point() +
-  stat_smooth(method = "lm") #check actual vs predicted
-```
-
-### 2. Natural log positive test count
-
-#### Model
-
-```{r,message=FALSE}
-recipe6 <- recipe(log_case_pos_7dma ~ pr_7dma, data = train) #recipe 
-####################################################################################
-workflow6 <- workflow() %>% 
-  add_model(lr) %>% 
-  add_recipe(recipe6) #model workflow
-####################################################################################
-set.seed(13)
-fit6 <- workflow6 %>% 
-  fit(data = train) #fit model to data
-
-tidy(fit6) 
-####################################################################################
-aug_train6 <- augment(fit6, train)
-aug_train6 %>% select(log_case_pos_7dma, .pred) #make predictions on train data
-####################################################################################
-set.seed(13)
-folds6 <- vfold_cv(train, v = 5, repeats = 5, strata = log_case_pos_7dma)
-
-set.seed(13)
-cv6 <- fit_resamples(workflow6, resamples = folds6)
-cv6_metrics <- collect_metrics(cv6)
-cv6_metrics #check cross validation metrics
-####################################################################################
-workflow_null6 <- workflow() %>% 
-  add_model(null) %>% 
-  add_recipe(recipe6)
-
-null_cv_metrics6 <- fit_resamples(workflow_null6, resamples = folds6)
-
-collect_metrics(null_cv_metrics6) #check null model
-####################################################################################
-rmse6 <- aug_train6 %>% rmse(truth = log_case_pos_7dma, .pred)
-rsq6 <- aug_train6 %>% rsq(truth = log_case_pos_7dma, .pred)
-m6_metrics <- full_join(rmse6, rsq6)
-m6_metrics #check metrics of predictions on train data
-####################################################################################
-aug_train6 %>% ggplot(aes(log_case_pos_7dma, .pred)) +
-  geom_point() +
-  stat_smooth(method = "lm") #check actual vs predicted
-```
-
-### 3. Test positivity rate 7DMA \~ WW PR 7DMA
-
-#### Viz
-
-```{r}
-hist(data$case_prop_pos_7dma) #check distribution of dependent variable 
-
-hist(data$pr_7dma) #distribution of independent variable 
-
-plot(case_prop_pos_7dma ~ pr_7dma, data=data)
+ggscatter(data, x="avg_vl", y="prop_pos",
+          add="reg.line",conf.int = TRUE,
+          cor.coef = TRUE, cor.method = "pearson")
 ```
 
 #### Model
 
 ```{r,message=FALSE}
-recipe7 <- recipe(case_prop_pos_7dma ~ pr_7dma, data = train) #recipe 
-####################################################################################
-workflow7 <- workflow() %>% 
-  add_model(lr) %>% 
-  add_recipe(recipe7) #model workflow
-####################################################################################
-set.seed(13)
-fit7 <- workflow7 %>% 
-  fit(data = train) #fit model to data
-
-tidy(fit7) 
-####################################################################################
-aug_train7 <- augment(fit7, train)
-aug_train7 %>% select(case_prop_pos_7dma, .pred) #make predictions on train data
-####################################################################################
-set.seed(13)
-folds7 <- vfold_cv(train, v = 5, repeats = 5, strata = case_prop_pos_7dma)
-
-set.seed(13)
-cv7 <- fit_resamples(workflow7, resamples = folds7)
-cv7_metrics <- collect_metrics(cv7)
-cv7_metrics #check cross validation metrics
-####################################################################################
-workflow_null7 <- workflow() %>% 
-  add_model(null) %>% 
-  add_recipe(recipe7)
-
-null_cv_metrics7 <- fit_resamples(workflow_null7, resamples = folds7)
-
-collect_metrics(null_cv_metrics7) #check null model
-####################################################################################
-rmse7 <- aug_train7 %>% rmse(truth = case_prop_pos_7dma, .pred)
-rsq7 <- aug_train7 %>% rsq(truth = case_prop_pos_7dma, .pred)
-m7_metrics <- full_join(rmse7, rsq7)
-m7_metrics #check metrics of predictions on train data
-####################################################################################
-aug_train7 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
-  geom_point() +
-  stat_smooth(method = "lm") #check actual vs predicted
-```
-
-## C) Log qPCR positivity rate as predictor
-
-### 1. Test positivity rate 7DMA \~ Log WW PR
-
-#### Viz
-
-```{r}
-hist(data$case_prop_pos_7dma) #check distribution of dependent variable 
-
-hist(data$log_pr_7dma) #distribution of independent variable 
-
-plot(case_prop_pos_7dma ~ log_pr_7dma, data=data)
-```
-
-#### Model
-
-```{r,message=FALSE}
-recipe8 <- recipe(case_prop_pos_7dma ~ log_pr_7dma, data = train) #recipe 
+recipe8 <- recipe(log_case_prop_pos ~ log10_vl, data = data_train_dates) #recipe 
 ####################################################################################
 workflow8 <- workflow() %>% 
   add_model(lr) %>% 
@@ -486,14 +103,14 @@ fit8 <- workflow8 %>%
 tidy(fit8) 
 ####################################################################################
 aug_train8 <- augment(fit8, train)
-aug_train8 %>% select(case_prop_pos_7dma, .pred) #make predictions on train data
+aug_train8 %>% select(log_case_prop_pos, .pred) #make predictions on train data
 ####################################################################################
 set.seed(13)
-folds8 <- vfold_cv(train, v = 5, repeats = 5, strata = case_prop_pos_7dma)
+folds8 <- vfold_cv(train, v = 5, repeats = 5, strata = log_case_prop_pos)
 
 set.seed(13)
 cv8 <- fit_resamples(workflow8, resamples = folds8)
-cv8_metrics <- collect_metrics(cv8)
+cv8_metrics <- collect_metrics(cv8,summarize = F)
 cv8_metrics #check cross validation metrics
 ####################################################################################
 workflow_null8 <- workflow() %>% 
@@ -504,15 +121,333 @@ null_cv_metrics8 <- fit_resamples(workflow_null8, resamples = folds8)
 
 collect_metrics(null_cv_metrics8) #check null model
 ####################################################################################
-rmse8 <- aug_train8 %>% rmse(truth = case_prop_pos_7dma, .pred)
-rsq8 <- aug_train8 %>% rsq(truth = case_prop_pos_7dma, .pred)
+rmse8 <- aug_train8 %>% rmse(truth = log_case_prop_pos, .pred)
+rsq8 <- aug_train8 %>% rsq(truth = log_case_prop_pos, .pred)
 m8_metrics <- full_join(rmse8, rsq8)
 m8_metrics #check metrics of predictions on train data
 ####################################################################################
-aug_train8 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
+aug_train8 %>% ggplot(aes(log_case_prop_pos, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") #check observed vs predicted
+####################################################################################
+aug_train8 %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=log_case_prop_pos,color="Observed")) +
+  geom_line(aes(y=.pred,color="Predicted")) +
+  theme_bw() #check observed vs predicted on time series
+####################################################################################
+aug_test8 <- augment(fit8, data_test_dates)
+aug_test8 %>% select(log_case_prop_pos, .pred) #make predictions on test dates
+
+aug_test8 %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=log_case_prop_pos,color="Observed")) +
+  geom_line(aes(y=.pred,color="Predicted")) +
+  theme_bw() #check observed vs predicted on time series
+```
+
+### 2. M10 Positive test count
+
+```{r}
+recipe10 <- recipe(pcr_pos ~ log10_vl, data = train) #recipe 
+####################################################################################
+workflow10 <- workflow() %>% 
+  add_model(lr) %>% 
+  add_recipe(recipe10) #model workflow
+####################################################################################
+set.seed(13)
+fit10 <- workflow10 %>% 
+  fit(data = train) #fit model to data
+
+tidy(fit10) 
+####################################################################################
+aug_train10 <- augment(fit10, train)
+aug_train10 <- aug_train10 %>% select(pcr_pos, .pred) #make predictions on training data
+####################################################################################
+set.seed(13)
+folds10 <- vfold_cv(train, v = 5, repeats = 5, strata = pcr_pos)
+
+set.seed(13)
+cv10 <- fit_resamples(workflow10, resamples = folds10)
+cv10_metrics <- collect_metrics(cv10)
+cv10_metrics #check cross validation metrics on training data
+####################################################################################
+workflow_null10 <- workflow() %>% 
+  add_model(null) %>% 
+  add_recipe(recipe10)
+
+null_cv_metrics10 <- fit_resamples(workflow_null10, resamples = folds10)
+
+collect_metrics(null_cv_metrics10) #check null model
+####################################################################################
+rmse10 <- aug_train10 %>% rmse(truth = pcr_pos, .pred)
+rsq10 <- aug_train10 %>% rsq(truth = pcr_pos, .pred)
+m10_metrics <- full_join(rmse10, rsq10)
+m10_metrics #check metrics of predictions on training data
+####################################################################################
+aug_train10 %>% ggplot(aes(pcr_pos, .pred)) +
+  geom_point() +
+  stat_poly_line() + #check actual vs predicted
+  stat_poly_eq()
+####################################################################################
+aug_train10 <- aug_train10 %>% mutate(residual=pcr_pos-.pred) 
+
+aug_train10 %>% ggplot(aes(.pred, residual)) +
+  geom_point() + 
+  stat_poly_line() +
+  stat_poly_eq()
+```
+
+### 3. M12 Symptom onset
+
+```{r}
+recipe12 <- recipe(cases.symptom.onset ~ log10_vl, data = train) #recipe 
+####################################################################################
+workflow12 <- workflow() %>% 
+  add_model(lr) %>% 
+  add_recipe(recipe12) #model workflow
+####################################################################################
+set.seed(13)
+fit12 <- workflow12 %>% 
+  fit(data = train) #fit model to data
+
+tidy(fit12) 
+####################################################################################
+aug_train12 <- augment(fit12, train)
+aug_train12 <- aug_train12 %>% select(cases.symptom.onset, .pred) #make predictions on training data
+####################################################################################
+set.seed(13)
+folds12 <- vfold_cv(train, v = 5, repeats = 5, strata = cases.symptom.onset)
+
+set.seed(13)
+cv12 <- fit_resamples(workflow12, resamples = folds12)
+cv12_metrics <- collect_metrics(cv12)
+cv12_metrics #check cross validation metrics on training data
+####################################################################################
+workflow_null12 <- workflow() %>% 
+  add_model(null) %>% 
+  add_recipe(recipe12)
+
+null_cv_metrics12 <- fit_resamples(workflow_null12, resamples = folds12)
+
+collect_metrics(null_cv_metrics12) #check null model
+####################################################################################
+rmse12 <- aug_train12 %>% rmse(truth = cases.symptom.onset, .pred)
+rsq12 <- aug_train12 %>% rsq(truth = cases.symptom.onset, .pred)
+m12_metrics <- full_join(rmse12, rsq12)
+m12_metrics #check metrics of predictions on training data
+####################################################################################
+aug_train12 %>% ggplot(aes(cases.symptom.onset, .pred)) +
+  geom_point() +
+  stat_poly_line() + #check actual vs predicted
+  stat_poly_eq()
+####################################################################################
+aug_train12 <- aug_train12 %>% mutate(residual=cases.symptom.onset-.pred) 
+
+aug_train12 %>% ggplot(aes(.pred, residual)) +
+  geom_point() + 
+  stat_poly_line() +
+  stat_poly_eq()
+```
+
+## B) qPCR Detection Frequency
+
+### 1. M9 Test positivity rate
+
+#### Viz
+
+```{r}
+data %>% ggplot(aes(x=log_case_prop_pos)) + #check distribution of dependent variable 
+  geom_histogram(binwidth = .8)
+  
+data %>% ggplot(aes(x=log_qpcr_pos)) + 
+  geom_histogram(binwidth = .8) #distribution of independent variable 
+
+plot(log_case_prop_pos ~ log_qpcr_pos, data=data)
+
+ggscatter(data, x="log_qpcr_pos", y="log_case_prop_pos",
+          add="reg.line",conf.int = TRUE,
+          cor.coef = TRUE, cor.method = "pearson")
+```
+
+#### Model
+
+```{r}
+recipe9 <- recipe(log_case_prop_pos ~ log_qpcr_pos, data = data_train_dates) #recipe 
+####################################################################################
+workflow9 <- workflow() %>% 
+  add_model(lr) %>% 
+  add_recipe(recipe9) #model workflow
+####################################################################################
+set.seed(13)
+fit9 <- workflow9 %>% 
+  fit(data = train) #fit model to data
+
+tidy(fit9) 
+####################################################################################
+aug_train9 <- augment(fit9, train)
+aug_train9 %>% select(log_case_prop_pos, .pred) #make predictions on train data
+####################################################################################
+set.seed(13)
+folds9 <- vfold_cv(train, v = 5, repeats = 5, strata = log_case_prop_pos)
+
+set.seed(13)
+cv9 <- fit_resamples(workflow9, resamples = folds9)
+cv9_metrics <- collect_metrics(cv9,summarize = F)
+cv9_metrics #check cross validation metrics
+####################################################################################
+workflow_null9 <- workflow() %>% 
+  add_model(null) %>% 
+  add_recipe(recipe9)
+
+null_cv_metrics9 <- fit_resamples(workflow_null9, resamples = folds9)
+
+collect_metrics(null_cv_metrics9) #check null model
+####################################################################################
+rmse9 <- aug_train9 %>% rmse(truth = log_case_prop_pos, .pred)
+rsq9 <- aug_train9 %>% rsq(truth = log_case_prop_pos, .pred)
+m9_metrics <- full_join(rmse9, rsq9)
+m9_metrics #check metrics of predictions on train data
+####################################################################################
+aug_train9 %>% ggplot(aes(log_case_prop_pos, .pred)) +
   geom_point() +
   stat_smooth(method = "lm") #check actual vs predicted
+####################################################################################
+aug_train9 %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=log_case_prop_pos,color="Observed")) +
+  geom_line(aes(y=.pred,color="Predicted")) +
+  theme_bw()
+
+aug_test9 <- augment(fit9, data_test_dates)
+aug_test9 %>% select(log_case_prop_pos, .pred) #make predictions on test dates
+
+aug_test9 %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=log_case_prop_pos,color="Observed")) +
+  geom_line(aes(y=.pred,color="Predicted")) +
+  theme_bw() #check observed vs predicted on time series
 ```
+
+### 2. M11 Positive test count
+
+```{r}
+recipe11 <- recipe(pcr_pos ~ avg_pos_rate, data = train) #recipe 
+####################################################################################
+workflow11 <- workflow() %>% 
+  add_model(lr) %>% 
+  add_recipe(recipe11) #model workflow
+####################################################################################
+set.seed(13)
+fit11 <- workflow11 %>% 
+  fit(data = train) #fit model to data
+
+tidy(fit11) 
+####################################################################################
+aug_train11 <- augment(fit11, train)
+aug_train11 <- aug_train11 %>% select(pcr_pos, .pred) #make predictions on training data
+####################################################################################
+set.seed(13)
+folds11 <- vfold_cv(train, v = 5, repeats = 5, strata = pcr_pos)
+
+set.seed(13)
+cv11 <- fit_resamples(workflow11, resamples = folds11)
+cv11_metrics <- collect_metrics(cv11)
+cv11_metrics #check cross validation metrics on training data
+####################################################################################
+workflow_null11 <- workflow() %>% 
+  add_model(null) %>% 
+  add_recipe(recipe11)
+
+null_cv_metrics11 <- fit_resamples(workflow_null11, resamples = folds11)
+
+collect_metrics(null_cv_metrics11) #check null model
+####################################################################################
+rmse11 <- aug_train11 %>% rmse(truth = pcr_pos, .pred)
+rsq11 <- aug_train11 %>% rsq(truth = pcr_pos, .pred)
+m11_metrics <- full_join(rmse11, rsq11)
+m11_metrics #check metrics of predictions on training data
+####################################################################################
+aug_train11 %>% ggplot(aes(pcr_pos, .pred)) +
+  geom_point() +
+  stat_poly_line() + #check actual vs predicted
+  stat_poly_eq()
+####################################################################################
+aug_train11 <- aug_train11 %>% mutate(residual=pcr_pos-.pred) 
+
+aug_train11 %>% ggplot(aes(.pred, residual)) +
+  geom_point() + 
+  stat_poly_line() +
+  stat_poly_eq()
+```
+
+### 3. M13 Symptom onset
+
+```{r}
+recipe13 <- recipe(cases.symptom.onset ~ avg_pos_rate, data = train) #recipe 
+####################################################################################
+workflow13 <- workflow() %>% 
+  add_model(lr) %>% 
+  add_recipe(recipe13) #model workflow
+####################################################################################
+set.seed(13)
+fit13 <- workflow13 %>% 
+  fit(data = train) #fit model to data
+
+tidy(fit13) 
+####################################################################################
+aug_train13 <- augment(fit13, train)
+aug_train13 <- aug_train13 %>% select(cases.symptom.onset, .pred) #make predictions on training data
+####################################################################################
+set.seed(13)
+folds13 <- vfold_cv(train, v = 5, repeats = 5, strata = cases.symptom.onset)
+
+set.seed(13)
+cv13 <- fit_resamples(workflow13, resamples = folds13)
+cv13_metrics <- collect_metrics(cv13)
+cv13_metrics #check cross validation metrics on training data
+####################################################################################
+workflow_null13 <- workflow() %>% 
+  add_model(null) %>% 
+  add_recipe(recipe13)
+
+null_cv_metrics13 <- fit_resamples(workflow_null13, resamples = folds13)
+
+collect_metrics(null_cv_metrics13) #check null model
+####################################################################################
+rmse13 <- aug_train13 %>% rmse(truth = cases.symptom.onset, .pred)
+rsq13 <- aug_train13 %>% rsq(truth = cases.symptom.onset, .pred)
+m13_metrics <- full_join(rmse13, rsq13)
+m13_metrics #check metrics of predictions on training data
+####################################################################################
+aug_train13 %>% ggplot(aes(cases.symptom.onset, .pred)) +
+  geom_point() +
+  stat_poly_line() + #check actual vs predicted
+  stat_poly_eq()
+####################################################################################
+aug_train13 <- aug_train13 %>% mutate(residual=cases.symptom.onset-.pred) 
+
+aug_train13 %>% ggplot(aes(.pred, residual)) +
+  geom_point() + 
+  stat_poly_line() +
+  stat_poly_eq()
+```
+
+## Summary
+
+```{r}
+m3 <- cv3_metrics %>% select(c(.metric,mean,std_err)) %>% mutate(model = 3)
+m7 <- cv7_metrics %>% select(c(.metric,mean,std_err)) %>% mutate(model = 7)
+m8 <- cv8_metrics %>% select(c(.metric,mean,std_err)) %>% mutate(model = 8)
+m9 <- cv9_metrics %>% select(c(.metric,mean,std_err)) %>% mutate(model = 9)
+
+metric_compare <- list(m3, m7, m8, m9) %>% reduce(full_join) %>% pivot_wider(names_from = .metric,values_from = mean)
+metric_compare
+```
+
+All models are predicting clinical case positivity ratios
+
+Model cross-validation results (n=25) showed that the qPCR detection frequency model had higher mean r-square values (0.62, SE = 0.026) than the viral load model (0.43, SE = 0.047), and slightly lower mean root mean squared error (0.044, SE = 0.002; 0.054, SE = 0.003).
 
 ## Notes
 
@@ -529,3 +464,84 @@ aug_train8 %>% ggplot(aes(case_prop_pos_7dma, .pred)) +
 -   need to see how models will perform on the testing dates (April 2022-end of series)
 
 -   need to build more univariate models, then move on to multivariates
+
+## Compare model predictions viz
+
+```{r}
+aug_train8 %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=log_case_prop_pos,color="Observed"),size=1.5) +
+  geom_line(aes(y=.pred,color="Predicted"),size=1.5) +
+  ggthemes::theme_clean() +
+  scale_color_manual(values = c("#E30E15","#5C08B1")) +
+  theme(legend.title = element_blank(),
+        axis.title.x.bottom = element_text(size = 15,face = "bold"),
+        axis.text.x.bottom = element_text(size=12),
+        axis.title.y.left = element_text(size = 15,face = "bold"),
+        axis.text.y.left = element_text(size = 12)) +
+  labs(title="COVID-19 Test Positivity Rate Predicted by Viral Load") +
+  xlab("Week") +
+  ylab("Percent Positive")
+
+ggsave(here("figures/viral_load_prediction.png"))
+```
+
+```{r}
+aug_train9 %>% na.omit() %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=log_case_prop_pos,color="Observed"),size=1.5) +
+  geom_line(aes(y=.pred,color="Predicted"),size=1.5) +
+  ggthemes::theme_clean() +
+  scale_color_manual(values = c("#E30E15","#07B8E4")) +
+  theme(legend.title = element_blank(),
+        axis.title.x.bottom = element_text(size = 15,face = "bold"),
+        axis.text.x.bottom = element_text(size=12),
+        axis.title.y.left = element_text(size = 15,face = "bold"),
+        axis.text.y.left = element_text(size = 12)) +
+  labs(title="COVID-19 Test Positivity Rate Predicted by qPCR Deteciton Freq") +
+  xlab("Week") +
+  ylab("Percent Positive") 
+
+ggsave(here("figures/detection_freq_prediction.png"))
+```
+
+### Compare CV metrics
+
+```{r}
+cv8_metrics <- cv8_metrics %>% mutate(model="Viral Load")
+cv9_metrics <- cv9_metrics %>% mutate(model="Detection Frequency")
+
+cv_metrics <- full_join(cv8_metrics,cv9_metrics) %>% 
+  pivot_wider(names_from = .metric,
+              values_from = .estimate)
+
+cv_metrics %>% ggplot(aes(model, rmse, fill=model)) +
+  geom_boxplot(color="black") +
+  theme_clean() +
+  ylab("RMSE") +
+  xlab("Model") +
+  scale_fill_manual(values = c("#07B8E4","#5C08B1")) +
+  theme(legend.title = element_blank(),
+        axis.title.x.bottom = element_text(size = 15,face = "bold"),
+        axis.text.x = element_text(size=12),
+        axis.title.y.left = element_text(size = 15,face = "bold"),
+        axis.text.y.left = element_text(size = 12))
+
+ggsave(here("figures/cv_compare_rmse.png"))
+
+
+cv_metrics %>% ggplot(aes(model, rsq, fill=model)) +
+  geom_boxplot(color="black") +
+  theme_clean() +
+  ylab("R-square") +
+  xlab("Model") +
+  scale_fill_manual(values = c("#07B8E4","#5C08B1")) +
+    theme(legend.title = element_blank(),
+        axis.title.x.bottom = element_text(size = 15,face = "bold"),
+        axis.text.x = element_text(size = 12),
+        axis.title.y.left = element_text(size = 15,face = "bold"),
+        axis.text.y.left = element_text(size = 12))
+
+
+ggsave(here("figures/cv_compare_rsq.png"))
+```

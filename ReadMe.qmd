@@ -30,7 +30,7 @@ Generally speaking, this data set has been summarized by week, so there is one o
 *Variables of interest are italicized*.
 
 | Name                 | Description                                                         |
-|---------------------|---------------------------------------------------|
+|----------------------|---------------------------------------------------------------------|
 | week                 | Year, week of observation                                           |
 | n1_vl                | Viral load estimated by N1 qPCR assay                               |
 | n2_vl                | Viral load estimated by N2 qPCR assay                               |

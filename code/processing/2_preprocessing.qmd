@@ -257,3 +257,13 @@ head(covid_wbe_7dma_weekly,n=10)
 
 saveRDS(covid_wbe_7dma_weekly,here("data/processed_data/covid_wbe_7dma_weekly.rds"))
 ```
+
+```{r}
+class_data <- covid_wbe_7dma_weekly %>% mutate(case_prop_pos = prop_pos*100,
+                                               ) %>% 
+  select(c(week,avg_vl,avg_pos_rate,cases.symptom.onset,cases.reported,
+           pcr_tests,pcr_pos,case_prop_pos))
+
+write_csv(class_data,here("data/processed_data/STAT8040_data.csv"))
+saveRDS(class_data,here("data/processed_data/STAT8040_data.rds"))
+```

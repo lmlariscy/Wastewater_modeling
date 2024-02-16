@@ -119,6 +119,44 @@ data %>% na.omit() %>%
   ylab("Weekly Average Clinical Tests")
 ```
 
+### Viral Load, Detection Freq, Case Pos Rate
+
+```{r}
+data %>% na.omit() %>% 
+  ggplot(aes(week)) +
+  geom_area(aes(y=avg_pos_rate),fill="#2A42DB",alpha=.5) +
+  geom_area(aes(y=prop_pos*100),alpha=.8,fill="#610EAB") +
+  theme_clean() +
+  labs(title = "Wastewater Detection Frequency and Test Positivity Rate Over Time") +
+  ylab("Percent Positive") +
+  theme(axis.text.x = element_text(size=10),
+        axis.title.x.bottom = element_text(size=15,face = "bold"),
+        axis.text.y = element_text(size=10),
+        axis.title.y.left = element_text(size=15,face = "bold")) +
+    scale_fill_manual("Time Series", values=c("#2A42DB", "#610EAB"),
+                        breaks=c("Wastewater","Clinical"))
+```
+
+```{r}
+data %>% mutate(prop_pos=prop_pos*100) %>% 
+  pivot_longer(cols = c(avg_pos_rate,prop_pos),
+                      names_to = "pos_rate") %>% 
+  ggplot(aes(week, value, fill=pos_rate)) +
+  geom_area() +
+  theme_clean() +
+  labs(title = "Wastewater Detection Frequency and Test Positivity Rate Over Time") +
+  ylab("Percent Positive") +
+  xlab("Week") +
+  theme(axis.text.x = element_text(size=10),
+        axis.title.x.bottom = element_text(size=15,face = "bold"),
+        axis.text.y = element_text(size=10),
+        axis.title.y.left = element_text(size=15,face = "bold")) +
+    scale_fill_brewer(name="Time Series", palette="Set1",
+                        labels=c("Wastewater","Clinical"))
+
+ggsave(here("figures/wastewater_clinical_timeseries.png"))
+```
+
 ## Notes
 
 -   all time series follow roughly the same trend
@@ -128,3 +166,10 @@ data %>% na.omit() %>%
 -   tests reported, in general, peak during peak transmission times, but that trend does not continue past the beginning of 2022 (see 9. Test admin), indicating the shift to at-home testing and subsequent under-reporting
 
 -   it may make sense to split at March-April 2022 as correlations between wastewater metrics and case metrics could weaken past this point
+
+```{r}
+ggpubr::ggscatter(data, x="avg_pos_rate", y="cases.reported",
+          add="reg.line",conf.int = TRUE,
+          cor.coef = TRUE, cor.method = "pearson")
+  
+```
