@@ -58,7 +58,7 @@ hospital <- read_rds(here("data/processed_data/athens_hospitalizations.rds"))
 qpcr_na <- read_rds(here("data/processed_data/qpcr_na.rds"))
 ```
 
-## A) WBE Wrangling
+## A) WBE Wrangling - long data edition
 
 ### 1. More cleaning
 
@@ -74,19 +74,16 @@ wbe_count <- wbe %>% count(date,facility,target,collection_num) #max is either 9
 head(wbe_count, n = 10)
 ```
 
-### 2. Average qPCR replicates
+### 2. Average qPCR technical & biological replicates
 
 ```{r}
 #group, then take the average copies per liter and standard deviation
 wbe_avg <- wbe %>% 
   group_by(date,facility,target,collection_num) %>% 
   summarize(avg_copy_L = mean(copy_num_L),
-            sd_copy_L = sd(copy_num_L), 
             influent_flow_L = mean(influent_flow_L),
             avg_viral_load = mean(viral_load),
-            sd_viral_load = sd(viral_load),
-            avg_ct = mean(ct),
-            sd_ct = sd(ct))%>% 
+            avg_ct = mean(ct))%>% 
   ungroup()
 head(wbe_avg, n=10)
 ```
@@ -195,7 +192,7 @@ head(wbe_daily,n=10)
 saveRDS(wbe_daily,here("data/processed_data/wbe_county_avg.rds"))
 ```
 
-### 7. Calculate WBE 7-DMA
+### 7. Calculate WBE 7-DMA (Don't need this)
 
 ```{r}
 wbe_7dma <- wbe_daily %>% mutate(
@@ -223,7 +220,7 @@ covid_daily <- covid %>%
 head(covid_daily,n=10)
 ```
 
-### 2. Calculate Case 7-DMA
+### 2. Calculate Case 7-DMA (Don't need this)
 
 ```{r}
 covid_7dma <- covid_daily %>% mutate(
@@ -237,7 +234,7 @@ head(covid_7dma,n=10)
 saveRDS(covid_7dma,here("data/processed_data/covid_7dma.rds"))
 ```
 
-## C) Combine WBE & COVID
+## C) Combine WBE & COVID by week
 
 ```{r}
 covid_wbe_7dma <- left_join(wbe_7dma, covid_7dma, by = c("week","date"))
@@ -266,4 +263,59 @@ class_data <- covid_wbe_7dma_weekly %>% mutate(case_prop_pos = prop_pos*100,
 
 write_csv(class_data,here("data/processed_data/STAT8040_data.csv"))
 saveRDS(class_data,here("data/processed_data/STAT8040_data.rds"))
+```
+
+## D) WBE Wrangling - wide data edition
+
+### PIVOT! (widen avg viral load data)
+
+```{r}
+wbe_vl_daily_wide <- wbe_avg %>% select(c(date,avg_viral_load,facility,target)) %>% 
+pivot_wider(names_from = c(facility,target),
+            values_from = c(avg_viral_load),
+            names_sep = "_") %>% 
+mutate(date = as_date(date),
+       week = yearweek(date))
+```
+
+### PIVOT! (widen qpcr pos data)
+
+```{r}
+wbe_npos_daily_wide <- qpcr_na %>% mutate(facility = as.factor(facility), #code each facility as a factor
+                                          facility = recode(facility, NO = "A", MI = "B", CC = "C"), #de-identify treatment facility
+                                          facility = ordered(facility, levels = c("A", "B", "C"))) %>% 
+        filter(between(date, as.Date("2020-06-30"), as.Date("2023-01-04"))) %>% 
+        select(!collection_num) %>% 
+        group_by(date,facility,target) %>% 
+        summarize(n = n(), 
+                  n_miss = sum(is.na(ct)),
+                  n_pos = n-n_miss) %>% 
+        ungroup() %>% 
+        select(!n_miss) %>% 
+        pivot_wider(names_from = c(facility,target), values_from = c(n, n_pos))
+                                   
+```
+
+### Combine viral load and npos data
+
+```{r}
+wbe_weekly_wide <- left_join(wbe_npos_daily_wide,wbe_vl_daily_wide, by = "date") %>% 
+  group_by(week) %>% 
+  summarise_at(vars(2:19), mean, ra.rm = F)
+```
+
+### Combine WBE wide data with COVID daily data, summarize by week
+
+```{r}
+covid_weekly <- covid_daily %>% 
+  select(!c(cases.symptom.onset,cases.reported,pcr_pos_7dma,pcr_pos_14dma,prop_pos,date)) %>% 
+  group_by(week) %>% 
+  summarise_at(vars(1:2),sum,na.rm = F) %>% 
+  ungroup()
+
+wbe_covid_weekly_wide <- left_join(wbe_weekly_wide, covid_weekly, by = "week") %>% drop_na(week)
+
+saveRDS(wbe_covid_weekly_wide,here("data/processed_data/wbe_covid_weekly_wide.rds"))
+
+
 ```

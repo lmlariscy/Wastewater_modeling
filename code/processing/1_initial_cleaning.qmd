@@ -285,7 +285,7 @@ plant_v2 %>% ggplot(aes(Collection)) +
 
 ### qPCR data
 
-#### Select for important variables, convert non-detects to NAs
+#### Select for important variables, convert non-detects to "NA"
 
 ```{r}
 #Select date, collection number, sample id/bio rep, target, and ct
