@@ -1,0 +1,174 @@
+---
+title: "Poisson Regressions"
+format: html
+editor: visual
+toc: true
+toc-depth: 4
+df-print: paged
+code-overflow: wrap
+---
+
+# Load Packages
+
+```{r}
+knitr::opts_chunk$set(message=F)
+```
+
+```{r,message=F}
+library(tidyverse)
+library(here)
+library(tidymodels)
+library(ggpubr)
+library(ggpmisc)
+library(poissonreg)
+library(multilevelmod)
+library(agua)
+library(boot)
+```
+
+# Load Data
+
+```{r}
+data <- readRDS(here("data/processed_data/wbe_covid_weekly_wide.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+                A_N2_POS = n_pos_A_N2/n_A_N2,
+                B_N1_POS = n_pos_B_N1/n_B_N1,
+                B_N2_POS = n_pos_B_N2/n_B_N2,
+                C_N1_POS = n_pos_C_N1/n_C_N1,
+                C_N2_POS = n_pos_C_N2/n_C_N2)
+
+```
+
+# Poisson Regressions
+
+## Quick look at model stats
+
+### Viral Load Model
+
+```{r}
+#Quick look at model outcomes
+set.seed(13)
+poisson_vl <- glm(pcr_pos ~ A_N1+A_N2+B_N1+B_N2+C_N1+C_N2, offset=log(pcr_tests),
+             family = poisson(link='log'), data = data)
+
+summary(poisson_vl)
+```
+
+### Assay Positives Model
+
+```{r}
+#Quick look at model outcomes
+set.seed(13)
+poisson_ap <- glm(pcr_pos ~ A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS,                      offset=log(pcr_tests),family = poisson(link='log'), data = data)
+
+summary(poisson_ap)
+```
+
+## Build workflow for cross validation
+
+### Viral Load Model
+
+```{r}
+poisson_reg <- poisson_reg() #define model
+
+recipe_vl <- recipe(pcr_pos ~ A_N1+A_N2+B_N1+B_N2+C_N1+C_N2, 
+                    offset=log(pcr_tests),data = data) #set recipe for model
+
+workflow_vl <- workflow() %>% 
+  add_model(poisson_reg) %>% 
+  add_recipe(recipe_vl) #model workflow
+
+set.seed(13)
+fit_poisson_vl <- workflow_vl %>% 
+  fit(data = data) #fit model to data
+
+tidy(fit_poisson_vl)
+
+set.seed(13)
+folds_vl <- vfold_cv(data, v = 3, repeats = 3, strata = pcr_pos)
+
+set.seed(13)
+cv_vl <- fit_resamples(workflow_vl, resamples = folds_vl)
+cv_vl_metrics <- collect_metrics(cv_vl,summarize = T)
+cv_vl_metrics #check cross validation metrics
+```
+
+### Assay Positives Model
+
+```{r}
+poisson_reg <- poisson_reg() #define model
+
+recipe_ap <- recipe(pcr_pos ~ A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS, 
+                    offset=log(pcr_tests),data = data) #set recipe for model
+
+workflow_ap <- workflow() %>% 
+  add_model(poisson_reg) %>% 
+  add_recipe(recipe_ap) #model workflow
+
+set.seed(13)
+fit_poisson_ap <- workflow_ap %>% 
+  fit(data = data) #fit model to data
+
+tidy(fit_poisson_ap)
+
+set.seed(13)
+folds_ap <- vfold_cv(data, v = 5, repeats = 5, strata = pcr_pos)
+
+set.seed(13)
+cv_ap <- fit_resamples(workflow_ap, resamples = folds_ap)
+cv_ap_metrics <- collect_metrics(cv_ap,summarize = T)
+cv_ap_metrics #check cross validation metrics
+```
+
+## Visualize predictions vs observed
+
+### Viral Load Model
+
+```{r}
+aug_poisson_vl <- augment(fit_poisson_vl, data)
+aug_poisson_vl %>% select(pcr_pos, .pred) 
+
+aug_poisson_vl %>% ggplot(aes(log(pcr_pos), log(.pred))) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+```
+
+### Assay Positives Model
+
+```{r}
+aug_poisson_ap <- augment(fit_poisson_ap, data)
+aug_poisson_ap %>% select(pcr_pos, .pred) 
+
+aug_poisson_ap %>% ggplot(aes(log(pcr_pos), log(.pred))) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+```
+
+# Linear Regressions
+
+## Quick look at model stats
+
+### Viral Load Model
+
+```{r}
+#Quick look at model outcomes
+set.seed(13)
+linear_vl <- lm(pcr_pos/pcr_tests ~ A_N1+A_N2+B_N1+B_N2+C_N1+C_N2,
+                data = data)
+
+summary(linear_vl)
+```
+
+### Assay Positives Model
+
+```{r}
+#Quick look at model outcomes
+set.seed(13)
+linear_ap <- lm(pcr_pos/pcr_tests ~ 
+                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS,
+                data = data)
+
+summary(linear_ap)
+```
