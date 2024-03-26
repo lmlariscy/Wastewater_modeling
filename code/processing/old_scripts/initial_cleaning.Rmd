@@ -21,7 +21,7 @@ This script does the following:
 
 -   Calculates LOD and LOQ values for all four assays
 
--   Transforms NAs to LOD for each assay (and sensitivity testing w/ NAs set at 40 and 42)
+-   Transforms NAs to LOD for each assay
 
 -   Binds all qPCR data sets with WWTP data
 
@@ -29,11 +29,11 @@ This script does the following:
 
 ## Load packages
 
-```{r,echo=FALSE}
+```{r}
 knitr::opts_chunk$set(message=F)
 ```
 
-```{r, message=FALSE,echo=FALSE}
+```{r, message=FALSE}
 library(tidyverse)
 library(skimr)
 library(here)
@@ -103,11 +103,11 @@ numbers3 <- 7:243
 numbers3_tbl <- tibble("Collection" =numbers3)
 ```
 
-## A) Glance at data
+## Glance at data
 
-### 1. StepOne N1
+### StepOne N1
 
-Count observations for each collection number
+#### Count observations for each collection number
 
 ```{r}
 #count observations for each collection date, then visualize
@@ -117,7 +117,7 @@ n1_stepone_v2 %>% ggplot(aes(collection_num)) +
   geom_histogram(binwidth = 1) #max should be either 27 or 54
 ```
 
-Count observations for each biological replicate
+#### Count observations for each biological replicate
 
 ```{r}
 #count observations for each sample id/biological rep, then visualize
@@ -128,7 +128,7 @@ n1_stepone_v2 %>% count(sample_id) %>% ggplot(aes(n)) +
 n1_stepone_v2 %>% count(sample_id) %>% filter(n>3)
 ```
 
-Merge data with number tibble to check missing collections
+#### Merge data with number tibble to check missing collections
 
 ```{r}
 #count observations for each collection number
@@ -140,9 +140,9 @@ count_n1_stepone
 #collection 40 is missing, but this is expected
 ```
 
-### 2. StepOne N2
+### StepOne N2
 
-Merge data with number tibble to check missing collections
+#### Merge data with number tibble to check missing collections
 
 ```{r}
 #count observations for each collection number
@@ -154,7 +154,7 @@ count_n2_stepone
 #collection 40 is missing, but this is expected
 ```
 
-Count observations for each collection number
+#### Count observations for each collection number
 
 ```{r}
 #count observations for each collection date, then visualize
@@ -164,7 +164,7 @@ n2_stepone_v2 %>% ggplot(aes(collection_num)) +
   geom_histogram(binwidth = 1) #max should be either 27 or 54
 ```
 
-Count observations for each biological replicate
+#### Count observations for each biological replicate
 
 ```{r}
 #count observations for each sample id/biological rep, then visualize
@@ -175,9 +175,9 @@ n2_stepone_v2 %>% count(sample_id) %>% ggplot(aes(n)) +
 n2_stepone_v2 %>% count(sample_id) %>% filter(n>3)
 ```
 
-### 3. CFX N1
+### CFX N1
 
-Merge data with number tibble to check missing collections
+#### Merge data with number tibble to check missing collections
 
 ```{r}
 #count observations for each collection number
@@ -187,7 +187,7 @@ count_n1_cfx <- merge(count_n1_cfx, numbers2_tbl, by="collection_num", all.y=T)
 count_n1_cfx
 ```
 
-Count observations for each collection number
+#### Count observations for each collection number
 
 ```{r}
 #count observations for each collection date, then visualize
@@ -198,14 +198,14 @@ n1_cfx_v2 %>% ggplot(aes(collection_num)) +
 
 ```
 
-Check which collections are doubled
+#### Check which collections are doubled
 
 ```{r}
 #check which collections are doubled
 count_n1_cfx %>% filter(n==108)
 ```
 
-Count observations for each biological replicate
+#### Count observations for each biological replicate
 
 ```{r}
 #count observations for each sample id/biological rep, then visualize
@@ -218,9 +218,9 @@ n1_cfx_v2 %>% count(sample_id) %>% ggplot(aes(n)) +
 n1_cfx_v2 %>% count(sample_id) %>% filter(n>3)
 ```
 
-### 4. CFX N2
+### CFX N2
 
-Merge data with number tibble to check missing collections
+#### Merge data with number tibble to check missing collections
 
 ```{r}
 #count observations for each collection number
@@ -230,7 +230,7 @@ count_n2_cfx <- merge(count_n2_cfx, numbers2_tbl, by="collection_num", all.y=T)
 count_n2_cfx
 ```
 
-Check which collections are doubled
+#### Check which collections are doubled
 
 ```{r}
 #check which collections are doubled
@@ -238,7 +238,7 @@ count_n2_cfx %>% filter(n==108)
 
 ```
 
-Count observations for each biological replicate
+#### Count observations for each biological replicate
 
 ```{r}
 #count observations for each sample id/biological rep, then visualize
@@ -251,7 +251,7 @@ n2_cfx_v2 %>% count(sample_id) %>% ggplot(aes(n)) +
 n2_cfx_v2 %>% count(sample_id) %>% filter(n>3)
 ```
 
-Count observations for each collection number
+#### Count observations for each collection number
 
 ```{r}
 #count observations for each collection date, then visualize
@@ -262,9 +262,9 @@ n2_cfx_v2 %>% ggplot(aes(collection_num)) +
   geom_histogram(binwidth = 1) #max should be 54
 ```
 
-### 5. Plant data
+### Plant data
 
-Merge data with number tibble to check missing collections
+#### Merge data with number tibble to check missing collections
 
 ```{r}
 #count observations for each collection number
@@ -274,16 +274,16 @@ count_plant <- merge(count_plant, numbers3_tbl, by="Collection", all.y=T)
 count_plant
 ```
 
-Count observations for each collection date
+#### Count observations for each collection date
 
 ```{r}
 plant_v2 %>% ggplot(aes(Collection)) + 
   geom_histogram(binwidth = 1) #max should be 3
 ```
 
-## B) Cleaning and merging
+## Cleaning and merging
 
-### 1. qPCR data
+### qPCR data
 
 #### Select for important variables, convert non-detects to "NA"
 
@@ -390,7 +390,7 @@ saveRDS(n1_cfx_lod, here("data/processed_data/n1_cfx_lod.rds"))
 saveRDS(n2_cfx_lod, here("data/processed_data/n2_cfx_lod.rds"))
 ```
 
-#### Transform Ct NAs, then calculate copies/uL
+#### Transform Ct NAs to calculate SARS-CoV-2 copies
 
 ##### Using LOD
 
@@ -436,7 +436,7 @@ n2_cfx_1 %>% filter(ct<n2_cfx_lod) %>% ggplot(aes(ct)) + geom_histogram()
 #loooooots of non-detects in first year of surveillance, makes sense because it was early in the pandemic
 ```
 
-##### Using Ct 40 (sensitivity test)
+##### Using Ct 40
 
 ```{r}
 #Replace NAs with limit of detection
@@ -479,7 +479,7 @@ n2_cfx_2 %>% filter(ct<n2_cfx_lod) %>% ggplot(aes(ct)) + geom_histogram()
 #loooooots of non-detects
 ```
 
-##### Using ct 42 (sensitivity test)
+##### Using ct 42
 
 ```{r}
 #Replace NAs with limit of detection
@@ -526,26 +526,20 @@ n2_cfx_3 %>% filter(ct<n2_cfx_lod) %>% ggplot(aes(ct)) + geom_histogram()
 
 #### Bind all qPCR data sets
 
-Using NA = LOD
-
 ```{r}
 #Bind qpcr data
 qpcr_all <- bind_rows(n1_stepone_1, n2_stepone_1, n1_cfx_1, n2_cfx_1) %>% 
   mutate(
     date = sample_date,
-    facility=substr(sample_id, 1,2), #first two letters in sample_id is facility ID
-    biological_replicate=substr(sample_id, nchar(sample_id), nchar(sample_id))) %>% 
-  #last number in sample_id is the biological rep
+    facility=substr(sample_id, 1,2), #first two letters in sample_id is treatment facility ID
+    biological_replicate=substr(sample_id, nchar(sample_id), nchar(sample_id))) %>% #last number in sample_id is the biological rep
  arrange(date, facility, target, biological_replicate) %>% 
-  select(date, facility, target, biological_replicate, 
-         collection_num, ct, copy_num_uL_rxn)#select necessary variables
+  select(date, facility, target, biological_replicate, collection_num, ct, copy_num_uL_rxn)#select necessary variables
   
 #Save to processed data folder
 saveRDS(qpcr_all, here("data/processed_data/qpcr_all1.rds"))
 qpcr_all
 ```
-
-Using NA = ct 40
 
 ```{r}
 qpcr_all_2 <- bind_rows(n1_stepone_2, n2_stepone_2, n1_cfx_2, n2_cfx_2) %>% 
@@ -561,8 +555,6 @@ saveRDS(qpcr_all, here("data/processed_data/qpcr_all2.rds"))
 qpcr_all_2
 ```
 
-Using NA = ct 42
-
 ```{r}
 qpcr_all_3 <- bind_rows(n1_stepone_3, n2_stepone_3, n1_cfx_3, n2_cfx_3) %>% 
   mutate(
@@ -577,9 +569,7 @@ saveRDS(qpcr_all, here("data/processed_data/qpcr_all3.rds"))
 qpcr_all_3
 ```
 
-### 2. Combine plant and qPCR data sets
-
-NA = LOD
+### Combine plant and qPCR data sets
 
 ```{r}
 #Change plant variable names to match qPCR names, remove notes variable, convert millions of gallons to liters
@@ -587,64 +577,22 @@ plant_v2<- plant_v2 %>% rename(collection_num = Collection, facility = wrf) %>%
   select(!notes) %>% 
   mutate(influent_flow_L = influent_flow_mg*1e6*231*(0.0254^3)*1000)
 
+#Select qPCR variables to merge
+#qpcr_all <- qpcr_all %>% select(!date)
+
 #Merge and mutate
-qpcr_plant_all <- merge(qpcr_all, plant_v2, 
-                        by = c("collection_num", "facility", "date"), all = T) %>% 
+qpcr_plant_all <- merge(qpcr_all, plant_v2, by = c("collection_num", "facility", "date"), all = T) %>% 
   mutate(facility = as.factor(facility), #code each facility as a factor
-         facility = recode(facility, NO = "A", MI = "B", CC = "C"), 
-         #de-identify treatment facility
-         facility = ordered(facility, levels = c("A", "B", "C")), 
-         #set facility factor levels
-         copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000, 
-         #calculate copies per L sample
-         viral_load = copy_num_L*influent_flow_L) 
-        #transform copies per uL of reaction to copies per liter
+         facility = recode(facility, NO = "A", MI = "B", CC = "C"), #de-identify treatment facility
+         facility = ordered(facility, levels = c("A", "B", "C")), #set facility factor levels
+         copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000,
+         viral_load = copy_num_L*influent_flow_L) #transform copies per uL of reaction to copies per liter
 
 #Save to processed data folder
 saveRDS(qpcr_plant_all, here("data/processed_data/qpcr_plant_all.rds"))
 ```
 
-NA = ct 40
-
-```{r}
-#Merge and mutate
-qpcr_plant_all2 <- merge(qpcr_all_2, plant_v2, 
-                        by = c("collection_num", "facility", "date"), all = T) %>% 
-  mutate(facility = as.factor(facility), #code each facility as a factor
-         facility = recode(facility, NO = "A", MI = "B", CC = "C"), 
-         #de-identify treatment facility
-         facility = ordered(facility, levels = c("A", "B", "C")), 
-         #set facility factor levels
-         copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000, 
-         #calculate copies per L sample
-         viral_load = copy_num_L*influent_flow_L) 
-        #transform copies per uL of reaction to copies per liter
-
-#Save to processed data folder
-saveRDS(qpcr_plant_all2, here("data/processed_data/qpcr_plant_all_NA40.rds"))
-```
-
-NA = ct 42
-
-```{r}
-#Merge and mutate
-qpcr_plant_all3 <- merge(qpcr_all_3, plant_v2, 
-                        by = c("collection_num", "facility", "date"), all = T) %>% 
-  mutate(facility = as.factor(facility), #code each facility as a factor
-         facility = recode(facility, NO = "A", MI = "B", CC = "C"), 
-         #de-identify treatment facility
-         facility = ordered(facility, levels = c("A", "B", "C")), 
-         #set facility factor levels
-         copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000, 
-         #calculate copies per L sample
-         viral_load = copy_num_L*influent_flow_L) 
-        #transform copies per uL of reaction to copies per liter
-
-#Save to processed data folder
-saveRDS(qpcr_plant_all3, here("data/processed_data/qpcr_plant_all_NA42.rds"))
-```
-
-### 3. Quick look at WBE data
+### Quick look at WBE data
 
 ```{r}
 #Filter for correct date range, then visualize observations for each collection
@@ -659,7 +607,7 @@ qpcr_plant_all %>% count(collection_num) %>%
   filter(between(collection_num, 7, 243), n < 10)
 ```
 
-### 4. Combine DPH COVID data sets
+### Combine DPH COVID data sets
 
 ```{r}
 covid <- full_join(
@@ -681,4 +629,27 @@ covid <- full_join(
 #Save to processed data folder
 saveRDS(covid, here("data/processed_data/all_covid_combined.rds"))
 covid
+```
+
+## Filter hospitalization data
+
+Filter for state of GA, city of Athens, and for appropriate dates
+
+```{r}
+#athens_hospitalizations <- hospitalization %>% 
+  #filter(state=="GA", city=="ATHENS", between(collection_week, as.Date("2020-06-28"), as.Date("2023-01-08")))
+
+#Save to processed data folder
+#saveRDS(athens_hospitalizations, here("data/processed_data/athens_hospitalizations.rds"))
+```
+
+### Combine WBE and COVID data sets
+
+```{r}
+wbe_covid <- merge(qpcr_plant_all, covid, by = "date", all = T) %>% 
+  filter(between(date, as.Date("2020-06-30"), as.Date("2021-06-30")))
+
+wbe_covid
+
+#I didn't save this because I probably won't use it, we can combine later in script 2
 ```
