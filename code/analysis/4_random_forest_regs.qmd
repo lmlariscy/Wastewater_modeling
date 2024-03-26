@@ -1,0 +1,524 @@
+---
+title: "Random Forest Regressions"
+format: html
+editor: visual
+toc: true
+toc-depth: 4
+df-print: paged
+code-overflow: wrap
+---
+
+# Load Packages
+
+```{r,echo=FALSE}
+knitr::opts_chunk$set(message=F)
+```
+
+```{r,message=FALSE}
+library(tidyverse)
+library(here)
+library(tidymodels)
+library(ggpubr)
+library(ggpmisc)
+library(tsibble)
+```
+
+# Load Data
+
+```{r}
+# n = 6 (original data)
+data_n6 <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         TEST_POS = pcr_pos/pcr_tests)
+
+# n = 5
+data_n5 <- readRDS(here("data/processed_data/wbe_covid_n5_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         TEST_POS = pcr_pos/pcr_tests)
+
+# n = 4
+data_n4 <- readRDS(here("data/processed_data/wbe_covid_n4_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         TEST_POS = pcr_pos/pcr_tests)
+
+# n = 3
+data_n3 <- readRDS(here("data/processed_data/wbe_covid_n3_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         TEST_POS = pcr_pos/pcr_tests)
+
+# n = 2
+data_n2 <- readRDS(here("data/processed_data/wbe_covid_n2_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         TEST_POS = pcr_pos/pcr_tests)
+
+# n = 1
+data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         TEST_POS = pcr_pos/pcr_tests)
+```
+
+# Split data
+
+```{r}
+data_n6_train <- data_n6 %>% head(n = 92)
+data_n6_test <- data_n6 %>% tail(n = 39)
+
+data_n5_train <- data_n5 %>% head(n = 92)
+data_n5_test <- data_n5 %>% tail(n = 39)
+
+data_n4_train <- data_n4 %>% head(n = 92)
+data_n4_test <- data_n4 %>% tail(n = 39)
+
+data_n3_train <- data_n3 %>% head(n = 92)
+data_n3_test <- data_n3 %>% tail(n = 39)
+
+data_n2_train <- data_n2 %>% head(n = 92)
+data_n2_test <- data_n2 %>% tail(n = 39)
+
+data_n1_train <- data_n1 %>% head(n = 92)
+data_n1_test <- data_n1 %>% tail(n = 39)
+```
+
+# Specify models & workflows
+
+```{r}
+#general model for all iterations
+rf_model <- rand_forest() %>% set_mode("regression") 
+
+#workflow for assay pos models
+ap_workflow <- workflow() %>% 
+  add_model(rf_model) %>% 
+  add_formula(TEST_POS ~ 
+                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS)
+
+#workflow for viral load models
+vl_workflow <- workflow() %>% 
+  add_model(rf_model) %>% 
+  add_formula(TEST_POS ~ A_N1+A_N2+B_N1+B_N2+C_N1+C_N2)
+```
+
+# Fit Assay Pos
+
+## n = 6
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_ap_n6 <- ap_workflow %>% 
+  fit(data = data_n6_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_ap_n6 <- vfold_cv(data_n6_train, 
+                        v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_ap_n6 <- fit_resamples(ap_workflow, resamples = folds_ap_n6)
+cv_ap_n6_metrics <- collect_metrics(cv_ap_n6,summarize = T)
+
+#check cross validation metrics
+cv_ap_n6_metrics 
+```
+
+## n = 5
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_ap_n5 <- ap_workflow %>% 
+  fit(data = data_n5_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_ap_n5 <- vfold_cv(data_n5_train, 
+                        v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_ap_n5 <- fit_resamples(ap_workflow, resamples = folds_ap_n5)
+cv_ap_n5_metrics <- collect_metrics(cv_ap_n5,summarize = T)
+
+#check cross validation metrics
+cv_ap_n5_metrics 
+```
+
+## n = 4
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_ap_n4 <- ap_workflow %>% 
+  fit(data = data_n4_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_ap_n4 <- vfold_cv(data_n4_train, 
+                        v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_ap_n4 <- fit_resamples(ap_workflow, resamples = folds_ap_n4)
+cv_ap_n4_metrics <- collect_metrics(cv_ap_n4,summarize = T)
+
+#check cross validation metrics
+cv_ap_n4_metrics 
+```
+
+## n = 3
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_ap_n3 <- ap_workflow %>% 
+  fit(data = data_n3_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_ap_n3 <- vfold_cv(data_n3_train, 
+                        v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_ap_n3 <- fit_resamples(ap_workflow, resamples = folds_ap_n3)
+cv_ap_n3_metrics <- collect_metrics(cv_ap_n3,summarize = T)
+
+#check cross validation metrics
+cv_ap_n3_metrics 
+```
+
+## n = 2
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_ap_n2 <- ap_workflow %>% 
+  fit(data = data_n2_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_ap_n2 <- vfold_cv(data_n2_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_ap_n2 <- fit_resamples(ap_workflow, resamples = folds_ap_n2)
+cv_ap_n2_metrics <- collect_metrics(cv_ap_n2,summarize = T)
+
+#check cross validation metrics
+cv_ap_n2_metrics 
+```
+
+## n =1
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_ap_n1 <- ap_workflow %>% 
+  fit(data = data_n1_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_ap_n1 <- vfold_cv(data_n1_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_ap_n1 <- fit_resamples(ap_workflow, resamples = folds_ap_n1)
+cv_ap_n1_metrics <- collect_metrics(cv_ap_n1,summarize = T)
+
+#check cross validation metrics
+cv_ap_n1_metrics 
+```
+
+# Fit Viral Load
+
+## n = 6
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_vl_n6 <- vl_workflow %>% 
+  fit(data = data_n6_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_vl_n6 <- vfold_cv(data_n6_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_vl_n6 <- fit_resamples(vl_workflow, resamples = folds_vl_n6)
+cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = T)
+
+#check cross validation metrics
+cv_vl_n6_metrics 
+```
+
+## n = 5
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_vl_n5 <- vl_workflow %>% 
+  fit(data = data_n5_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_vl_n5 <- vfold_cv(data_n5_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_vl_n5 <- fit_resamples(vl_workflow, resamples = folds_vl_n5)
+cv_vl_n5_metrics <- collect_metrics(cv_vl_n5,summarize = T)
+
+#check cross validation metrics
+cv_vl_n5_metrics 
+```
+
+## n = 4
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_vl_n4 <- vl_workflow %>% 
+  fit(data = data_n4_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_vl_n4 <- vfold_cv(data_n4_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_vl_n4 <- fit_resamples(vl_workflow, resamples = folds_vl_n4)
+cv_vl_n4_metrics <- collect_metrics(cv_vl_n4,summarize = T)
+
+#check cross validation metrics
+cv_vl_n4_metrics 
+```
+
+## n = 3
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_vl_n3 <- vl_workflow %>% 
+  fit(data = data_n3_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_vl_n3 <- vfold_cv(data_n3_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_vl_n3 <- fit_resamples(vl_workflow, resamples = folds_vl_n3)
+cv_vl_n3_metrics <- collect_metrics(cv_vl_n3,summarize = T)
+
+#check cross validation metrics
+cv_vl_n3_metrics 
+```
+
+## n = 2
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_vl_n2 <- vl_workflow %>% 
+  fit(data = data_n2_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_vl_n2 <- vfold_cv(data_n2_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_vl_n2 <- fit_resamples(vl_workflow, resamples = folds_vl_n2)
+cv_vl_n2_metrics <- collect_metrics(cv_vl_n2,summarize = T)
+
+#check cross validation metrics
+cv_vl_n2_metrics 
+```
+
+## n = 1
+
+```{r}
+#fit model to data
+set.seed(13)
+fit_vl_n1 <- vl_workflow %>% 
+  fit(data = data_n1_train)
+
+#create folds for cross validation
+set.seed(13)
+folds_vl_n1 <- vfold_cv(data_n1_train, v = 3, repeats = 3, strata = TEST_POS)
+
+#run cross validation
+set.seed(13)
+cv_vl_n1 <- fit_resamples(vl_workflow, resamples = folds_vl_n1)
+cv_vl_n1_metrics <- collect_metrics(cv_vl_n1,summarize = T)
+
+#check cross validation metrics
+cv_vl_n1_metrics 
+```
+
+# Augment Assay Pos Fits
+
+## n = 6
+
+### Training data
+
+```{r}
+aug_ap_n6 <- augment(fit_ap_n6, data_n6_train)
+
+aug_ap_n6 %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_ap_n6 %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```
+
+### Testing data
+
+```{r}
+aug_ap_n6_test <- augment(fit_ap_n6, data_n6_test)
+
+aug_ap_n6_test %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_ap_n6_test %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```
+
+## n = 1
+
+### Training data
+
+```{r}
+aug_ap_n1 <- augment(fit_ap_n1, data_n1_train)
+
+aug_ap_n1 %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_ap_n1 %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```
+
+### Testing data
+
+```{r}
+aug_ap_n1_test <- augment(fit_ap_n1, data_n1_test)
+
+aug_ap_n1_test %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_ap_n1_test %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```
+
+# Augment Viral Load Fits
+
+## n = 6 
+
+### Training data
+
+```{r}
+aug_vl_n6 <- augment(fit_vl_n6, data_n6_train)
+
+aug_vl_n6 %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_vl_n6 %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```
+
+### Testing data
+
+```{r}
+aug_vl_n6_test <- augment(fit_vl_n6, data_n6_test)
+
+aug_vl_n6_test %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_vl_n6_test %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```
+
+## n = 1
+
+### Training data
+
+```{r}
+aug_vl_n1 <- augment(fit_vl_n1, data_n1_train)
+
+aug_vl_n1 %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_vl_n1 %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```
+
+### Testing data
+
+```{r}
+aug_vl_n1_test <- augment(fit_vl_n1, data_n1_test)
+
+aug_vl_n1_test %>% ggplot(aes(TEST_POS, .pred)) +
+  geom_point() +
+  stat_smooth(method = "lm") 
+
+aug_vl_n1_test %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=TEST_POS), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+```

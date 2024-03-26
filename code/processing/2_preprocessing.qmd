@@ -215,15 +215,6 @@ Then, summarize by week (average viral load)
 VL data ready to be combined with AP data
 
 ```{r}
-vl_daily_wide <- wbe_avg %>% select(c(date,avg_viral_load,facility,target)) %>% 
-pivot_wider(names_from = c(facility,target),
-            values_from = c(avg_viral_load),
-            names_sep = "_") %>% 
-mutate(date = as_date(date),
-       week = yearweek(date))
-```
-
-```{r}
 # n = 6
 vl_n6_week <- vl_avg_n6 %>% 
   select(c(date,avg_viral_load,facility,target)) %>% 
