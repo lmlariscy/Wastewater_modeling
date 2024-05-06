@@ -114,7 +114,7 @@ fit_poisson_ap <- workflow_ap %>%
 tidy(fit_poisson_ap)
 
 set.seed(13)
-folds_ap <- vfold_cv(data, v = 5, repeats = 5, strata = pcr_pos)
+folds_ap <- vfold_cv(data, v = 3, repeats = 3, strata = pcr_pos)
 
 set.seed(13)
 cv_ap <- fit_resamples(workflow_ap, resamples = folds_ap)
@@ -130,9 +130,18 @@ cv_ap_metrics #check cross validation metrics
 aug_poisson_vl <- augment(fit_poisson_vl, data)
 aug_poisson_vl %>% select(pcr_pos, .pred) 
 
-aug_poisson_vl %>% ggplot(aes(log(pcr_pos), log(.pred))) +
+aug_poisson_vl %>% ggplot(aes(pcr_pos, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq() 
+  
+ggsave(here("figures/poisson_vl_obsVSpredict.png"))
+
+aug_poisson_vl %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=pcr_pos), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+
+ggsave(here("figures/poisson_vl_timeseries.png"))
 ```
 
 ### Assay Positives Model
@@ -141,9 +150,18 @@ aug_poisson_vl %>% ggplot(aes(log(pcr_pos), log(.pred))) +
 aug_poisson_ap <- augment(fit_poisson_ap, data)
 aug_poisson_ap %>% select(pcr_pos, .pred) 
 
-aug_poisson_ap %>% ggplot(aes(log(pcr_pos), log(.pred))) +
+aug_poisson_ap %>% ggplot(aes(pcr_pos, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
+
+ggsave(here("figures/poisson_df_obsVSpredict.png"))
+
+aug_poisson_ap %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=pcr_pos), color = "blue") +
+  geom_line(aes(y=.pred), color = "red")
+
+ggsave(here("figures/poisson_df_timeseries.png"))
 ```
 
 # Linear Regressions

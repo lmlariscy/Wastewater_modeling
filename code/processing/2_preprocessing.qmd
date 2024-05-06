@@ -76,7 +76,7 @@ wbe_count <- wbe %>% count(date,facility,target,collection_num) #max is either 9
 head(wbe_count, n = 10)
 ```
 
-### 2. Average VL technical reps 
+### 2. Average VL technical reps
 
 This will be used to subset data by n number of biological replicates
 
@@ -91,36 +91,42 @@ wbe_vl_avg <- wbe %>%
 
 ```{r}
 # n = 6
+set.seed(13)
 vl_avg_n6 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=6) %>% 
   summarize(avg_viral_load = mean(avg_viral_load))
 
 #n = 5
+set.seed(13)
 vl_avg_n5 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=5) %>% 
   summarize(avg_viral_load = mean(avg_viral_load))
 
 #n = 4
+set.seed(13)
 vl_avg_n4 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=4) %>% 
   summarize(avg_viral_load = mean(avg_viral_load))
 
 #n = 3
+set.seed(13)
 vl_avg_n3 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=3) %>% 
   summarize(avg_viral_load = mean(avg_viral_load))
 
 #n = 2
+set.seed(13)
 vl_avg_n2 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=2) %>% 
   summarize(avg_viral_load = mean(avg_viral_load))
 
 #n = 1
+set.seed(13)
 vl_avg_n1 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=1) %>% 
@@ -148,6 +154,7 @@ wbe_ap_avg <- qpcr_na %>%
 
 ```{r}
 # n = 6
+set.seed(13)
 ap_avg_n6 <- wbe_ap_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=6) %>% 
@@ -158,6 +165,7 @@ ap_avg_n6 <- wbe_ap_avg %>%
   select(!n_miss)
 
 # n = 5
+set.seed(13)
 ap_avg_n5 <- wbe_ap_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=5) %>% 
@@ -168,6 +176,7 @@ ap_avg_n5 <- wbe_ap_avg %>%
   select(!n_miss)
 
 # n = 4
+set.seed(13)
 ap_avg_n4 <- wbe_ap_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=4) %>% 
@@ -178,6 +187,7 @@ ap_avg_n4 <- wbe_ap_avg %>%
   select(!n_miss)
 
 # n = 3
+set.seed(13)
 ap_avg_n3 <- wbe_ap_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=3) %>% 
@@ -188,6 +198,7 @@ ap_avg_n3 <- wbe_ap_avg %>%
   select(!n_miss)
 
 # n = 2
+set.seed(13)
 ap_avg_n2 <- wbe_ap_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=2) %>% 
@@ -198,6 +209,7 @@ ap_avg_n2 <- wbe_ap_avg %>%
   select(!n_miss)
 
 # n = 1
+set.seed(13)
 ap_avg_n1 <- wbe_ap_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=1) %>% 

@@ -21,6 +21,7 @@ library(tidymodels)
 library(ggpubr)
 library(ggpmisc)
 library(tsibble)
+library(ingredients)
 ```
 
 # Load Data
@@ -102,23 +103,23 @@ data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>%
 # Split data
 
 ```{r}
-data_n6_train <- data_n6 %>% head(n = 92)
-data_n6_test <- data_n6 %>% tail(n = 39)
+data_n6_train <- data_n6 %>% head(n = 79)
+data_n6_test <- data_n6 %>% tail(n = 52)
 
-data_n5_train <- data_n5 %>% head(n = 92)
-data_n5_test <- data_n5 %>% tail(n = 39)
+data_n5_train <- data_n5 %>% head(n = 79)
+data_n5_test <- data_n5 %>% tail(n = 52)
 
-data_n4_train <- data_n4 %>% head(n = 92)
-data_n4_test <- data_n4 %>% tail(n = 39)
+data_n4_train <- data_n4 %>% head(n = 79)
+data_n4_test <- data_n4 %>% tail(n = 52)
 
-data_n3_train <- data_n3 %>% head(n = 92)
-data_n3_test <- data_n3 %>% tail(n = 39)
+data_n3_train <- data_n3 %>% head(n = 79)
+data_n3_test <- data_n3 %>% tail(n = 52)
 
-data_n2_train <- data_n2 %>% head(n = 92)
-data_n2_test <- data_n2 %>% tail(n = 39)
+data_n2_train <- data_n2 %>% head(n = 79)
+data_n2_test <- data_n2 %>% tail(n = 52)
 
-data_n1_train <- data_n1 %>% head(n = 92)
-data_n1_test <- data_n1 %>% tail(n = 39)
+data_n1_train <- data_n1 %>% head(n = 79)
+data_n1_test <- data_n1 %>% tail(n = 52)
 ```
 
 # Specify models & workflows
@@ -157,10 +158,11 @@ folds_ap_n6 <- vfold_cv(data_n6_train,
 #run cross validation
 set.seed(13)
 cv_ap_n6 <- fit_resamples(ap_workflow, resamples = folds_ap_n6)
-cv_ap_n6_metrics <- collect_metrics(cv_ap_n6,summarize = T)
+cv_ap_n6_metrics <- collect_metrics(cv_ap_n6,summarize = F)
+ap_n6_metrics_sum <- collect_metrics(cv_ap_n6,summarize = T)
 
 #check cross validation metrics
-cv_ap_n6_metrics 
+ap_n6_metrics_sum 
 ```
 
 ## n = 5
@@ -179,10 +181,11 @@ folds_ap_n5 <- vfold_cv(data_n5_train,
 #run cross validation
 set.seed(13)
 cv_ap_n5 <- fit_resamples(ap_workflow, resamples = folds_ap_n5)
-cv_ap_n5_metrics <- collect_metrics(cv_ap_n5,summarize = T)
+cv_ap_n5_metrics <- collect_metrics(cv_ap_n5,summarize = F)
+ap_n5_metrics_sum <- collect_metrics(cv_ap_n5,summarize = T)
 
 #check cross validation metrics
-cv_ap_n5_metrics 
+ap_n5_metrics_sum 
 ```
 
 ## n = 4
@@ -201,10 +204,11 @@ folds_ap_n4 <- vfold_cv(data_n4_train,
 #run cross validation
 set.seed(13)
 cv_ap_n4 <- fit_resamples(ap_workflow, resamples = folds_ap_n4)
-cv_ap_n4_metrics <- collect_metrics(cv_ap_n4,summarize = T)
+cv_ap_n4_metrics <- collect_metrics(cv_ap_n4,summarize = F)
+ap_n4_metrics_sum <- collect_metrics(cv_ap_n4,summarize = T)
 
 #check cross validation metrics
-cv_ap_n4_metrics 
+ap_n4_metrics_sum
 ```
 
 ## n = 3
@@ -223,10 +227,11 @@ folds_ap_n3 <- vfold_cv(data_n3_train,
 #run cross validation
 set.seed(13)
 cv_ap_n3 <- fit_resamples(ap_workflow, resamples = folds_ap_n3)
-cv_ap_n3_metrics <- collect_metrics(cv_ap_n3,summarize = T)
+cv_ap_n3_metrics <- collect_metrics(cv_ap_n3,summarize = F)
+ap_n3_metrics_sum <- collect_metrics(cv_ap_n3,summarize = T)
 
 #check cross validation metrics
-cv_ap_n3_metrics 
+ap_n3_metrics_sum 
 ```
 
 ## n = 2
@@ -244,10 +249,11 @@ folds_ap_n2 <- vfold_cv(data_n2_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_ap_n2 <- fit_resamples(ap_workflow, resamples = folds_ap_n2)
-cv_ap_n2_metrics <- collect_metrics(cv_ap_n2,summarize = T)
+cv_ap_n2_metrics <- collect_metrics(cv_ap_n2,summarize = F)
+ap_n2_metrics_sum <- collect_metrics(cv_ap_n2,summarize = T)
 
 #check cross validation metrics
-cv_ap_n2_metrics 
+ap_n2_metrics_sum 
 ```
 
 ## n =1
@@ -265,10 +271,11 @@ folds_ap_n1 <- vfold_cv(data_n1_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_ap_n1 <- fit_resamples(ap_workflow, resamples = folds_ap_n1)
-cv_ap_n1_metrics <- collect_metrics(cv_ap_n1,summarize = T)
+cv_ap_n1_metrics <- collect_metrics(cv_ap_n1,summarize = F)
+ap_n1_metrics_sum <- collect_metrics(cv_ap_n1,summarize = T)
 
 #check cross validation metrics
-cv_ap_n1_metrics 
+ap_n1_metrics_sum 
 ```
 
 # Fit Viral Load
@@ -288,7 +295,7 @@ folds_vl_n6 <- vfold_cv(data_n6_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_vl_n6 <- fit_resamples(vl_workflow, resamples = folds_vl_n6)
-cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = T)
+cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = F)
 
 #check cross validation metrics
 cv_vl_n6_metrics 
@@ -309,7 +316,7 @@ folds_vl_n5 <- vfold_cv(data_n5_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_vl_n5 <- fit_resamples(vl_workflow, resamples = folds_vl_n5)
-cv_vl_n5_metrics <- collect_metrics(cv_vl_n5,summarize = T)
+cv_vl_n5_metrics <- collect_metrics(cv_vl_n5,summarize = F)
 
 #check cross validation metrics
 cv_vl_n5_metrics 
@@ -330,7 +337,7 @@ folds_vl_n4 <- vfold_cv(data_n4_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_vl_n4 <- fit_resamples(vl_workflow, resamples = folds_vl_n4)
-cv_vl_n4_metrics <- collect_metrics(cv_vl_n4,summarize = T)
+cv_vl_n4_metrics <- collect_metrics(cv_vl_n4,summarize = F)
 
 #check cross validation metrics
 cv_vl_n4_metrics 
@@ -351,7 +358,7 @@ folds_vl_n3 <- vfold_cv(data_n3_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_vl_n3 <- fit_resamples(vl_workflow, resamples = folds_vl_n3)
-cv_vl_n3_metrics <- collect_metrics(cv_vl_n3,summarize = T)
+cv_vl_n3_metrics <- collect_metrics(cv_vl_n3,summarize = F)
 
 #check cross validation metrics
 cv_vl_n3_metrics 
@@ -372,7 +379,7 @@ folds_vl_n2 <- vfold_cv(data_n2_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_vl_n2 <- fit_resamples(vl_workflow, resamples = folds_vl_n2)
-cv_vl_n2_metrics <- collect_metrics(cv_vl_n2,summarize = T)
+cv_vl_n2_metrics <- collect_metrics(cv_vl_n2,summarize = F)
 
 #check cross validation metrics
 cv_vl_n2_metrics 
@@ -393,7 +400,7 @@ folds_vl_n1 <- vfold_cv(data_n1_train, v = 3, repeats = 3, strata = TEST_POS)
 #run cross validation
 set.seed(13)
 cv_vl_n1 <- fit_resamples(vl_workflow, resamples = folds_vl_n1)
-cv_vl_n1_metrics <- collect_metrics(cv_vl_n1,summarize = T)
+cv_vl_n1_metrics <- collect_metrics(cv_vl_n1,summarize = F)
 
 #check cross validation metrics
 cv_vl_n1_metrics 
@@ -410,11 +417,16 @@ aug_ap_n6 <- augment(fit_ap_n6, data_n6_train)
 
 aug_ap_n6 %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
+
+ggsave(here("figures/randforest_df_n6_obsVSpredict.png"))
 
 aug_ap_n6 %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
-  geom_line(aes(y=.pred), color = "red")
+  geom_line(aes(y=.pred), color = "red") 
+
+ggsave(here("figures/randforest_df_n6_timeseries.png"))
 ```
 
 ### Testing data
@@ -424,11 +436,16 @@ aug_ap_n6_test <- augment(fit_ap_n6, data_n6_test)
 
 aug_ap_n6_test %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
+
+ggsave(here("figures/randforest_df_n6_obsVSpredict_2022.png"))
 
 aug_ap_n6_test %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
   geom_line(aes(y=.pred), color = "red")
+
+ggsave(here("figures/randforest_df_n6_timeseries_2022.png"))
 ```
 
 ## n = 1
@@ -440,7 +457,8 @@ aug_ap_n1 <- augment(fit_ap_n1, data_n1_train)
 
 aug_ap_n1 %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
 
 aug_ap_n1 %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
@@ -454,7 +472,8 @@ aug_ap_n1_test <- augment(fit_ap_n1, data_n1_test)
 
 aug_ap_n1_test %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
 
 aug_ap_n1_test %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
@@ -463,7 +482,7 @@ aug_ap_n1_test %>% ggplot(aes(x=week)) +
 
 # Augment Viral Load Fits
 
-## n = 6 
+## n = 6
 
 ### Training data
 
@@ -472,11 +491,16 @@ aug_vl_n6 <- augment(fit_vl_n6, data_n6_train)
 
 aug_vl_n6 %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
+
+ggsave(here("figures/randforest_vl_n6_obsVSpredict.png"))
 
 aug_vl_n6 %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
   geom_line(aes(y=.pred), color = "red")
+
+ggsave(here("figures/randforest_vl_n6_timeseries.png"))
 ```
 
 ### Testing data
@@ -486,11 +510,16 @@ aug_vl_n6_test <- augment(fit_vl_n6, data_n6_test)
 
 aug_vl_n6_test %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
+
+ggsave(here("figures/randforest_vl_n6_obsVSpredict_2022.png"))
 
 aug_vl_n6_test %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
   geom_line(aes(y=.pred), color = "red")
+
+ggsave(here("figures/randforest_vl_n6_timeseries_2022.png"))
 ```
 
 ## n = 1
@@ -502,7 +531,8 @@ aug_vl_n1 <- augment(fit_vl_n1, data_n1_train)
 
 aug_vl_n1 %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
 
 aug_vl_n1 %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
@@ -516,9 +546,53 @@ aug_vl_n1_test <- augment(fit_vl_n1, data_n1_test)
 
 aug_vl_n1_test %>% ggplot(aes(TEST_POS, .pred)) +
   geom_point() +
-  stat_smooth(method = "lm") 
+  stat_smooth(method = "lm") +
+  stat_poly_eq()
 
 aug_vl_n1_test %>% ggplot(aes(x=week)) +
   geom_line(aes(y=TEST_POS), color = "blue") +
   geom_line(aes(y=.pred), color = "red")
+```
+
+# Comparing metrics
+
+```{r}
+cv_vl_n6_metrics <- cv_vl_n6_metrics %>% mutate(.config="vl_n6")
+cv_vl_n5_metrics <- cv_vl_n5_metrics %>% mutate(.config="vl_n5")
+cv_vl_n4_metrics <- cv_vl_n4_metrics %>% mutate(.config="vl_n4")
+cv_vl_n3_metrics <- cv_vl_n3_metrics %>% mutate(.config="vl_n3")
+cv_vl_n2_metrics <- cv_vl_n2_metrics %>% mutate(.config="vl_n2")
+cv_vl_n1_metrics <- cv_vl_n1_metrics %>% mutate(.config="vl_n1")
+
+cv_ap_n6_metrics <- cv_ap_n6_metrics %>% mutate(.config="df_n6")
+cv_ap_n5_metrics <- cv_ap_n5_metrics %>% mutate(.config="df_n5")
+cv_ap_n4_metrics <- cv_ap_n4_metrics %>% mutate(.config="df_n4")
+cv_ap_n3_metrics <- cv_ap_n3_metrics %>% mutate(.config="df_n3")
+cv_ap_n2_metrics <- cv_ap_n2_metrics %>% mutate(.config="df_n2")
+cv_ap_n1_metrics <- cv_ap_n1_metrics %>% mutate(.config="df_n1")
+
+cv_metrics <- rbind(cv_vl_n6_metrics,cv_vl_n5_metrics,cv_vl_n4_metrics,
+                    cv_vl_n3_metrics,cv_vl_n2_metrics,cv_vl_n1_metrics,
+                    cv_ap_n6_metrics,cv_ap_n5_metrics,cv_ap_n4_metrics,
+                    cv_ap_n3_metrics,cv_ap_n2_metrics,cv_ap_n1_metrics)
+```
+
+## RSQ
+
+```{r}
+cv_metrics %>% filter(.metric=="rsq") %>% 
+  ggplot(aes(.config,.estimate)) +
+  geom_boxplot()
+
+ggsave(here("figures/randforest_cv_rsq_boxplot.png"))
+```
+
+## RMSE
+
+```{r}
+cv_metrics %>% filter(.metric=="rmse") %>% 
+  ggplot(aes(.config,.estimate)) +
+  geom_boxplot()
+
+ggsave(here("figures/randforest_cv_rmse_boxplot.png"))
 ```

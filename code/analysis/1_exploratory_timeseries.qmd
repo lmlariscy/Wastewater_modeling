@@ -173,3 +173,11 @@ ggpubr::ggscatter(data, x="avg_pos_rate", y="cases.reported",
           cor.coef = TRUE, cor.method = "pearson")
   
 ```
+
+```{r}
+ggpubr::ggscatter(data, x="avg_pos_rate", y="prop_pos",
+          add="reg.line",conf.int = TRUE,
+          cor.coef = TRUE, cor.method = "pearson")
+
+ggsave(here("figures/DetectionFreq_CasePosRate.png"))
+```
