@@ -1,0 +1,197 @@
+---
+title: "Data distributions"
+author: "Leah Lariscy"
+date: "2024-05-07"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(here)
+library(tidyverse)
+library(tsibble)
+```
+
+# Load data
+
+```{r}
+n6 <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds")) %>% as_tsibble()
+n5 <- readRDS(here("data/processed_data/wbe_covid_n5_week.rds")) %>% as_tsibble()
+n4 <- readRDS(here("data/processed_data/wbe_covid_n4_week.rds")) %>% as_tsibble()
+n3 <- readRDS(here("data/processed_data/wbe_covid_n3_week.rds")) %>% as_tsibble()
+n2 <- readRDS(here("data/processed_data/wbe_covid_n2_week.rds")) %>% as_tsibble()
+n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>% as_tsibble()
+```
+
+# Look at distributions
+
+```{r}
+test_pos <- n6 %>% mutate(test_pos_rate = pcr_pos/pcr_tests) %>% 
+  filter_index(~ "2021 W52") %>% 
+  ggplot(aes(test_pos_rate)) +
+  geom_histogram(binwidth = .02, fill = "#54338E", color = "white") +
+  ggthemes::theme_few() +
+  xlab("COVID-19 clinical test positivity rate") +
+  theme(axis.title = element_text(size = 9),
+        axis.text = element_text(size =9),
+        axis.title.y= element_blank()) 
+
+saveRDS(test_pos,here("figures/project_8040/test_pos_distribution.rds"))
+```
+
+```{r}
+a_n1 <- n6 %>% filter_index(~ "2021 W52") %>% 
+  ggplot(aes(log10(A_N1))) +
+  geom_histogram(binwidth = .15, fill = "#A6CEE3", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N1 viral load, Plant A") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+a_n2 <- n6 %>% filter_index(~ "2021 W52") %>% 
+  ggplot(aes(log10(A_N2))) +
+  geom_histogram(binwidth = .15, fill = "#1F78B4", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N2 viral load, Plant A") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+b_n1 <- n6 %>% filter_index(~ "2021 W52") %>% 
+  ggplot(aes(log10(B_N1))) +
+  geom_histogram(binwidth = .15, fill = "#B2DF8A", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N1 viral load, Plant B") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+b_n2 <- n6 %>% filter_index(~ "2021 W52") %>% 
+  ggplot(aes(log10(B_N2))) +
+  geom_histogram(binwidth = .25, fill = "#33A02C", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N2 viral load, Plant B") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+c_n1 <- n6 %>% filter_index(~ "2021 W52") %>% 
+  ggplot(aes(log10(C_N1))) +
+  geom_histogram(binwidth = .14, fill = "#FB9A99", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N1 viral load, Plant C") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+c_n2 <- n6 %>% filter_index(~ "2021 W52") %>% 
+  ggplot(aes(log10(C_N2))) +
+  geom_histogram(binwidth = .2, fill = "#E31A1C", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N2 viral load, Plant C") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+vl_dist <- cowplot::plot_grid(a_n1,b_n1,c_n1,a_n2,b_n2,c_n2,ncol = 3)
+
+ggsave(here("figures/project_8040/viral_load_distribution.png"))
+saveRDS(vl_dist, here("figures/project_8040/viral_load_distribution.rds"))
+```
+
+```{r}
+df_a_n1 <- n6 %>% mutate(detection_freq = n_pos_A_N1/n_A_N1) %>% 
+  filter_index(~ "2021 W52") %>% 
+  ggplot(aes(detection_freq)) +
+  geom_histogram(binwidth = .1, fill = "#A6CEE3", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N1 detection rate, Plant A") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+df_a_n2 <- n6 %>% mutate(detection_freq = n_pos_A_N2/n_A_N2) %>% 
+  filter_index(~ "2021 W52") %>% 
+  ggplot(aes(detection_freq)) +
+  geom_histogram(binwidth = .1, fill = "#1F78B4", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N2 detection rate, Plant A") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+df_b_n1 <- n6 %>% mutate(detection_freq = n_pos_B_N1/n_B_N1) %>% 
+  filter_index(~ "2021 W52") %>% 
+  ggplot(aes(detection_freq)) +
+  geom_histogram(binwidth = .1, fill = "#B2DF8A", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N1 detection rate, Plant B") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+df_b_n2 <- n6 %>% mutate(detection_freq = n_pos_B_N2/n_B_N2) %>% 
+  filter_index(~ "2021 W52") %>% 
+  ggplot(aes(detection_freq)) +
+  geom_histogram(binwidth = .1, fill = "#33A02C", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N2 detection rate, Plant B") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+df_c_n1 <- n6 %>% mutate(detection_freq = n_pos_C_N1/n_C_N1) %>% 
+  filter_index(~ "2021 W52") %>% 
+  ggplot(aes(detection_freq)) +
+  geom_histogram(binwidth = .1, fill = "#FB9A99", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N1 detection rate, Plant C") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+df_c_n2 <- n6 %>% mutate(detection_freq = n_pos_C_N2/n_C_N2) %>% 
+  filter_index(~ "2021 W52") %>% 
+  ggplot(aes(detection_freq)) +
+  geom_histogram(binwidth = .1, fill = "#E31A1C", color = "white") +
+  ggthemes::theme_few() +
+  xlab("N2 detection rate, Plant C") +
+  theme(axis.title = element_text(size = 8),
+        axis.title.y= element_blank(),
+        axis.text = element_text(size = 8))
+```
+
+```{r}
+df_dist <- cowplot::plot_grid(df_a_n1,df_b_n1,df_c_n1,df_a_n2,
+                              df_b_n2,df_c_n2,
+                              ncol = 3)
+
+ggsave(here("figures/project_8040/detection_freq_distribution.png"))
+
+saveRDS(df_dist, 
+        here("figures/project_8040/detection_freq_distribution.rds"))
+```
