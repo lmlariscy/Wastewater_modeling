@@ -389,11 +389,11 @@ covid_daily <- covid %>%
          week = yearweek(date))
 
 covid_weekly <- covid_daily %>% 
-  select(!c(cases.symptom.onset,cases.reported,
+  select(!c(cases.symptom.onset,
             pcr_pos_7dma,pcr_pos_14dma,prop_pos,date)) %>% 
-  #select only week, pcr test, and pcr pos
+  #select only week, pcr test, pcr pos, and cases reported
   group_by(week) %>% 
-  summarise_at(vars(1:2),sum,na.rm = F) %>% 
+  summarise_at(vars(1:3),sum,na.rm = F) %>% 
   #sum tests and positives by week
   ungroup()
 ```
