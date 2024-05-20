@@ -1,0 +1,361 @@
+---
+title: "LASSO Regressions"
+format: html
+editor: visual
+toc: true
+toc-depth: 4
+df-print: paged
+code-overflow: wrap
+---
+
+# Load packages
+
+```{r,echo=FALSE}
+knitr::opts_chunk$set(message=F)
+```
+
+```{r,message=FALSE}
+library(tidyverse)
+library(here)
+library(tidymodels)
+library(ggpubr)
+library(tsibble)
+library(ingredients)
+```
+
+# Load data
+
+```{r}
+# n = 6 (original data)
+data_n6 <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
+```
+
+## Split data
+
+```{r}
+data_n6_train <- data_n6 %>% head(n = 79)
+data_n6_test <- data_n6 %>% tail(n = 52)
+```
+
+# LASSO - all predictors
+
+## Tune penalty
+
+```{r}
+# Define a LASSO model without specifying the penalty
+lasso_model_tune <- linear_reg(
+  penalty = tune(),  # Use tune() for hyperparameter tuning
+  mixture = 1) %>%
+  set_engine("glmnet")
+
+# Create a grid of penalty values to try
+penalty_grid <- grid_regular(penalty(range = c(0.001, 0.1)), levels = 10)
+
+# Define resampling method
+set.seed(123)
+cv_folds_tune <- vfold_cv(data_n6_train, v = 5, 
+                          strata = log10_cases)
+
+# Define the tuning workflow
+tuning_workflow <- workflow() %>%
+  add_model(lasso_model_tune) %>% 
+  add_formula(log10_cases ~ 
+                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+                A_N1+A_N2+B_N1+B_N2+C_N1+C_N2)
+
+# Perform the tuning
+tuned_results <- tuning_workflow %>%
+  tune_grid(resamples = cv_folds_tune, grid = penalty_grid)
+
+# Get the best penalty value
+best_penalty <- select_best(tuned_results, metric = "rmse")
+best_penalty
+```
+
+## Define model and workflow
+
+```{r}
+lasso_model <- linear_reg(mixture = 1,
+                          penalty = best_penalty$penalty) %>% 
+               set_engine("glmnet")
+
+lasso_recipe <- recipe(log10_cases ~ 
+                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+                A_N1+A_N2+B_N1+B_N2+C_N1+C_N2, data = data_n6_train)
+
+lasso_workflow <- workflow() %>%
+  add_model(lasso_model) %>% 
+  add_recipe(lasso_recipe)
+```
+
+## Fit the model
+
+```{r}
+lasso_fit <- lasso_workflow %>% 
+  fit(data = data_n6_train)
+```
+
+## Extract coefficients
+
+```{r}
+# Extract the coefficients from the fitted model
+lasso_coef <- tidy(lasso_fit$fit$fit$fit)
+
+# Print the coefficients
+print(lasso_coef)
+```
+
+## Identify important predictors
+
+```{r}
+# Filter to keep only non-zero coefficients
+important_predictors <- lasso_coef %>%
+  filter(estimate != 0) %>% 
+  filter(term != '(Intercept)') %>% 
+  group_by(term) %>% 
+  summarise(avg_coeff = mean(estimate)) %>%
+  arrange(desc(avg_coeff))
+
+important_predictors
+```
+
+## Visualize results
+
+```{r}
+# Plot the important predictors
+plot_all <- important_predictors %>% 
+ggplot(aes(x = term, y = avg_coeff)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Important Predictors Identified by LASSO",
+       x = "Predictor",
+       y = "Coefficient Estimate")
+
+ggsave(here("figures/lasso_importance/coeff_all_predictors.png"))
+```
+
+```{r}
+data_n6_test %>% ggplot(aes(B_N1_POS,log10_cases)) +
+  geom_smooth(method = "lm") +
+  geom_point()
+```
+
+```{r}
+data_n6_test %>% ggplot(aes(B_N2,log10_cases)) +
+  geom_smooth(method = "lm") +
+  geom_point()
+```
+
+```{r}
+data_n6_test %>% ggplot(aes(C_N1_POS,log10_cases)) +
+  geom_smooth(method = "lm") +
+  geom_point()
+```
+
+```{r}
+data_n6_test %>% ggplot(aes(B_N1,log10_cases)) +
+  geom_smooth(method = "lm") +
+  geom_point()
+```
+
+# LASSO - DF predictors
+
+## Tune penalty
+
+```{r}
+# Define a LASSO model without specifying the penalty
+lasso_model_tune_df <- linear_reg(
+  penalty = tune(),  # Use tune() for hyperparameter tuning
+  mixture = 1) %>%
+  set_engine("glmnet")
+
+# Create a grid of penalty values to try
+penalty_grid_df <- grid_regular(penalty(range = c(0.001, 0.1)), levels = 10)
+
+# Define resampling method
+set.seed(123)
+cv_folds_tune_df <- vfold_cv(data_n6_train, v = 5, 
+                          strata = log10_cases)
+
+# Define the tuning workflow
+tuning_workflow_df <- workflow() %>%
+  add_model(lasso_model_tune_df) %>% 
+  add_formula(log10_cases ~ 
+                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS)
+
+# Perform the tuning
+tuned_results_df <- tuning_workflow_df %>%
+  tune_grid(resamples = cv_folds_tune_df, grid = penalty_grid_df)
+
+# Get the best penalty value
+best_penalty_df <- select_best(tuned_results_df, metric = "rmse")
+best_penalty_df
+```
+
+## Define model and workflow
+
+```{r}
+lasso_model_df <- linear_reg(mixture = 1,
+                          penalty = best_penalty_df$penalty) %>% 
+               set_engine("glmnet")
+
+lasso_recipe_df <- recipe(log10_cases ~ 
+                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS, 
+                data = data_n6_train)
+
+lasso_workflow_df <- workflow() %>%
+  add_model(lasso_model_df) %>% 
+  add_recipe(lasso_recipe_df)
+```
+
+## Fit the model
+
+```{r}
+lasso_fit_df <- lasso_workflow_df %>% 
+  fit(data = data_n6_train)
+```
+
+## Extract coefficients
+
+```{r}
+# Extract the coefficients from the fitted model
+lasso_coef_df <- tidy(lasso_fit_df$fit$fit$fit)
+
+# Print the coefficients
+print(lasso_coef_df)
+```
+
+## Identify important predictors
+
+```{r}
+# Filter to keep only non-zero coefficients
+important_predictors_df <- lasso_coef_df %>%
+  filter(estimate != 0) %>% 
+  filter(term != '(Intercept)') %>% 
+  group_by(term) %>% 
+  summarise(avg_coeff = mean(estimate)) %>%
+  arrange(desc(avg_coeff))
+
+important_predictors_df
+```
+
+## Visualize results
+
+```{r}
+# Plot the important predictors
+plot_df <- important_predictors_df %>% 
+ggplot(aes(x = term, y = avg_coeff)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Important Predictors Identified by LASSO",
+       x = "Predictor",
+       y = "Coefficient Estimate")
+```
+
+# LASSO - VL predictors
+
+## Define model and workflow
+
+```{r}
+lasso_model_vl <- linear_reg(mixture = 1,
+                          penalty = 1) %>% 
+               set_engine("glmnet")
+
+lasso_recipe_vl <- recipe(log10_cases ~ 
+                A_N1+A_N2+B_N1+B_N2+C_N1+C_N2, 
+                data = data_n6_train)
+
+lasso_workflow_vl <- workflow() %>%
+  add_model(lasso_model_vl) %>% 
+  add_recipe(lasso_recipe_vl)
+```
+
+## Fit the model
+
+```{r}
+lasso_fit_vl <- lasso_workflow_vl %>% 
+  fit(data = data_n6_train)
+```
+
+## Extract coefficients
+
+```{r}
+# Extract the coefficients from the fitted model
+lasso_coef_vl <- tidy(lasso_fit_vl$fit$fit$fit)
+
+# Print the coefficients
+print(lasso_coef_vl)
+```
+
+## Identify important predictors
+
+```{r}
+
+important_predictors_vl <- lasso_coef_vl %>%
+  filter(term != '(Intercept)') %>% 
+  group_by(term) %>% 
+  summarise(avg_coeff = mean(estimate)) %>%
+  arrange(desc(avg_coeff))
+
+important_predictors_vl
+```
+
+## Visualize results
+
+```{r}
+# Plot the important predictors
+plot_vl <- important_predictors_vl %>% 
+ggplot(aes(x = term, y = avg_coeff)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Important Predictors Identified by LASSO",
+       x = "Predictor",
+       y = "Coefficient Estimate")
+```
+
+# Compare results
+
+```{r}
+cowplot::plot_grid(plot_df,plot_vl,plot_all,ncol = 2)
+```
+
+```{r}
+important_predictors
+```
+
+Predictors that appear to be the most beneficial to the model:
+
+Plant A, N2 detection frequency
+
+Plant A, N1 viral load
+
+Plant B, N1 detection frequency
+
+Plant C, N2 detection frequency
+
+Predictors that appear to better explain other predictors:
+
+Plant A, N2 viral load
+
+Plant C, N1 detection frequency
+
+Plant C, N2 viral load
+
+```{r}
+important_predictors_df
+```
+
+```{r}
+important_predictors_vl
+```
+
+Looking at the coefficients for viral load only LASSO, it is clear that N1 is the most predictive gene target. It is also clear that Plant A is the most predictive, followed by Plant B and Plant C.

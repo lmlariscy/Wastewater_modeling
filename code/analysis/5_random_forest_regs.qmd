@@ -8,7 +8,7 @@ df-print: paged
 code-overflow: wrap
 ---
 
-This script is for outcome of interest:
+This script is for outcome of interest: total reported cases per week
 
 # Load Packages
 
@@ -37,7 +37,8 @@ data_n6 <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds")) %>%
          B_N1_POS = n_pos_B_N1/n_B_N1,
          B_N2_POS = n_pos_B_N2/n_B_N2,
          C_N1_POS = n_pos_C_N1/n_C_N1,
-         C_N2_POS = n_pos_C_N2/n_C_N2)
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
 
 # n = 5
 data_n5 <- readRDS(here("data/processed_data/wbe_covid_n5_week.rds")) %>% 
@@ -121,18 +122,34 @@ data_n1_test <- data_n1 %>% tail(n = 52)
 
 ```{r}
 #general model for all iterations
-rf_model <- rand_forest() %>% set_mode("regression") 
+rf_model <- rand_forest() %>% 
+  set_engine("ranger",importance = "permutation") %>% 
+  set_mode("regression") 
+
+ap_recipe <- recipe(log10_cases ~ 
+                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS,
+                data = data_n6_train)
+
+vl_recipe <- recipe(log10_cases ~ A_N1+A_N2+B_N1+B_N2+C_N1+C_N2,
+                       data = data_n6_train)
+
+all_recipe <- recipe(log10_cases ~ A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+                                  A_N1+A_N2+B_N1+B_N2+C_N1+C_N2,
+                     data = data_n6_train)
 
 #workflow for assay pos models
 ap_workflow <- workflow() %>%
   add_model(rf_model) %>% 
-  add_formula(cases.reported ~ 
-                A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS)
+  add_recipe(ap_recipe)
 
 #workflow for viral load models
 vl_workflow <- workflow() %>% 
   add_model(rf_model) %>% 
-  add_formula(cases.reported ~ A_N1+A_N2+B_N1+B_N2+C_N1+C_N2)
+  add_recipe(vl_recipe)
+
+all_workflow <- workflow() %>% 
+  add_model(rf_model) %>% 
+  add_recipe(all_recipe)
 ```
 
 # Fit Assay Pos
@@ -158,6 +175,27 @@ ap_n6_metrics_sum <- collect_metrics(cv_ap_n6,summarize = T)
 
 #check cross validation metrics
 ap_n6_metrics_sum 
+```
+
+```{r}
+#fit model to training data
+set.seed(13)
+fit_ap_n6 <- ap_workflow %>% 
+  fit(data = data_n6_train)
+
+# Extract the fitted ranger model
+rf_fitted_model_ap_n6 <- extract_fit_parsnip(fit_ap_n6)$fit
+
+# Assess variable importance using vip package
+var_importance_ap_n6 <- vip::vi(rf_fitted_model_ap_n6)
+
+# Print variable importance
+print(var_importance_ap_n6)
+
+# Optional: Plot variable importance
+vip::vip(rf_fitted_model_ap_n6)
+
+ggsave(here("figures/rand_forest_importance/importance_df_predictors.png"))
 ```
 
 ## n = 5
@@ -299,6 +337,27 @@ cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = F)
 cv_vl_n6_metrics 
 ```
 
+```{r}
+#fit model to training data
+set.seed(13)
+fit_vl_n6 <- vl_workflow %>% 
+  fit(data = data_n6_train)
+
+# Extract the fitted ranger model
+rf_fitted_model_vl_n6 <- extract_fit_parsnip(fit_vl_n6)$fit
+
+# Assess variable importance using vip package
+var_importance_vl_n6 <- vip::vi(rf_fitted_model_vl_n6)
+
+# Print variable importance
+print(var_importance_vl_n6)
+
+# Optional: Plot variable importance
+vip::vip(rf_fitted_model_vl_n6)
+
+ggsave(here("figures/rand_forest_importance/importance_vl_predictors.png"))
+```
+
 ## n = 5
 
 ```{r}
@@ -407,6 +466,31 @@ cv_vl_n1_metrics <- collect_metrics(cv_vl_n1,summarize = F)
 
 #check cross validation metrics
 cv_vl_n1_metrics 
+```
+
+# Fit all predictors
+
+## n = 6
+
+```{r}
+#fit model to training data
+set.seed(13)
+fit_all_n6 <- all_workflow %>% 
+  fit(data = data_n6_train)
+
+# Extract the fitted ranger model
+rf_fitted_model_all_n6 <- extract_fit_parsnip(fit_all_n6)$fit
+
+# Assess variable importance using vip package
+var_importance_all_n6 <- vip::vi(rf_fitted_model_all_n6)
+
+# Print variable importance
+print(var_importance_all_n6)
+
+# Optional: Plot variable importance
+vip::vip(rf_fitted_model_all_n6)
+
+ggsave(here("figures/rand_forest_importance/importance_all_predictors.png"))
 ```
 
 # Augment Assay Pos Fits
