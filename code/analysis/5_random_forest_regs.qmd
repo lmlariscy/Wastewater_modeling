@@ -174,7 +174,7 @@ fit_ap_n6 <- ap_workflow %>%
 #create folds for cross validation
 set.seed(13)
 folds_ap_n6 <- vfold_cv(data_n6_train, 
-                        v = 2, repeats = 20, strata = log10_cases)
+                        v = 10, repeats = 10, strata = log10_cases)
 
 #run cross validation
 set.seed(13)
@@ -202,9 +202,23 @@ var_importance_ap_n6 <- vip::vi(rf_fitted_model_ap_n6)
 print(var_importance_ap_n6)
 
 # Optional: Plot variable importance
-vip::vip(rf_fitted_model_ap_n6)
 
-ggsave(here("figures/rand_forest_importance/importance_df_predictors.png"))
+df_variables <- c("Plant A N1 DF","Plant A N2 DF","Plant B N1 DF",
+                  "Plant B N2 DF","Plant C N1 DF","Plant C N2 DF")
+
+catchment_pal <- c("#D48F90FF","#732F30FF","#08519C","#08306B","#006D2C",
+                   "#00441B")
+
+vip::vip(rf_fitted_model_ap_n6, mapping = aes(fill = .data[["Variable"]])) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = catchment_pal,labels=df_variables) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none") +
+  ggtitle("Detection Frequency Model Variable Importance Factors")
+
+ggsave(here("figures/rand_forest_importance/importance_df_predictors.png"),
+       width = 7, height = 3.5)
 ```
 
 ## n = 5
@@ -218,7 +232,7 @@ fit_ap_n5 <- ap_workflow %>%
 #create folds for cross validation
 set.seed(13)
 folds_ap_n5 <- vfold_cv(data_n5_train, 
-                        v = 2, repeats = 20, strata = log10_cases)
+                        v = 10, repeats = 10, strata = log10_cases)
 
 #run cross validation
 set.seed(13)
@@ -241,7 +255,7 @@ fit_ap_n4 <- ap_workflow %>%
 #create folds for cross validation
 set.seed(13)
 folds_ap_n4 <- vfold_cv(data_n4_train, 
-                        v = 2, repeats = 20, strata = log10_cases)
+                        v = 10, repeats = 10, strata = log10_cases)
 
 #run cross validation
 set.seed(13)
@@ -264,7 +278,7 @@ fit_ap_n3 <- ap_workflow %>%
 #create folds for cross validation
 set.seed(13)
 folds_ap_n3 <- vfold_cv(data_n3_train, 
-                        v = 2, repeats = 20, strata = log10_cases)
+                        v = 10, repeats = 10, strata = log10_cases)
 
 #run cross validation
 set.seed(13)
@@ -286,7 +300,7 @@ fit_ap_n2 <- ap_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_ap_n2 <- vfold_cv(data_n2_train, v = 2, repeats = 20, 
+folds_ap_n2 <- vfold_cv(data_n2_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -309,7 +323,7 @@ fit_ap_n1 <- ap_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_ap_n1 <- vfold_cv(data_n1_train, v = 2, repeats = 20, 
+folds_ap_n1 <- vfold_cv(data_n1_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -334,7 +348,7 @@ fit_vl_n6 <- vl_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n6 <- vfold_cv(data_n6_train, v = 2, repeats = 20, 
+folds_vl_n6 <- vfold_cv(data_n6_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -345,6 +359,8 @@ cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = F)
 #check cross validation metrics
 cv_vl_n6_metrics 
 ```
+
+\
 
 ```{r}
 #fit model to training data
@@ -362,9 +378,22 @@ var_importance_vl_n6 <- vip::vi(rf_fitted_model_vl_n6)
 print(var_importance_vl_n6)
 
 # Optional: Plot variable importance
-vip::vip(rf_fitted_model_vl_n6)
+vl_variables <- c("Plant A N1 VL","Plant A N2 VL","Plant B N1 VL",
+                  "Plant B N2 VL","Plant C N1 VL","Plant C N2 VL")
 
-ggsave(here("figures/rand_forest_importance/importance_vl_predictors.png"))
+catchment_pal <- c("#D48F90FF","#732F30FF","#08519C","#08306B","#006D2C",
+                   "#00441B")
+
+vip::vip(rf_fitted_model_vl_n6, mapping = aes(fill = .data[["Variable"]])) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = catchment_pal, labels=vl_variables) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none") +
+  ggtitle("Viral Load Model Variable Importance Factors")
+
+ggsave(here("figures/rand_forest_importance/importance_vl_predictors.png"),
+       width = 7, height = 3.5)
 ```
 
 ## n = 5
@@ -377,7 +406,7 @@ fit_vl_n5 <- vl_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n5 <- vfold_cv(data_n5_train, v = 2, repeats = 20, 
+folds_vl_n5 <- vfold_cv(data_n5_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -399,7 +428,7 @@ fit_vl_n4 <- vl_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n4 <- vfold_cv(data_n4_train, v = 2, repeats = 20, 
+folds_vl_n4 <- vfold_cv(data_n4_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -421,7 +450,7 @@ fit_vl_n3 <- vl_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n3 <- vfold_cv(data_n3_train, v = 2, repeats = 20, 
+folds_vl_n3 <- vfold_cv(data_n3_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -443,7 +472,7 @@ fit_vl_n2 <- vl_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n2 <- vfold_cv(data_n2_train, v = 2, repeats = 20, 
+folds_vl_n2 <- vfold_cv(data_n2_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -465,7 +494,7 @@ fit_vl_n1 <- vl_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n1 <- vfold_cv(data_n1_train, v = 2, repeats = 20, 
+folds_vl_n1 <- vfold_cv(data_n1_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -497,9 +526,25 @@ var_importance_all_n6 <- vip::vi(rf_fitted_model_all_n6)
 print(var_importance_all_n6)
 
 # Optional: Plot variable importance
-vip::vip(rf_fitted_model_all_n6)
+all_variables <- c("Plant A N1 VL","Plant A N1 DF","Plant A N2 VL",
+                  "Plant A N2 DF","Plant B N1 VL","Plant B N1 DF",
+                  "Plant B N2 VL","Plant B N2 DF","Plant C N1 VL",
+                  "Plant C N1 DF","Plant C N2 VL","Plant C N2 DF")
 
-ggsave(here("figures/rand_forest_importance/importance_all_predictors.png"))
+redon_pal <- c("#5B859EFF", "#1E395FFF", "#75884BFF", "#1E5A46FF", "#DF8D71FF", "#AF4F2FFF", "#D48F90FF", "#732F30FF", "#AB84A5FF", "#59385CFF", "#D8B847FF", "#B38711FF")
+
+vip::vip(rf_fitted_model_all_n6, 
+         mapping = aes(fill = .data[["Variable"]]),
+         num_features = 12) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = redon_pal, labels = all_variables) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "left",
+        axis.title.x = element_text(face = "bold",size = 12))
+
+ggsave(here("figures/rand_forest_importance/importance_all_predictors.png"),
+       width = 7, height = 6)
 ```
 
 ```{r}
@@ -510,7 +555,7 @@ fit_all_n6 <- all_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_all_n6 <- vfold_cv(data_n6_train, v = 2, repeats = 20, 
+folds_all_n6 <- vfold_cv(data_n6_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -532,7 +577,7 @@ fit_all_n5 <- all_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_all_n5 <- vfold_cv(data_n5_train, v = 2, repeats = 20, 
+folds_all_n5 <- vfold_cv(data_n5_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -554,7 +599,7 @@ fit_all_n4 <- all_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_all_n4 <- vfold_cv(data_n4_train, v = 2, repeats = 20, 
+folds_all_n4 <- vfold_cv(data_n4_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -576,7 +621,7 @@ fit_all_n3 <- all_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_all_n3 <- vfold_cv(data_n3_train, v = 2, repeats = 20, 
+folds_all_n3 <- vfold_cv(data_n3_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -598,7 +643,7 @@ fit_all_n2 <- all_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_all_n2 <- vfold_cv(data_n2_train, v = 2, repeats = 20, 
+folds_all_n2 <- vfold_cv(data_n2_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -620,7 +665,7 @@ fit_all_n1 <- all_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_all_n1 <- vfold_cv(data_n1_train, v = 2, repeats = 20, 
+folds_all_n1 <- vfold_cv(data_n1_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -644,7 +689,7 @@ fit_select_ap_n6 <- select_ap_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_select_ap_n6 <- vfold_cv(data_n6_train, v = 2, repeats = 20, 
+folds_select_ap_n6 <- vfold_cv(data_n6_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -667,7 +712,7 @@ fit_select_n6 <- select_workflow %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_select_n6 <- vfold_cv(data_n6_train, v = 2, repeats = 20, 
+folds_select_n6 <- vfold_cv(data_n6_train, v = 10, repeats = 10, 
                         strata = log10_cases)
 
 #run cross validation
@@ -690,22 +735,36 @@ cv_select_n6_metrics
 set.seed(13)
 aug_ap_n6 <- augment(fit_ap_n6, data_n6_train)
 
-aug_ap_n6 %>% ggplot(aes(log10_cases, .pred)) +
+ap_train_lm <- lm(.pred ~ log10_cases, data=aug_ap_n6)
+ap_train_rsq <- summary(ap_train_lm)$r.squared
+ap_train_rsq
+
+df_lm <- aug_ap_n6 %>% ggplot(aes(log10_cases, .pred)) +
+  stat_smooth(method = "lm",se = F,color="#EF3B2C") +
   geom_point() +
-  stat_smooth(method = "lm")
+  ggthemes::theme_clean() +
+  xlab("Predicted value") +
+  ylab("Observed log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold"))
+  
 
 ggsave(here("figures/randforest_df_n6_obsVSpredict.png"))
 
 df_time <- aug_ap_n6 %>% ggplot(aes(x=week)) +
-  geom_smooth(aes(y=.pred), method = "gam", color="red") +
-  geom_smooth(aes(y=log10_cases), method = "gam", color="blue") +
+  geom_point(aes(y=.pred), color="#EF3B2C", size=2, shape="triangle") +
+  geom_line(aes(y=.pred), color="#EF3B2C") +
+  geom_point(aes(y=log10_cases), color="#08519C",size=2) +
+  geom_line(aes(y=log10_cases),color="#08519C") +
   ggthemes::theme_clean() +
   xlab("Week") +
-  ylab("Test positivity rate")
+  ylab("Log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold")) +
+  ggtitle("Observed vs Predicted Clinical Cases - Training Data (2020-2021)")
 
 df_time
 
-ggsave(here("figures/randforest_df_n6_timeseries.png"))
+ggsave(here("figures/randforest_df_n6_timeseries.png"),
+       width = 8, height = 3)
 ```
 
 ### Testing data
@@ -714,19 +773,33 @@ ggsave(here("figures/randforest_df_n6_timeseries.png"))
 set.seed(13)
 aug_ap_n6_test <- augment(fit_ap_n6, data_n6_test)
 
+ap_test_lm <- lm(.pred ~ log10_cases, data=aug_ap_n6_test)
+ap_test_rsq <- summary(ap_test_lm)$r.squared
+ap_test_rsq
+
 aug_ap_n6_test %>% ggplot(aes(log10_cases, .pred)) +
+  stat_smooth(method = "lm",se = F,color="#EF3B2C") +
   geom_point() +
-  stat_smooth(method = "lm") 
+  ggthemes::theme_clean() +
+  xlab("Predicted value") +
+  ylab("Observed log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold"))
 
 ggsave(here("figures/randforest_df_n6_obsVSpredict_2022.png"))
 
 aug_ap_n6_test %>% ggplot(aes(x=week)) +
-  geom_smooth(aes(y=.pred), method = "gam", color="red") +
-  geom_smooth(aes(y=log10_cases), method = "gam", color="blue") +
+  geom_point(aes(y=.pred), color="#EF3B2C", size=2, shape="triangle") +
+  geom_line(aes(y=.pred), color="#EF3B2C") +
+  geom_point(aes(y=log10_cases), color="#08519C",size=2) +
+  geom_line(aes(y=log10_cases),color="#08519C") +
   ggthemes::theme_clean() +
-  ylab("Log10 reported cases per week")
+  xlab("Week") +
+  ylab("Log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold")) +
+  ggtitle("Observed vs Predicted Clinical Cases - Withheld Data (2022)")
 
-ggsave(here("figures/randforest_df_n6_timeseries_2022.png"))
+ggsave(here("figures/randforest_df_n6_timeseries_2022.png"),
+       width = 8, height = 3)
 ```
 
 ## n = 1
@@ -797,11 +870,11 @@ aug_vl_n6 %>% ggplot(aes(log10_cases, .pred)) +
 ggsave(here("figures/randforest_vl_n6_obsVSpredict.png"))
 
 vl_time <- aug_vl_n6 %>% ggplot(aes(x=week)) +
-  geom_line(aes(y=log10_cases), color = "blue") +
-  geom_line(aes(y=.pred), color = "red") +
+  geom_smooth(aes(y=.pred), method = "gam", color="red",fill="red") +
+  geom_point(aes(y=log10_cases), color="blue") +
   ggthemes::theme_clean() +
   xlab("Week") +
-  ylab("Test positivity rate")
+  ylab("Log10 reported cases per week")
 
 vl_time
 
@@ -862,26 +935,44 @@ aug_vl_n1_test %>% ggplot(aes(x=week)) +
 # Comparing metrics
 
 ```{r}
-cv_vl_n6_metrics <- cv_vl_n6_metrics %>% mutate(.config="vl_n6")
-cv_vl_n5_metrics <- cv_vl_n5_metrics %>% mutate(.config="vl_n5")
-cv_vl_n4_metrics <- cv_vl_n4_metrics %>% mutate(.config="vl_n4")
-cv_vl_n3_metrics <- cv_vl_n3_metrics %>% mutate(.config="vl_n3")
-cv_vl_n2_metrics <- cv_vl_n2_metrics %>% mutate(.config="vl_n2")
-cv_vl_n1_metrics <- cv_vl_n1_metrics %>% mutate(.config="vl_n1")
+cv_vl_n6_metrics <- cv_vl_n6_metrics %>% mutate(.config="vl_n6",
+                                                feature="vl")
+cv_vl_n5_metrics <- cv_vl_n5_metrics %>% mutate(.config="vl_n5",
+                                                feature="vl")
+cv_vl_n4_metrics <- cv_vl_n4_metrics %>% mutate(.config="vl_n4",
+                                                feature="vl")
+cv_vl_n3_metrics <- cv_vl_n3_metrics %>% mutate(.config="vl_n3",
+                                                feature="vl")
+cv_vl_n2_metrics <- cv_vl_n2_metrics %>% mutate(.config="vl_n2",
+                                                feature="vl")
+cv_vl_n1_metrics <- cv_vl_n1_metrics %>% mutate(.config="vl_n1",
+                                                feature="vl")
 
-cv_ap_n6_metrics <- cv_ap_n6_metrics %>% mutate(.config="df_n6")
-cv_ap_n5_metrics <- cv_ap_n5_metrics %>% mutate(.config="df_n5")
-cv_ap_n4_metrics <- cv_ap_n4_metrics %>% mutate(.config="df_n4")
-cv_ap_n3_metrics <- cv_ap_n3_metrics %>% mutate(.config="df_n3")
-cv_ap_n2_metrics <- cv_ap_n2_metrics %>% mutate(.config="df_n2")
-cv_ap_n1_metrics <- cv_ap_n1_metrics %>% mutate(.config="df_n1")
+cv_ap_n6_metrics <- cv_ap_n6_metrics %>% mutate(.config="df_n6",
+                                                feature="df")
+cv_ap_n5_metrics <- cv_ap_n5_metrics %>% mutate(.config="df_n5",
+                                                feature="df")
+cv_ap_n4_metrics <- cv_ap_n4_metrics %>% mutate(.config="df_n4",
+                                                feature="df")
+cv_ap_n3_metrics <- cv_ap_n3_metrics %>% mutate(.config="df_n3",
+                                                feature="df")
+cv_ap_n2_metrics <- cv_ap_n2_metrics %>% mutate(.config="df_n2",
+                                                feature="df")
+cv_ap_n1_metrics <- cv_ap_n1_metrics %>% mutate(.config="df_n1",
+                                                feature="df")
 
-cv_all_n6_metrics <- cv_all_n6_metrics %>% mutate(.config="all_n6")
-cv_all_n5_metrics <- cv_all_n5_metrics %>% mutate(.config="all_n5")
-cv_all_n4_metrics <- cv_all_n4_metrics %>% mutate(.config="all_n4")
-cv_all_n3_metrics <- cv_all_n3_metrics %>% mutate(.config="all_n3")
-cv_all_n2_metrics <- cv_all_n2_metrics %>% mutate(.config="all_n2")
-cv_all_n1_metrics <- cv_all_n1_metrics %>% mutate(.config="all_n1")
+cv_all_n6_metrics <- cv_all_n6_metrics %>% mutate(.config="all_n6",
+                                                  feature="combined")
+cv_all_n5_metrics <- cv_all_n5_metrics %>% mutate(.config="all_n5",
+                                                  feature="combined")
+cv_all_n4_metrics <- cv_all_n4_metrics %>% mutate(.config="all_n4",
+                                                  feature="combined")
+cv_all_n3_metrics <- cv_all_n3_metrics %>% mutate(.config="all_n3",
+                                                  feature="combined")
+cv_all_n2_metrics <- cv_all_n2_metrics %>% mutate(.config="all_n2",
+                                                  feature="combined")
+cv_all_n1_metrics <- cv_all_n1_metrics %>% mutate(.config="all_n1",
+                                                  feature="combined")
 
 cv_metrics <- rbind(cv_vl_n6_metrics,cv_vl_n5_metrics,cv_vl_n4_metrics,
                     cv_vl_n3_metrics,cv_vl_n2_metrics,cv_vl_n1_metrics,
@@ -894,16 +985,22 @@ cv_metrics <- rbind(cv_vl_n6_metrics,cv_vl_n5_metrics,cv_vl_n4_metrics,
 ## RSQ
 
 ```{r}
-# Generate a list of 18 distinctive color hex codes
-color_palette <- c(
-  brewer.pal(8, "Dark2"), # 8 colors from the "Dark2" palette
-  brewer.pal(9, "Set1"),  # 9 colors from the "Set1" palette
-  "#66C2A5")              # Manually adding one more color for a total of 18
+# Extract the last 6 colors from the "Reds", "Greens", and "Blues" palettes
+reds <- brewer.pal(9, "Reds")[4:9]
+greens <- brewer.pal(9, "Greens")[4:9]
+blues <- brewer.pal(9, "Blues")[4:9]
+
+# Combine the colors into a single list
+color_palette <- c(reds, greens, blues)
+
+# Display the colors to confirm their distinctiveness
+print(color_palette)
 
 # Ensure the list has exactly 18 colors
 color_palette <- color_palette[1:18]
 
 # Make list for significance testing
+#comparisons <- list(c(1,6),c(2,6),c(6,12),c(12,18),c(12,7),c(12,8))
 comparisons <- list(c(1,6),c(2,6),c(6,12))
 
 # Make list for naming models in ggplot
@@ -916,25 +1013,38 @@ labels <- c("DF n=1","DF n=2","DF n=3","DF n=4","DF n=5","DF n=6",
 rsq_hist <- cv_metrics %>% filter(.metric=="rsq") %>% 
   ggplot(aes(.config, .estimate, fill=.config)) +
   geom_boxplot() +
-  stat_compare_means(method = "anova", label.y = .9, label.x = 2) +
   stat_compare_means(aes(label = after_stat(p.signif)),
-                  method = "t.test", ref.group = 6) +
+                  method = "t.test", comparisons = comparisons) +
   ggthemes::theme_clean() +
   theme(axis.text.x = element_blank(),
-        axis.title = element_text(size = 8),
-        legend.text = element_text(size = 6),
-        legend.title = element_text(size = 8)) +
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
   scale_fill_manual(name="Configuration",
                     labels=labels,
-                     values = color_palette) +
-  xlab("Feature selection configuration") +
-  ylab("RSQ value")
+                    values = color_palette) +
+  ylab("R-squared value") +
+  ggtitle("Cross-Validated Model Performance Results")
 
-ggsave(here("figures/randforest_cv_rsq_boxplot.png"))
+ggsave(here("figures/randforest_cv_rsq_boxplot.png"), width = 7, height = 6)
 saveRDS(rsq_hist, here("figures/project_8040/rsq_histogram.rds"))
 
 rsq_hist
 ```
+
+-   `ns`: p \> 0.05
+
+-   `*`: p \<= 0.05
+
+-   `**`: p \<= 0.01
+
+-   `***`: p \<= 0.001
+
+-   `****`: p \<= 0.0001
 
 ```{r}
 cv_select_ap_n6_metrics %>% ggplot(aes(.config,.estimate)) +
@@ -971,6 +1081,33 @@ ggsave(here("figures/randforest_cv_rmse_boxplot.png"))
 saveRDS(rmse_hist, here("figures/project_8040/rmse_histogram.rds"))
 
 rmse_hist
+```
+
+## Check distributions of results
+
+Mostly normally distributed
+
+```{r}
+cv_metrics %>% 
+  filter(feature=="vl") %>% 
+  filter(.metric=="rsq") %>% 
+  ggplot(aes(.estimate)) +
+  geom_histogram(binwidth = .1) +
+  facet_wrap(~ .config)
+
+cv_metrics %>% 
+  filter(feature=="df") %>% 
+  filter(.metric=="rsq") %>% 
+  ggplot(aes(.estimate)) +
+  geom_histogram(binwidth = .1) +
+  facet_wrap(~ .config)
+
+cv_metrics %>% 
+  filter(feature=="combined") %>% 
+  filter(.metric=="rsq") %>% 
+  ggplot(aes(.estimate)) +
+  geom_histogram(binwidth = .1) +
+  facet_wrap(~ .config)
 ```
 
 # Summary stats

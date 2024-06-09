@@ -395,34 +395,59 @@ saveRDS(n2_cfx_lod, here("data/processed_data/n2_cfx_lod.rds"))
 ##### Using LOD
 
 ```{r}
+#Calculate half LOQ for each assay, assign to rows greater than LOQ
+#Units = copies per uL of reaction (multiply by 10 for starting quant)
+
+n1_stepone_half_loq <- as.numeric(10^((n1_stepone_loq-34.008)/-3.389)/2)
+
+n2_stepone_half_loq <- as.numeric(10^((n2_stepone_loq-32.416)/-3.3084)/2)
+
+n1_cfx_half_loq <- as.numeric(10^((n1_cfx_loq-36.046)/-3.5293)/2)
+
+n2_cfx_half_loq <- as.numeric(10^((n2_cfx_loq-37.731)/-3.2505)/2)
+```
+
+```{r}
 #Replace NAs with limit of detection
 #Use standard curve slope for each target to calculate copies per uL per rxn
 
 #StepOne N1
 n1_stepone_1 <- n1_stepone_clean %>% 
   mutate(ct = replace_na(ct, n1_stepone_lod),
-         copy_num_uL_rxn = as.numeric(10^((ct-34.008)/-3.389)))
+         copy_num_uL_rxn = as.numeric(10^((ct-34.008)/-3.389)),
+         copy_num_uL_rxn = ifelse(ct>n1_stepone_loq,
+                                  n1_stepone_half_loq,
+                                  copy_num_uL_rxn))
 
 #StepOne N2
 n2_stepone_1 <- n2_stepone_clean %>% 
   mutate(ct = replace_na(ct, n2_stepone_lod),
-         copy_num_uL_rxn = as.numeric(10^((ct-32.416)/-3.3084)))
+         copy_num_uL_rxn = as.numeric(10^((ct-32.416)/-3.3084)),
+         copy_num_uL_rxn = ifelse(ct>n2_stepone_loq,
+                                  n2_stepone_half_loq,
+                                  copy_num_uL_rxn))
 
 #CFX N1
 n1_cfx_1 <- n1_cfx_clean %>% 
   mutate(ct = replace_na(ct, n1_cfx_lod), 
-         copy_num_uL_rxn = as.numeric(10^((ct-36.046)/-3.5293)))
+         copy_num_uL_rxn = as.numeric(10^((ct-36.046)/-3.5293)),
+         copy_num_uL_rxn = ifelse(ct>n1_cfx_loq,
+                                  n1_cfx_half_loq,
+                                  copy_num_uL_rxn)) 
 
 #CFX N2
 n2_cfx_1 <- n2_cfx_clean %>% 
   mutate(ct = replace_na(ct, n2_cfx_lod),
-         copy_num_uL_rxn = as.numeric(10^((ct-37.731)/-3.2505)))
-
+         copy_num_uL_rxn = as.numeric(10^((ct-37.731)/-3.2505)),
+         copy_num_uL_rxn = ifelse(ct>n2_cfx_loq,
+                                  n2_cfx_half_loq,
+                                  copy_num_uL_rxn)) 
 ```
 
 ```{r}
+#Visualize distributions
 #N1 StepOne
-n1_stepone_1 %>% filter(ct<n1_stepone_lod) %>% ggplot(aes(ct)) + geom_histogram()
+n1_stepone_1 %>% filter(ct<n1_stepone_lod) %>% ggplot(aes(ct)) + geom_histogram(binwidth = )
 
 #N2 StepOne
 n2_stepone_1 %>% filter(ct<n2_stepone_lod) %>% ggplot(aes(ct)) + geom_histogram()
@@ -583,13 +608,14 @@ NA = LOD
 
 ```{r}
 #Change plant variable names to match qPCR names, remove notes variable, convert millions of gallons to liters
-plant_v2<- plant_v2 %>% rename(collection_num = Collection, facility = wrf) %>% 
-  select(!notes) %>% 
+plant_v2 <- plant_v2 %>% 
+  rename(collection_num = Collection, facility = wrf) %>% 
   mutate(influent_flow_L = influent_flow_mg*1e6*231*(0.0254^3)*1000)
 
 #Merge and mutate
 qpcr_plant_all <- merge(qpcr_all, plant_v2, 
-                        by = c("collection_num", "facility", "date"), all = T) %>% 
+                        by = c("collection_num", "facility", "date"),
+                        all = T) %>% 
   mutate(facility = as.factor(facility), #code each facility as a factor
          facility = recode(facility, NO = "A", MI = "B", CC = "C"), 
          #de-identify treatment facility
@@ -597,8 +623,10 @@ qpcr_plant_all <- merge(qpcr_all, plant_v2,
          #set facility factor levels
          copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000, 
          #calculate copies per L sample
-         viral_load = copy_num_L*influent_flow_L) 
+         viral_load = copy_num_L*influent_flow_L) %>% 
         #transform copies per uL of reaction to copies per liter
+         drop_na(target) %>% 
+         select(!notes)
 
 #Save to processed data folder
 saveRDS(qpcr_plant_all, here("data/processed_data/qpcr_plant_all.rds"))

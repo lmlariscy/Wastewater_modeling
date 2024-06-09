@@ -47,8 +47,6 @@ library(ggpubr)
 ```{r}
 #WBE file from processing script
 wbe <- read_rds(here("data/processed_data/qpcr_plant_all.rds"))
-wbe_na40 <- read_rds(here("data/processed_data/qpcr_plant_all_NA40.rds"))
-wbe_na42 <- read_rds(here("data/processed_data/qpcr_plant_all_NA42.rds"))
 
 #COVID file from processing script
 covid <- read_rds(here("data/processed_data/all_covid_combined.rds"))
@@ -66,7 +64,7 @@ qpcr_na <- read_rds(here("data/processed_data/qpcr_na.rds"))
 
 ```{r}
 #Remove observations when Cts = NA, this means that collection is missing or not part of the surveillance study
-wbe <- wbe %>% na.omit(ct)
+#wbe <- wbe %>% na.omit(ct)
 
 #Check for NAs in the rest of the data
 skim(wbe) #yay nothing is missing
