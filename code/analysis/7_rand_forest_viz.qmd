@@ -1,0 +1,208 @@
+---
+title: "Random Forest Viz"
+editor: visual
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidymodels)
+library(ggpubr)
+library(tsibble)
+library(ingredients)
+library(RColorBrewer)
+```
+
+# Load model outputs
+
+```{r}
+# DF n6 variable importance
+fitted_model_ap_n6 <- readRDS(here("data/processed_data/rand_forest/DF_n6_fit_train.rds"))
+
+# VL n6 variable importance
+fitted_model_vl_n6 <- readRDS(here("data/processed_data/rand_forest/VL_n6_fit_train.rds"))
+
+# ALL n6 variable importance
+fitted_model_all_n6 <- readRDS(here("data/processed_data/rand_forest/ALL_n6_fit_train.rds"))
+
+fitted_model_all_n2 <- readRDS(here("data/processed_data/rand_forest/ALL_n2_fit_train.rds"))
+
+# cross-validated performance metrics
+cv_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics.rds")) %>% as.data.frame()
+```
+
+# Visualization
+
+## DF n6 variable importance
+
+```{r}
+df_variables <- c("Plant A N1 DF","Plant A N2 DF","Plant B N1 DF",
+                  "Plant B N2 DF","Plant C N1 DF","Plant C N2 DF")
+
+catchment_pal <- c("#D48F90FF","#732F30FF","#08519C","#08306B","#006D2C",
+                   "#00441B")
+
+vip::vip(fitted_model_ap_n6, mapping = aes(fill = .data[["Variable"]])) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = catchment_pal) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "left") +
+  ggtitle("Detection Frequency Model Variable Importance Factors")
+
+ggsave(here("figures/rand_forest_importance/importance_df_predictors.png"),
+       width = 7, height = 3.5)
+```
+
+## VL n6 variable importance
+
+```{r}
+# Optional: Plot variable importance
+vl_variables <- c("Plant A N1 VL","Plant A N2 VL","Plant B N1 VL",
+                  "Plant B N2 VL","Plant C N1 VL","Plant C N2 VL")
+
+catchment_pal <- c("#D48F90FF","#732F30FF","#08519C","#08306B","#006D2C",
+                   "#00441B")
+
+vip::vip(fitted_model_vl_n6, mapping = aes(fill = .data[["Variable"]])) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = catchment_pal) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "left") +
+  ggtitle("Viral Load Model Variable Importance Factors")
+
+ggsave(here("figures/rand_forest_importance/importance_vl_predictors.png"),
+       width = 7, height = 3.5)
+```
+
+## ALL n6 variable importance
+
+```{r}
+# Optional: Plot variable importance
+all_variables <- c("Plant A N1 VL","Plant A N1 DF","Plant A N2 VL",
+                  "Plant A N2 DF","Plant B N1 VL","Plant B N1 DF",
+                  "Plant B N2 VL","Plant B N2 DF","Plant C N1 VL",
+                  "Plant C N1 DF","Plant C N2 VL","Plant C N2 DF")
+
+redon_pal <- c("#5B859EFF", "#1E395FFF", "#75884BFF", "#1E5A46FF", "#DF8D71FF", "#AF4F2FFF", "#D48F90FF", "#732F30FF", "#AB84A5FF", "#59385CFF", "#D8B847FF", "#B38711FF")
+
+vip::vip(fitted_model_all_n6, 
+         mapping = aes(fill = .data[["Variable"]]),
+         num_features = 5) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = redon_pal) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none",
+        axis.title.x = element_text(face = "bold",size = 12)) +
+  ggtitle("Combined Model Variable Importance Factors")
+
+ggsave(here("figures/rand_forest_importance/importance_all_predictors.png"),
+       width = 6, height = 6.5)
+```
+
+## ALL n2 variable importance
+
+```{r}
+all_variables <- c("Plant A N1 VL","Plant A N1 DF","Plant A N2 VL",
+                  "Plant A N2 DF","Plant B N1 VL","Plant B N1 DF",
+                  "Plant B N2 VL","Plant B N2 DF","Plant C N1 VL",
+                  "Plant C N1 DF","Plant C N2 VL","Plant C N2 DF")
+
+redon_pal <- c("#5B859EFF", "#1E395FFF", "#75884BFF", "#1E5A46FF", "#DF8D71FF", "#AF4F2FFF", "#D48F90FF", "#732F30FF", "#AB84A5FF", "#59385CFF", "#D8B847FF", "#B38711FF")
+
+vip::vip(fitted_model_all_n2, 
+         mapping = aes(fill = .data[["Variable"]]),
+         num_features = 5) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = redon_pal) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none",
+        axis.title.x = element_text(face = "bold",size = 12)) +
+  ggtitle("Combined Model (n=2) Most Informative Variables")
+
+ggsave(here("figures/rand_forest_importance/importance_all_predictors.png"),
+       width = 6, height = 6.5)
+```
+
+## Cross-validated performance metrics
+
+```{r}
+cv_rsq <- cv_metrics %>% 
+  filter(.metric=="rsq") %>% 
+  mutate(estimate = .estimate,
+         dataset = .config) %>%
+  select(estimate,dataset,feature)
+
+anova_result <- aov(estimate ~ dataset, data = cv_rsq)
+print(anova_result)
+
+tukey_result <- TukeyHSD(anova_result)
+print(tukey_result)
+plot(tukey_result)
+```
+
+```{r}
+# Extract the last 6 colors from the "Reds", "Greens", and "Blues" palettes
+reds <- brewer.pal(9, "Reds")[4:9]
+greens <- brewer.pal(9, "Greens")[4:9]
+blues <- brewer.pal(9, "Blues")[4:9]
+
+# Combine the colors into a single list
+color_palette <- c(reds, greens, blues)
+
+# Display the colors to confirm their distinctiveness
+print(color_palette)
+
+# Ensure the list has exactly 18 colors
+color_palette <- color_palette[1:18]
+
+# Make list for significance testing
+#comparisons <- list(c(1,6),c(2,6),c(6,12),c(12,18),c(12,7),c(12,8))
+comparisons <- list(c(1,6),c(2,6),c(6,12))
+
+# Make list for naming models in ggplot
+labels <- c("DF n=1","DF n=2","DF n=3","DF n=4","DF n=5","DF n=6",
+            "VL n=1","VL n=2","VL n=3","VL n=4","VL n=5","VL n=6",
+            "All n=1","All n=2","All n=3","All n=4","All n=5","All n=6")
+```
+
+```{r}
+rsq_hist <- cv_metrics %>% filter(.metric=="rsq") %>% 
+  ggplot(aes(.config, .estimate, fill=.config)) +
+  geom_boxplot() +
+  #stat_compare_means(aes(label = after_stat(p.signif)),
+                  #method = "t.test", comparisons = comparisons) +
+  #stat_compare_means() +
+  ggthemes::theme_clean() +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
+  scale_fill_manual(name="Configuration",
+                    #labels=labels,
+                    values = color_palette) +
+  ylab("R-squared value") +
+  ggtitle("Cross-Validated Model Performance Results")
+
+ggsave(here("figures/randforest_cv_rsq_boxplot.png"), width = 7, height = 3)
+saveRDS(rsq_hist, here("figures/project_8040/rsq_histogram.rds"))
+
+rsq_hist
+```
+
+```{r}
+mean_rsq <- cv_metrics %>% filter(.metric=="rsq") %>% 
+  group_by(.config) %>% 
+  summarise(mean_rsq=mean(.estimate))
+
+mean_rsq
+```

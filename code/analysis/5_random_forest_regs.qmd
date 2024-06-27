@@ -105,23 +105,23 @@ data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>%
 # Split data
 
 ```{r}
-data_n6_train <- data_n6 %>% head(n = 79)
-data_n6_test <- data_n6 %>% tail(n = 52)
+data_n6_train <- data_n6 %>% head(n = 75)
+data_n6_test <- data_n6 %>% tail(n = 50)
 
-data_n5_train <- data_n5 %>% head(n = 79)
-data_n5_test <- data_n5 %>% tail(n = 52)
+data_n5_train <- data_n5 %>% head(n = 75)
+data_n5_test <- data_n5 %>% tail(n = 50)
 
-data_n4_train <- data_n4 %>% head(n = 79)
-data_n4_test <- data_n4 %>% tail(n = 52)
+data_n4_train <- data_n4 %>% head(n = 75)
+data_n4_test <- data_n4 %>% tail(n = 50)
 
-data_n3_train <- data_n3 %>% head(n = 79)
-data_n3_test <- data_n3 %>% tail(n = 52)
+data_n3_train <- data_n3 %>% head(n = 75)
+data_n3_test <- data_n3 %>% tail(n = 50)
 
-data_n2_train <- data_n2 %>% head(n = 79)
-data_n2_test <- data_n2 %>% tail(n = 52)
+data_n2_train <- data_n2 %>% head(n = 75)
+data_n2_test <- data_n2 %>% tail(n = 50)
 
-data_n1_train <- data_n1 %>% head(n = 79)
-data_n1_test <- data_n1 %>% tail(n = 52)
+data_n1_train <- data_n1 %>% head(n = 75)
+data_n1_test <- data_n1 %>% tail(n = 50)
 ```
 
 # Specify models & workflows
@@ -201,24 +201,9 @@ var_importance_ap_n6 <- vip::vi(rf_fitted_model_ap_n6)
 # Print variable importance
 print(var_importance_ap_n6)
 
-# Optional: Plot variable importance
-
-df_variables <- c("Plant A N1 DF","Plant A N2 DF","Plant B N1 DF",
-                  "Plant B N2 DF","Plant C N1 DF","Plant C N2 DF")
-
-catchment_pal <- c("#D48F90FF","#732F30FF","#08519C","#08306B","#006D2C",
-                   "#00441B")
-
-vip::vip(rf_fitted_model_ap_n6, mapping = aes(fill = .data[["Variable"]])) +
-  ggthemes::theme_clean() +
-  scale_fill_manual(values = catchment_pal,labels=df_variables) +
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        legend.position = "none") +
-  ggtitle("Detection Frequency Model Variable Importance Factors")
-
-ggsave(here("figures/rand_forest_importance/importance_df_predictors.png"),
-       width = 7, height = 3.5)
+# Save variable importance as RDS
+saveRDS(rf_fitted_model_ap_n6, 
+        here("data/processed_data/rand_forest/DF_n6_fit_train.rds"))
 ```
 
 ## n = 5
@@ -377,23 +362,9 @@ var_importance_vl_n6 <- vip::vi(rf_fitted_model_vl_n6)
 # Print variable importance
 print(var_importance_vl_n6)
 
-# Optional: Plot variable importance
-vl_variables <- c("Plant A N1 VL","Plant A N2 VL","Plant B N1 VL",
-                  "Plant B N2 VL","Plant C N1 VL","Plant C N2 VL")
-
-catchment_pal <- c("#D48F90FF","#732F30FF","#08519C","#08306B","#006D2C",
-                   "#00441B")
-
-vip::vip(rf_fitted_model_vl_n6, mapping = aes(fill = .data[["Variable"]])) +
-  ggthemes::theme_clean() +
-  scale_fill_manual(values = catchment_pal, labels=vl_variables) +
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        legend.position = "none") +
-  ggtitle("Viral Load Model Variable Importance Factors")
-
-ggsave(here("figures/rand_forest_importance/importance_vl_predictors.png"),
-       width = 7, height = 3.5)
+# Save fit as RDS 
+saveRDS(rf_fitted_model_vl_n6,
+        here("data/processed_data/rand_forest/VL_n6_fit_train.rds"))
 ```
 
 ## n = 5
@@ -525,26 +496,9 @@ var_importance_all_n6 <- vip::vi(rf_fitted_model_all_n6)
 # Print variable importance
 print(var_importance_all_n6)
 
-# Optional: Plot variable importance
-all_variables <- c("Plant A N1 VL","Plant A N1 DF","Plant A N2 VL",
-                  "Plant A N2 DF","Plant B N1 VL","Plant B N1 DF",
-                  "Plant B N2 VL","Plant B N2 DF","Plant C N1 VL",
-                  "Plant C N1 DF","Plant C N2 VL","Plant C N2 DF")
-
-redon_pal <- c("#5B859EFF", "#1E395FFF", "#75884BFF", "#1E5A46FF", "#DF8D71FF", "#AF4F2FFF", "#D48F90FF", "#732F30FF", "#AB84A5FF", "#59385CFF", "#D8B847FF", "#B38711FF")
-
-vip::vip(rf_fitted_model_all_n6, 
-         mapping = aes(fill = .data[["Variable"]]),
-         num_features = 12) +
-  ggthemes::theme_clean() +
-  scale_fill_manual(values = redon_pal, labels = all_variables) +
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        legend.position = "left",
-        axis.title.x = element_text(face = "bold",size = 12))
-
-ggsave(here("figures/rand_forest_importance/importance_all_predictors.png"),
-       width = 7, height = 6)
+# Save fit as RDS
+saveRDS(rf_fitted_model_all_n6,
+        here("data/processed_data/rand_forest/ALL_n6_fit_train.rds"))
 ```
 
 ```{r}
@@ -634,6 +588,26 @@ cv_all_n3_metrics
 ```
 
 ## n = 2
+
+```{r}
+#fit model to training data
+set.seed(13)
+fit_all_n2 <- all_workflow %>% 
+  fit(data = data_n2_train)
+
+# Extract the fitted ranger model
+rf_fitted_model_all_n2 <- extract_fit_parsnip(fit_all_n2)$fit
+
+# Assess variable importance using vip package
+var_importance_all_n2 <- vip::vi(rf_fitted_model_all_n2)
+
+# Print variable importance
+print(var_importance_all_n2)
+
+# Save fit as RDS
+saveRDS(rf_fitted_model_all_n2,
+        here("data/processed_data/rand_forest/ALL_n2_fit_train.rds"))
+```
 
 ```{r}
 #fit model to data
@@ -932,6 +906,83 @@ aug_vl_n1_test %>% ggplot(aes(x=week)) +
   geom_line(aes(y=.pred), color = "red")
 ```
 
+# Augment All Fits
+
+## n = 6
+
+### Training data
+
+```{r}
+set.seed(13)
+aug_all_n6 <- augment(fit_all_n6, data_n6_train)
+
+all_train_lm <- lm(.pred ~ log10_cases, data=aug_all_n6)
+all_train_rsq <- summary(all_train_lm)$r.squared
+all_train_rsq
+
+all_lm <- aug_all_n6 %>% ggplot(aes(log10_cases, .pred)) +
+  stat_smooth(method = "lm",se = F,color="#EF3B2C") +
+  geom_point() +
+  ggthemes::theme_clean() +
+  xlab("Predicted value") +
+  ylab("Observed log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold"))
+  
+
+ggsave(here("figures/randforest_all_n6_obsVSpredict.png"))
+
+all_time <- aug_all_n6 %>% ggplot(aes(x=week)) +
+  geom_point(aes(y=.pred), color="#EF3B2C", size=2, shape="triangle") +
+  geom_line(aes(y=.pred), color="#EF3B2C") +
+  geom_point(aes(y=log10_cases), color="#08519C",size=2) +
+  geom_line(aes(y=log10_cases),color="#08519C") +
+  ggthemes::theme_clean() +
+  xlab("Week") +
+  ylab("Log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold")) +
+  ggtitle("Observed vs Predicted Clinical Cases - Training Data (2020-2021)")
+
+all_time
+
+ggsave(here("figures/randforest_all_n6_timeseries.png"),
+       width = 8, height = 3)
+```
+
+### Testing data
+
+```{r}
+set.seed(13)
+aug_all_n6_test <- augment(fit_all_n6, data_n6_test)
+
+all_test_lm <- lm(.pred ~ log10_cases, data=aug_all_n6_test)
+all_test_rsq <- summary(all_test_lm)$r.squared
+all_test_rsq
+
+aug_all_n6_test %>% ggplot(aes(log10_cases, .pred)) +
+  stat_smooth(method = "lm",se = F,color="#EF3B2C") +
+  geom_point() +
+  ggthemes::theme_clean() +
+  xlab("Predicted value") +
+  ylab("Observed log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold"))
+
+ggsave(here("figures/randforest_all_n6_obsVSpredict_2022.png"))
+
+aug_all_n6_test %>% ggplot(aes(x=week)) +
+  geom_point(aes(y=.pred), color="#EF3B2C", size=2, shape="triangle") +
+  geom_line(aes(y=.pred), color="#EF3B2C") +
+  geom_point(aes(y=log10_cases), color="#08519C",size=2) +
+  geom_line(aes(y=log10_cases),color="#08519C") +
+  ggthemes::theme_clean() +
+  xlab("Week") +
+  ylab("Log10 reported cases per week") +
+  theme(axis.title = element_text(face = "bold")) +
+  ggtitle("Observed vs Predicted Clinical Cases - Withheld Data (2022)")
+
+ggsave(here("figures/randforest_all_n6_timeseries_2022.png"),
+       width = 8, height = 3)
+```
+
 # Comparing metrics
 
 ```{r}
@@ -980,61 +1031,12 @@ cv_metrics <- rbind(cv_vl_n6_metrics,cv_vl_n5_metrics,cv_vl_n4_metrics,
                     cv_ap_n3_metrics,cv_ap_n2_metrics,cv_ap_n1_metrics,
                     cv_all_n6_metrics,cv_all_n5_metrics,cv_all_n4_metrics,
                     cv_all_n3_metrics,cv_all_n2_metrics,cv_all_n1_metrics)
+
+saveRDS(cv_metrics,
+        here("data/processed_data/rand_forest/cv_metrics.rds"))
 ```
 
 ## RSQ
-
-```{r}
-# Extract the last 6 colors from the "Reds", "Greens", and "Blues" palettes
-reds <- brewer.pal(9, "Reds")[4:9]
-greens <- brewer.pal(9, "Greens")[4:9]
-blues <- brewer.pal(9, "Blues")[4:9]
-
-# Combine the colors into a single list
-color_palette <- c(reds, greens, blues)
-
-# Display the colors to confirm their distinctiveness
-print(color_palette)
-
-# Ensure the list has exactly 18 colors
-color_palette <- color_palette[1:18]
-
-# Make list for significance testing
-#comparisons <- list(c(1,6),c(2,6),c(6,12),c(12,18),c(12,7),c(12,8))
-comparisons <- list(c(1,6),c(2,6),c(6,12))
-
-# Make list for naming models in ggplot
-labels <- c("DF n=1","DF n=2","DF n=3","DF n=4","DF n=5","DF n=6",
-            "VL n=1","VL n=2","VL n=3","VL n=4","VL n=5","VL n=6",
-            "All n=1","All n=2","All n=3","All n=4","All n=5","All n=6")
-```
-
-```{r}
-rsq_hist <- cv_metrics %>% filter(.metric=="rsq") %>% 
-  ggplot(aes(.config, .estimate, fill=.config)) +
-  geom_boxplot() +
-  stat_compare_means(aes(label = after_stat(p.signif)),
-                  method = "t.test", comparisons = comparisons) +
-  ggthemes::theme_clean() +
-  theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.y = element_text(size = 12,face = "bold"),
-        legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
-        legend.key.height = unit(0.6, "cm"),
-        legend.position = "none") + #no legend after all..
-  scale_fill_manual(name="Configuration",
-                    labels=labels,
-                    values = color_palette) +
-  ylab("R-squared value") +
-  ggtitle("Cross-Validated Model Performance Results")
-
-ggsave(here("figures/randforest_cv_rsq_boxplot.png"), width = 7, height = 6)
-saveRDS(rsq_hist, here("figures/project_8040/rsq_histogram.rds"))
-
-rsq_hist
-```
 
 -   `ns`: p \> 0.05
 
@@ -1046,16 +1048,6 @@ rsq_hist
 
 -   `****`: p \<= 0.0001
 
-```{r}
-cv_select_ap_n6_metrics %>% ggplot(aes(.config,.estimate)) +
-  geom_boxplot()
-```
-
-```{r}
-cv_select_n6_metrics %>% ggplot(aes(.config,.estimate)) +
-  geom_boxplot()
-```
-
 ## RMSE
 
 ```{r}
@@ -1064,20 +1056,21 @@ rmse_hist <- cv_metrics %>% filter(.metric=="rmse") %>%
   geom_boxplot() +
   ggthemes::theme_clean() +
   theme(axis.text.x = element_blank(),
-        axis.title = element_text(size = 8),
-        legend.text = element_text(size = 6),
-        legend.title = element_text(size = 8)) +
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
   scale_fill_manual(name="Configuration",
-                    labels=c("DF n=1","DF n=2","DF n=3","DF n=4",
-                             "DF n=5","DF n=6","VL n=1","VL n=2",
-                             "VL n=3","VL n=4","VL n=5","VL n=6",
-                             "All n=6","All n=5","All n=4","All n=3",
-                             "All n=2","All n=1"),
-                     values = color_palette) +
+                    #labels=labels,
+                    values = color_palette) +
   xlab("Feature selection configuration") +
-  ylab("RMSE value") 
+  ylab("RMSE") 
 
-ggsave(here("figures/randforest_cv_rmse_boxplot.png"))
+ggsave(here("figures/randforest_cv_rmse_boxplot.png"),
+       width = 7, height = 3)
 saveRDS(rmse_hist, here("figures/project_8040/rmse_histogram.rds"))
 
 rmse_hist
