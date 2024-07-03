@@ -1,40 +1,36 @@
 ---
-title: "Pre-processing"
+title: "Preprocessing"
 author: "Leah Lariscy"
-date: "2023-09-15"
-format: html
-editor: visual
-toc: true
-toc-depth: 4
-df-print: paged
-code-overflow: wrap
+output: html_document
 ---
 
 ## Info
 
 This pre-processing script does the following:
 
--   WBE technical replicates are averaged
+-   Viral load technical reps are averaged
 
--   Viral load is summed across WWTPs per date per target
+-   Detection frequency technical reps are summed
 
--   Viral load is averaged across targets (N1 and N2) per date
+-   Biological reps are randomly subset at n = 6,5,4,3,2,1 for VL and DF
 
--   WW qPCR assay detection frequency is calculated
+-   Viral load is averaged per WRF, target, week
 
--   7 day moving average is calculated for all variables of interest
+-   Detection frequency is calculated per WRF, target, week
 
--   WBE and COVID data are combined and weekly averages are calculated
+-   Data is widened so each WRF/gene target combo is a unique variable
 
--   Hospitalization data will also be added in the future
+-   COVID data is summed by week
+
+-   All WBE and COVID data are combined, ready for further analysis
 
 ## Load packages
 
-```{r,echo=FALSE}
+```{r}
 knitr::opts_chunk$set(message=F)
 ```
 
-```{r,message=FALSE,echo=FALSE}
+```{r}
 library(tidyverse)
 library(here)
 library(fpp3)
@@ -58,21 +54,7 @@ hospital <- read_rds(here("data/processed_data/athens_hospitalizations.rds"))
 qpcr_na <- read_rds(here("data/processed_data/qpcr_na.rds"))
 ```
 
-## A) WBE Wrangling
-
-### 1. Count observations
-
-```{r}
-#Remove observations when Cts = NA, this means that collection is missing or not part of the surveillance study
-#wbe <- wbe %>% na.omit(ct)
-
-#Check for NAs in the rest of the data
-skim(wbe) #yay nothing is missing
-
-#Count observations for each date/facility/target/collection
-wbe_count <- wbe %>% count(date,facility,target,collection_num) #max is either 9 or 18
-head(wbe_count, n = 10)
-```
+## WBE wrangling
 
 ```{r}
 # Counting the number of unique collection dates
@@ -82,9 +64,9 @@ unique_count <- length(unique(wbe$date))
 print(paste("Number of unique observations:", unique_count))
 ```
 
-### 2. Average VL technical reps
+### 1. Average VL technical reps
 
-This will be used to subset data by n number of biological replicates
+This will be used to subset data by n of biological replicates
 
 ```{r}
 wbe_vl_avg <- wbe %>% 
@@ -93,7 +75,7 @@ wbe_vl_avg <- wbe %>%
   ungroup()
 ```
 
-#### 2.1 Subset bio reps & summarize
+#### Subset bio reps & summarize
 
 ```{r}
 # n = 6
@@ -139,10 +121,10 @@ vl_avg_n1 <- wbe_vl_avg %>%
   summarize(avg_viral_load = mean(avg_viral_load))
 ```
 
-### 3. Average AP technical reps
+### 2. Sum DF technical reps
 
 ```{r}
-wbe_ap_avg <- qpcr_na %>% 
+wbe_df_sum <- qpcr_na %>% 
   mutate(facility = as.factor(facility), #code each facility as a factor
          facility = recode(facility, NO = "A", MI = "B", CC = "C"), 
          #de-identify treatment facility
@@ -156,12 +138,12 @@ wbe_ap_avg <- qpcr_na %>%
         ungroup()
 ```
 
-#### 3.1 Subset bio reps & summarize
+#### Subset bio reps & summarize
 
 ```{r}
 # n = 6
 set.seed(13)
-ap_avg_n6 <- wbe_ap_avg %>% 
+df_sum_n6 <- wbe_df_sum %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=6) %>% 
   summarize(n = sum(n), 
@@ -172,7 +154,7 @@ ap_avg_n6 <- wbe_ap_avg %>%
 
 # n = 5
 set.seed(13)
-ap_avg_n5 <- wbe_ap_avg %>% 
+df_sum_n5 <- wbe_df_sum %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=5) %>% 
   summarize(n = sum(n), 
@@ -183,7 +165,7 @@ ap_avg_n5 <- wbe_ap_avg %>%
 
 # n = 4
 set.seed(13)
-ap_avg_n4 <- wbe_ap_avg %>% 
+df_sum_n4 <- wbe_df_sum %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=4) %>% 
   summarize(n = sum(n), 
@@ -194,7 +176,7 @@ ap_avg_n4 <- wbe_ap_avg %>%
 
 # n = 3
 set.seed(13)
-ap_avg_n3 <- wbe_ap_avg %>% 
+df_sum_n3 <- wbe_df_sum %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=3) %>% 
   summarize(n = sum(n), 
@@ -205,7 +187,7 @@ ap_avg_n3 <- wbe_ap_avg %>%
 
 # n = 2
 set.seed(13)
-ap_avg_n2 <- wbe_ap_avg %>% 
+df_sum_n2 <- wbe_df_sum %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=2) %>% 
   summarize(n = sum(n), 
@@ -216,7 +198,7 @@ ap_avg_n2 <- wbe_ap_avg %>%
 
 # n = 1
 set.seed(13)
-ap_avg_n1 <- wbe_ap_avg %>% 
+df_sum_n1 <- wbe_df_sum %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=1) %>% 
   summarize(n = sum(n), 
@@ -226,11 +208,11 @@ ap_avg_n1 <- wbe_ap_avg %>%
   select(!n_miss)
 ```
 
-### 4. PIVOT! (widen avg viral load data)
+### 3. Widen viral load data
 
-Then, summarize by week (average viral load)
+Then, average by week
 
-VL data ready to be combined with AP data
+VL data ready to be combined with DF data after this
 
 ```{r}
 # n = 6
@@ -300,13 +282,15 @@ vl_n1_week <- vl_avg_n1 %>%
   summarise_at(vars(2:7), mean, ra.rm = F)
 ```
 
-### 5. PIVOT! (widen qpcr pos data)
+### 4. Widen detection frequency data
 
-AP data ready to be combined with VL data
+Then, sum by week
+
+AP data ready to be combined with VL data after this
 
 ```{r}
 # n = 6
-ap_n6_week <- ap_avg_n6 %>% 
+df_n6_week <- df_sum_n6 %>% 
   pivot_wider(names_from = c(facility,target),
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
@@ -316,7 +300,7 @@ ap_n6_week <- ap_avg_n6 %>%
   summarise_at(vars(2:13), sum, ra.rm = F)
 
 # n = 5
-ap_n5_week <- ap_avg_n5 %>% 
+df_n5_week <- df_sum_n5 %>% 
   pivot_wider(names_from = c(facility,target),
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
@@ -326,7 +310,7 @@ ap_n5_week <- ap_avg_n5 %>%
   summarise_at(vars(2:13), sum, ra.rm = F)
 
 # n = 4
-ap_n4_week <- ap_avg_n4 %>% 
+df_n4_week <- df_sum_n4 %>% 
   pivot_wider(names_from = c(facility,target),
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
@@ -336,7 +320,7 @@ ap_n4_week <- ap_avg_n4 %>%
   summarise_at(vars(2:13), sum, ra.rm = F)
 
 # n = 3
-ap_n3_week <- ap_avg_n3 %>% 
+df_n3_week <- df_sum_n3 %>% 
   pivot_wider(names_from = c(facility,target),
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
@@ -346,7 +330,7 @@ ap_n3_week <- ap_avg_n3 %>%
   summarise_at(vars(2:13), sum, ra.rm = F)
 
 # n = 2
-ap_n2_week <- ap_avg_n2 %>% 
+df_n2_week <- df_sum_n2 %>% 
   pivot_wider(names_from = c(facility,target),
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
@@ -356,7 +340,7 @@ ap_n2_week <- ap_avg_n2 %>%
   summarise_at(vars(2:13), sum, ra.rm = F)
 
 # n = 1
-ap_n1_week <- ap_avg_n1 %>% 
+df_n1_week <- df_sum_n1 %>% 
   pivot_wider(names_from = c(facility,target),
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
@@ -371,22 +355,22 @@ ap_n1_week <- ap_avg_n1 %>%
 WBE data ready to be combined with COVID data
 
 ```{r}
-wbe_n6_week <- left_join(ap_n6_week,vl_n6_week, by = "week") #n=6
+wbe_n6_week <- left_join(df_n6_week,vl_n6_week, by = "week") #n=6
 
-wbe_n5_week <- left_join(ap_n5_week,vl_n5_week, by = "week") #n=5
+wbe_n5_week <- left_join(df_n5_week,vl_n5_week, by = "week") #n=5
 
-wbe_n4_week <- left_join(ap_n4_week,vl_n4_week, by = "week") #n=4
+wbe_n4_week <- left_join(df_n4_week,vl_n4_week, by = "week") #n=4
 
-wbe_n3_week <- left_join(ap_n3_week,vl_n3_week, by = "week") #n=3
+wbe_n3_week <- left_join(df_n3_week,vl_n3_week, by = "week") #n=3
 
-wbe_n2_week <- left_join(ap_n2_week,vl_n2_week, by = "week") #n=2
+wbe_n2_week <- left_join(df_n2_week,vl_n2_week, by = "week") #n=2
 
-wbe_n1_week <- left_join(ap_n1_week,vl_n1_week, by = "week") #n=1
+wbe_n1_week <- left_join(df_n1_week,vl_n1_week, by = "week") #n=1
 ```
 
-## B) COVID Wrangling
+## COVID Wrangling
 
-### 1. Subset COVID dates, summarize by week
+### 1. Summarize by week
 
 ```{r}
 covid_daily <- covid %>% 
@@ -404,7 +388,7 @@ covid_weekly <- covid_daily %>%
   ungroup()
 ```
 
-### 2. Combine WBE data with COVID data
+### 2. Combine WBE and COVID data
 
 ```{r}
 # n = 6

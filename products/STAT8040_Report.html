@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Leah Lariscy">
+
+<title>Leah Lariscy’s Wastewater Forecasting Repository - Evaluating trade offs in wastewater surveillance of SARS-CoV-2 for predicting clinical incidence rates</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Leah Lariscy’s Wastewater Forecasting Repository</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href=".././aboutme.html" rel="" target="">
+ <span class="menu-text">About Me</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-scripts" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Scripts</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-scripts">    
+        <li>
+    <a class="dropdown-item" href=".././code/processing/1_initial_cleaning.html" rel="" target="">
+ <span class="dropdown-text">1. Initial Data Cleaning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href=".././code/processing/2_preprocessing.html" rel="" target="">
+ <span class="dropdown-text">2. Data Preprocessing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href=".././code/analysis/3_exploratory_timeseries.html" rel="" target="">
+ <span class="dropdown-text">3. Exploratory Time Series Analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href=".././code/analysis/4_univariate_regressions.html" rel="" target="">
+ <span class="dropdown-text">4. Univariate Linear Regressions</span></a>
+  </li>  
+        <li class="dropdown-header">Read Me</li>
+        <li>
+    <a class="dropdown-item" href=".././ReadMe.html" rel="" target="">
+ <span class="dropdown-text"></span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/lmlariscy/WW_Forecasting" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Evaluating trade offs in wastewater surveillance of SARS-CoV-2 for predicting clinical incidence rates</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Leah Lariscy </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>SARS-CoV-2 wastewater-based detection methods are used as indicators of COVID-19 prevalence and can serve as a tool in understanding transmission dynamics as infections are less often reported now than initially during the pandemic. While wastewater-based surveillance can be less resource demanding and time consuming than clinical surveillance, more work could be done to reduce reporting delays. Previous work has been done to explore the most robust and accurate wastewater-based models for predicting incidence of COVID-19, but work has not yet been done to understand how simplified processing methods could impact model performance. This study aims to utilize a machine learning framework to compare wastewater metrics, viral load and detection frequency, for their power to predict COVID-19 incidence, as well as evaluate the impact of simplified processing methods on model performance. Composite samples were collected between June 2020 and January 2023 from three treatment facilities in Athens-Clarke County, Georgia (USA). Six replicate nucleic acid extractions were performed and SARS-CoV-2 specific RT-qPCR assays were used to amplify targets on the N-gene (N1 and N2). Quantification cycle (Cq) values and wastewater flow data were used to estimate daily viral loads. Assay detection frequency was determined by totaling the positive reactions for each date. COVID-19 clinical data were obtained from the Georgia DPH. Using a Random Forest framework, viral load and detection frequency were compared for their ability to accurately predict clinical test positivity rates from June 2020 to January 2021. Subsequently, extraction replicates were removed one at a time and model performances were assessed. No large differences were found in performance metrics between viral load and detection frequency models, and increasing biological replicates did not improve outcomes. Researchers interested in doing wastewater surveillance may want consider how to best implement detection methods based on resource availability and research goals.</p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>Early in the pandemic, wastewater-based epidemiology (WBE) was identified as a promising method for detecting and quantifying SARS-CoV-2 at population levels. SARS-CoV-2 viral particles can shed from a person during and after infection (Wu et al., 2020) and can enter wastewater streams when an infected individual uses the toilet, showers, or washes their hands. Viral particles in wastewater are able to be detected via Reverse Transcriptase Quantitative Polymerase Chain Reaction (RT-qPCR) by amplification of universally-conserved gene targets (Ahmed et al., 2020). Previous studies have shown that viral load quantification and detection frequency in wastewater samples correlate with COVID-19 clinical case data, especially when reporting efforts are strong (Lott et al., 2023). As COVID-19 shifts from pandemic to endemic and reporting is no longer robust, WBE methods have the potential to fill gaps left by clinical data.</p>
+<p>Wastewater-based surveillance for public health offers a number of advantages relative to clinical surveillance. To get clinical data, an infected individual must have access to and decide to be tested in a clinical setting and data sharing must be approved by an institutional review board. Alternatively, WBE is unbiased by healthcare seeking behavior and is anonymous by nature, allowing for more infections to be captured with less concerns over privacy. WBE can also be less resource demanding as one wastewater sample can potentially capture numerous infections at once, whereas a greater magnitude of clinical sampling is needed to capture a comparable amount information. Limited sampling necessity combined with real-time detection methods are some advantages of WBE that could make informing public health faster and more accessible.</p>
+<p>While WBE does offer considerable advantages to traditional surveillance, it is important to look for ways to improve access and turnaround time by evaluating trade offs between data robustness and methodology simplicity. RT-qPCR is the most common method used to detect and quantify SARS-CoV-2 particles in wastewater, but this requires access to specialized equipment that may not be available to all research groups. Meanwhile, conventional PCR methods may be more widely accessible, but data is limited to observance of presence/absence because quantification is not possible. While conventional methods may lack the robustness that RT-qPCR offers, little work has actually been done to examine the relationship between presence/absence data and infection incidence (Lott et al., 2023). Most groups conducting wastewater surveillance also utilize multiple replicates per sample to obtain more accurate results, however, this can drastically increase the processing time. Previous work suggests that replicate samples can minimize errors associated with viral wastewater detection (Ahmed et al., 2022), but work has yet to examine how reducing replicates impacts case incidence predictions. Understanding these trade offs will be necessary for expanding global engagement with wastewater-based surveillance methods, not only for COVID-19 but other concerning pathogens as well.</p>
+</section>
+<section id="aims" class="level2">
+<h2 class="anchored" data-anchor-id="aims">Aims</h2>
+<p>This work aims to understand the trade off between wastewater data robustness and predictive power through a series of feature selections, evaluated within a Random Forest (RF) framework. To do this, RF models will be trained on either a) viral load quantification or b) detection frequency of SARS-CoV-2 particles in wastewater. Subsequently for each feature, replicates will be dropped one at a time at random (n = 6..1). Each feature selection will be used in a RF model to predict clinical case positivity rates (positive tests/total test administered) and model performance metrics will be compared.</p>
+</section>
+</section>
+<section id="materials-and-methods" class="level1">
+<h1>Materials and Methods</h1>
+<section id="data-sources" class="level2">
+<h2 class="anchored" data-anchor-id="data-sources">Data sources</h2>
+<section id="wastewater-surveillance-data" class="level3">
+<h3 class="anchored" data-anchor-id="wastewater-surveillance-data">Wastewater surveillance data</h3>
+<p>Sample collection for wastewater surveillance began June 30, 2020 and occurred twice weekly (excluding major holidays) through December 21, 2022. 24-hour composite raw wastewater influent samples were collected twice-weekly from three treatment facilities in Athens-Clarke County and stored at 4°C until ready for extraction. 280 𝜇L of wastewater was aliquoted in replicate (n=6) and direct RNA extraction (Zymo Research, R2042) was performed on the same day as sample collection. Each extraction replicate was reverse transcribed and amplified using RT-qPCR and a SARS-CoV-2 specific primer-probe panel (IDT, 10006713), done in technical replicates (n=3). As part of the qPCR panel, two gene targets on the N-gene of the SARS-CoV-2 genome were used for amplification. The N1 and N2 gene targets are conserved across variants and act as universal detectors (cite). Quantification cycle (Cq) values were calculated for each reaction, which were then used to estimate SARS-CoV-2 viral load.</p>
+</section>
+<section id="wastewater-treatment-plant-flow-data" class="level3">
+<h3 class="anchored" data-anchor-id="wastewater-treatment-plant-flow-data">Wastewater treatment plant flow data</h3>
+<p>Wastewater influent flow data, including millions of gallons per day (MGD) and total suspended solids (TSS), were collected for each corresponding sampling date. For each treatment plant and collection date, MGD and TSS was shared by plant operators directly with our team and compiled throughout the study period.</p>
+</section>
+<section id="clinical-case-data" class="level3">
+<h3 class="anchored" data-anchor-id="clinical-case-data">Clinical case data</h3>
+<p>COVID-19 clinical data were obtained from the Georgia Department of Public Health website (“COVID-19 Status Report,” n.d.) which includes COVID-19 reported clinical case data for the state of Georgia. Reported case and testing data were downloaded from the COVID-19 Status Report Page in January 2023.</p>
+</section>
+</section>
+<section id="data-wrangling-and-pre-processing" class="level2">
+<h2 class="anchored" data-anchor-id="data-wrangling-and-pre-processing">Data wrangling and pre-processing</h2>
+<section id="sub-setting-replicates" class="level3">
+<h3 class="anchored" data-anchor-id="sub-setting-replicates">Sub-setting replicates</h3>
+<p>To simulate simplified wastewater surveillance processing, biological replicates were randomly selected from the original dataset at n = 1, 2, 3, 4, 5, &amp; 6. Six biological replicates were originally utilized during surveillance, so n = 6 is equivalent to the original data generated.</p>
+</section>
+<section id="calculating-wastewater-viral-load" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-wastewater-viral-load">Calculating wastewater viral load</h3>
+<p>Amplification standard curve equations where generated from serially diluted synthetic controls for both N1 and N2 gene targets. Viral copies per microliter (cp/uL) of each PCR reaction was estimated by transforming the Cq value using the appropriate standard curve equation. For reactions with no detection, concentration was set to the theoretical limit of detection (0.004 cp/uL). Copies per liter (cp/L) of wastewater was calculated for each technical replicate (Equation 1) and the average concentration was calculated per sample and gene target.</p>
+<p><span class="math display">\[
+C_W=C_R*(V_Q/V_D)*(V_T/V_R)*(V_E/V_W)*(1.0*10^6uL/1L)
+\]</span></p>
+<p>Equation 1. Viral copies per liter of wastewater (C_W) was calculated by multiplying copies per reaction (C_R) by volume of reaction (V_Q) divided by volume of converted DNA (V_D) in the reaction, then multiplying by volume of the reverse-transcription reaction (V_R) divided by volume of RNA extract (V_R) in that reaction, then multiplying by the elution volume of the RNA extraction (V_E) divided by the total volume of wastewater input (V_W). This yields copies per microliter of raw wastewater, which is converted to copies per liter.</p>
+<p>Wastewater flow data was converted from millions of gallons per day to liters per day and total viral load per sample was calculated by multiplying average cp/uL by the flow rate (Equation 2). Viral load estimates were then averaged per week for each treatment facility and gene target.</p>
+<p><span class="math display">\[
+VL_W=C_W*V_I
+\]</span></p>
+<p>Equation 2. Wastewater viral load (VL_W) was determined by multiplying viral copies per liter of wastewater (C_W) by the total daily volume of influent flow in liters (V_I).</p>
+</section>
+<section id="calculating-wastewater-detection-frequency" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-wastewater-detection-frequency">Calculating wastewater detection frequency</h3>
+<p>Detection frequency was determined for sample and gene target by calculating the number of positive detections per week out of the total number of assays performed for each facility and gene target. This includes all biological and technical replicates.</p>
+</section>
+<section id="calculating-clinical-test-positivity-rate" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-clinical-test-positivity-rate">Calculating clinical test positivity rate</h3>
+<p>Georgia DPH data corresponding to the wastewater surveillance period were selected. COVID-19 clinical test positivity rate was determined by dividing total positive tests per week by total tests administered per week.</p>
+</section>
+</section>
+<section id="model-training" class="level2">
+<h2 class="anchored" data-anchor-id="model-training">Model training</h2>
+<p>Two random forest model workflows were generated using Tidymodels packages in R. Model predictors included either viral load estimates or qPCR detection frequency, with clinical test positivity rate as the outcome. Each model was trained on all six subsets. Data from 2020 and 2021 were selected to train models on due to stronger clinical reporting at this time.</p>
+</section>
+<section id="evaluating-model-performance" class="level2">
+<h2 class="anchored" data-anchor-id="evaluating-model-performance">Evaluating model performance</h2>
+<p>To evaluate and validate model performance, V-fold cross-validations were performed for each set of training data (V = 2, repeats = 20). Mean R-square value (R^2) and root mean square error (RMSE) were evaluated as metrics of performance.</p>
+</section>
+</section>
+<section id="results" class="level1">
+<h1>Results</h1>
+<section id="data-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="data-distribution">Data distribution</h2>
+<p>Viral load estimate distributions for each treatment facility and target were right-skewed, as the mean was higher than the median across each dataset (Figure 1). This is likely because a majority of reactions throughout the study had low to no detection.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="STAT8040_Report_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure 1. Distribution of the log10 viral load of N1 and N2 gene targets at each wastewater treatment facility</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Detection frequency had similarly skewed distributions, which is to be expected as these variables are strongly correlated (Figure 2). However, distributions from Plant B and C also exhibited higher counts in high detection rates. This could because once wastewater viral particles become concentrated past a certain point, detection frequency reaches 100% and cannot exceed that limit. If frequency was able to exceed 100%, it is likely that some distributions would look more like those of the corresponding viral load.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="STAT8040_Report_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure 2. Distribution of the RT-qPCR detection frequency of N1 and N2 gene targets at each wastewater treatment facility</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Clinical case positivity rate also had a right-skewed distribution, as most weeks had lower positive rates (median, 5.7%) compared to the average (8.2%) (Figure 3).</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="STAT8040_Report_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure 3. Distribution of COVID-19 clinical test positivity rates</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cross-validated-model-performance-metrics" class="level2">
+<h2 class="anchored" data-anchor-id="cross-validated-model-performance-metrics">Cross-validated model performance metrics</h2>
+<p>Mean R^2 ranged 0.53-0.60 and RMSE ranged 0.045-0.049 for all model fits. Significance tests were not ran, but it is likely that no models significantly outperformed others. However, models with the highest R2 were the detection frequency models with one biological replicate (0.60) and four biological replicates (0.57) and models with the lowest R2 were the viral load models with six, five, and three replicates (0.53) (Table 1, Figures 1-2).</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Model fit</th>
+<th>Mean RSQ</th>
+<th>Mean RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>VL_6</td>
+<td>0.53 (SD 0.097)</td>
+<td>0.049 (SD 0.008)</td>
+</tr>
+<tr class="even">
+<td>VL_5</td>
+<td>0.53 (SD 0.097)</td>
+<td>0.049 (SD 0.008)</td>
+</tr>
+<tr class="odd">
+<td>VL_4</td>
+<td>0.56 (SD 0.101)</td>
+<td>0.047 (SD 0.009)</td>
+</tr>
+<tr class="even">
+<td>VL_3</td>
+<td>0.53 (SD 0.091)</td>
+<td>0.049 (SD 0.008)</td>
+</tr>
+<tr class="odd">
+<td>VL_2</td>
+<td>0.57 (SD 0.096)</td>
+<td>0.047 (SD 0.009)</td>
+</tr>
+<tr class="even">
+<td>VL_1</td>
+<td>0.59 (SD 0.091)</td>
+<td>0.045 (SD 0.009)</td>
+</tr>
+<tr class="odd">
+<td>DF_6</td>
+<td>0.56 (SD 0.080)</td>
+<td>0.047 (SD 0.007)</td>
+</tr>
+<tr class="even">
+<td>DF_5</td>
+<td>0.56 (SD 0.076)</td>
+<td>0.048 (SD 0.007)</td>
+</tr>
+<tr class="odd">
+<td>DF_4</td>
+<td>0.58 (SD 0.083)</td>
+<td>0.047 (SD 0.007)</td>
+</tr>
+<tr class="even">
+<td>DF_3</td>
+<td>0.54 (SD 0.080)</td>
+<td>0.048 (SD 0.007)</td>
+</tr>
+<tr class="odd">
+<td>DF_2</td>
+<td>0.57 (SD 0.084)</td>
+<td>0.047 (SD 0.007)</td>
+</tr>
+<tr class="even">
+<td>DF_1</td>
+<td>0.60 (SD 0.081)</td>
+<td>0.045 (SD 0.008)</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1. Mean V-fold cross validated R-square and root mean square error, plus standard deviation, for each model fit.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="STAT8040_Report_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption class="figure-caption">Figure 4. Distribution of cross-validated R-square values for each model configuration</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="STAT8040_Report_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption class="figure-caption">Figure 5. Distribution of cross-validated RMSE for each model configuration</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The “best” model was used to predict clinical test positivity rates in data from 2022, predicting test positivity reasonable well (R^2 0.60). However, rates were slightly under-predicted in the summer months and slightly over-predicted late in the year (Figure 6b).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="STAT8040_Report_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure 6. Observed (blue) and predicted (red) clinical test positivity in a) data used to train models (2020-2021) and b) data withheld from training (2022). Predictions were made by the detection frequency model with one biological replicate.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>While feature selection did not have strong impacts on model performance, all models performed reasonably well and were able to make accurate predictions in data withheld from model training, and cross-validated results were promising. Viral load and detection frequency models performed comparably to one another, and meaningful difference in performances were not observed when biological replicates were removed. These results indicate that regardless of detection methodology, wastewater surveillance techniques can make reasonable predictions about case incidence when applied in machine learning analysis frameworks. This may point to the need for researchers working on wastewater pathogen detection to consider which approach is most appropriate for their workflows. These results may also encourage more researchers to explore wastewater surveillance techniques, without the need to invest in Real-Time equipment or process an increased number of samples.</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>The COVID-19 pandemic created an opportunity for the scientific community to realize the potential of wastewater-based epidemiology to track the spread of infectious diseases. It is well-known that SARS-CoV-2 viral particles can be detected in wastewater influent samples and that levels correlate with case incidence, but more work is needed to explore the utility of machine learning algorithms to make predictions about outbreaks from wastewater data. Wastewater surveillance efforts have popped up globally since the start of the pandemic, but common methods require specialized molecular equipment for quantifying wastewater viral load. Detection is possible with more widely available technology like conventional PCR, but results are limited to detection frequency. This study aimed to understand how both wastewater viral load and detection frequency of SARS-CoV-2 gene targets handled COVID-19 case incidence predictions. Biological replicates in each sample were also subset and used to train random forest models in order to determine if more replicates are necessary or not. Cross-validated results suggest that viral load did not outperform detection frequency models, and increased biological replicates did not improve model performance. However, all models predicted reported clinical test positivity rates reasonably well. Researchers interested in wastewater surveillance who may not want to initially invest in quantitative equipment could consider utilizing methods such as loop-mediated isothermal amplification (LAMP) or conventional PCR techniques to generate presence/absence data instead of needing to quantify viral targets. Researchers with the primary goal of generating results for timely reporting purposes should consider how processing times could be reduced, potentially by reducing biological replicates.</p>
+</section>
+<section id="sources-cited" class="level1">
+<h1>Sources cited</h1>
+<p>Wu, Y., Guo, C., Tang, L., Hong, Z., Zhou, J., Dong, X., Yin, H., Xiao, Q., Tang, Y., Qu, X., Kuang, L., Fang, X., Mishra, N., Lu, J., Shan, H., Jiang, G., &amp; Huang, X. (2020). Prolonged presence of SARS-CoV-2 viral RNA in faecal samples. <em>The Lancet Gastroenterology &amp; Hepatology</em>, <em>5</em>(5), 434–435. <a href="https://doi.org/10.1016/S2468-1253(20)30083-2">https://doi.org/10.1016/S2468-1253(20)30083-2</a></p>
+<p>Ahmed, W., Angel, N., Edson, J., Bibby, K., Bivins, A., O’Brien, J. W., Choi, P. M., Kitajima, M., Simpson, S. L., Li, J., Tscharke, B., Verhagen, R., Smith, W. J. M., Zaugg, J., Dierens, L., Hugenholtz, P., Thomas, K. V., &amp; Mueller, J. F. (2020). First confirmed detection of SARS-CoV-2 in untreated wastewater in Australia: A proof of concept for the wastewater surveillance of COVID-19 in the community. <em>Science of The Total Environment</em>, <em>728</em>, 138764. <a href="https://doi.org/10.1016/j.scitotenv.2020.138764" class="uri">https://doi.org/10.1016/j.scitotenv.2020.138764</a></p>
+<p>Lott, M. E. J., Norfolk, W. A., Dailey, C. A., Foley, A. M., Melendez-Declet, C., Robertson, M. J., Rathbun, S. L., &amp; Lipp, E. K. (2023). Direct wastewater extraction as a simple and effective method for SARS-CoV-2 surveillance and COVID-19 community-level monitoring. <em>FEMS Microbes</em>, <em>4</em>, xtad004. <a href="https://doi.org/10.1093/femsmc/xtad004" class="uri">https://doi.org/10.1093/femsmc/xtad004</a></p>
+<p>Ahmed, W., Simpson, S. L., Bertsch, P. M., Bibby, K., Bivins, A., Blackall, L. L., Bofill-Mas, S., Bosch, A., Brandão, J., Choi, P. M., Ciesielski, M., Donner, E., D’Souza, N., Farnleitner, A. H., Gerrity, D., Gonzalez, R., Griffith, J. F., Gyawali, P., Haas, C. N., … Shanks, O. C. (2022). Minimizing errors in RT-PCR detection and quantification of SARS-CoV-2 RNA for wastewater surveillance. <em>Science of The Total Environment</em>, <em>805</em>, 149877. <a href="https://doi.org/10.1016/j.scitotenv.2021.149877" class="uri">https://doi.org/10.1016/j.scitotenv.2021.149877</a></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
