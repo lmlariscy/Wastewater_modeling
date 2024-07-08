@@ -130,7 +130,7 @@ data_n1_test <- data_n1 %>% tail(n = 50)
 #general model for all iterations
 rf_model <- rand_forest() %>% 
   set_engine("ranger", importance = "permutation") %>% 
-  set_mode("regression") 
+  set_mode("regression")
 
 #workflow for assay pos models
 ap_workflow <- workflow() %>%

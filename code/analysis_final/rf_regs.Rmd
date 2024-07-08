@@ -1,0 +1,185 @@
+---
+title: "Random Forest Regressions"
+author: "Leah Lariscy"
+date: "2024-07-05"
+output: html_document
+---
+
+# Load Packages
+
+```{r}
+knitr::opts_chunk$set(message=F)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidymodels)
+library(ggpubr)
+library(tsibble)
+library(ingredients)
+library(RColorBrewer)
+```
+
+# Load Data
+
+```{r}
+# n = 6 (original data)
+data_n6 <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
+
+# n = 5
+data_n5 <- readRDS(here("data/processed_data/wbe_covid_n5_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
+
+# n = 4
+data_n4 <- readRDS(here("data/processed_data/wbe_covid_n4_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
+
+# n = 3
+data_n3 <- readRDS(here("data/processed_data/wbe_covid_n3_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
+
+# n = 2
+data_n2 <- readRDS(here("data/processed_data/wbe_covid_n2_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
+
+# n = 1
+data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>% 
+  drop_na() %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
+```
+
+# Split data
+
+```{r}
+data_n6_train <- data_n6 %>% head(n = 75)
+data_n6_test <- data_n6 %>% tail(n = 50)
+
+data_n5_train <- data_n5 %>% head(n = 75)
+data_n5_test <- data_n5 %>% tail(n = 50)
+
+data_n4_train <- data_n4 %>% head(n = 75)
+data_n4_test <- data_n4 %>% tail(n = 50)
+
+data_n3_train <- data_n3 %>% head(n = 75)
+data_n3_test <- data_n3 %>% tail(n = 50)
+
+data_n2_train <- data_n2 %>% head(n = 75)
+data_n2_test <- data_n2 %>% tail(n = 50)
+
+data_n1_train <- data_n1 %>% head(n = 75)
+data_n1_test <- data_n1 %>% tail(n = 50)
+```
+
+# Model tuning
+
+## Define model
+
+```{r}
+#define model
+rf_model <- rand_forest(
+  mtry = tune(), trees = 1000, min_n = tune()) %>% 
+  set_engine("ranger", importance = "permutation") %>% 
+  set_mode("regression") 
+```
+
+## Create workflows
+
+```{r}
+#workflow for assay pos models
+ap_workflow <- workflow() %>%
+  add_model(rf_model) %>% 
+  add_formula(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS)
+
+#workflow for viral load models
+vl_workflow <- workflow() %>% 
+  add_model(rf_model) %>% 
+  add_formula(log10_cases ~ A_N1+A_N2+B_N1+B_N2+C_N1+C_N2)
+
+#workflow for all predictors model
+all_workflow <- workflow() %>% 
+  add_model(rf_model) %>% 
+  add_formula(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+              A_N1+A_N2+B_N1+B_N2+C_N1+C_N2)
+```
+
+## Set up cross-validation
+
+```{r}
+set.seed(13)
+folds_n6 <- vfold_cv(data_n6_train, 
+                        v = 10, repeats = 10, strata = log10_cases)
+```
+
+## Define tuning grid
+
+```{r}
+rf_grid <- grid_regular(
+  mtry(range = c(1, 6)), min_n(range = c(1, 10)), levels = 6)
+```
+
+## Tune the model
+
+```{r}
+set.seed(123)
+rf_tune_results <- ap_workflow %>%
+  tune_grid(resamples = folds_n6, grid = rf_grid, 
+            metrics = metric_set(rsq,rmse))
+```
+
+## Select the best model
+
+```{r}
+best_rmse <- rf_tune_results %>%
+  select_best(metric = "rmse")
+```
