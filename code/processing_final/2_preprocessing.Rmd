@@ -22,7 +22,11 @@ This pre-processing script does the following:
 
 -   COVID data is summed by week
 
--   All WBE and COVID data are combined, ready for further analysis
+-   All WBE and COVID data are combined
+
+-   Detection frequency ratio is calculated
+
+**Data is now ready for further analysis**
 
 ## Load packages
 
@@ -391,38 +395,87 @@ covid_weekly <- covid_daily %>%
 ### 2. Combine WBE and COVID data
 
 ```{r}
+#this chunk also calculates the detection frequency ratio
 # n = 6
-wbe_covid_n6_week <- left_join(wbe_n6_week, covid_weekly, by = "week") %>% drop_na(week)
+wbe_covid_n6_week <- left_join(wbe_n6_week, covid_weekly, by = "week") %>% drop_na(week) %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
 
 saveRDS(wbe_covid_n6_week,
         here("data/processed_data/wbe_covid_n6_week.rds"))
-
+############################################################################
 # n = 5
-wbe_covid_n5_week <- left_join(wbe_n5_week, covid_weekly, by = "week") %>% drop_na(week)
+wbe_covid_n5_week <- left_join(wbe_n5_week, covid_weekly, by = "week") %>% drop_na(week) %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
 
 saveRDS(wbe_covid_n5_week,
         here("data/processed_data/wbe_covid_n5_week.rds"))
-
+############################################################################
 # n = 4
-wbe_covid_n4_week <- left_join(wbe_n4_week, covid_weekly, by = "week") %>% drop_na(week)
+wbe_covid_n4_week <- left_join(wbe_n4_week, covid_weekly, by = "week") %>% drop_na(week) %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
 
 saveRDS(wbe_covid_n4_week,
         here("data/processed_data/wbe_covid_n4_week.rds"))
-
+############################################################################
 # n = 3
-wbe_covid_n3_week <- left_join(wbe_n3_week, covid_weekly, by = "week") %>% drop_na(week)
+wbe_covid_n3_week <- left_join(wbe_n3_week, covid_weekly, by = "week") %>% drop_na(week) %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
 
 saveRDS(wbe_covid_n3_week,
         here("data/processed_data/wbe_covid_n3_week.rds"))
-
+############################################################################
 # n = 2
-wbe_covid_n2_week <- left_join(wbe_n2_week, covid_weekly, by = "week") %>% drop_na(week)
+wbe_covid_n2_week <- left_join(wbe_n2_week, covid_weekly, by = "week") %>% drop_na(week) %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
 
 saveRDS(wbe_covid_n2_week,
         here("data/processed_data/wbe_covid_n2_week.rds"))
-
+############################################################################
 # n = 1
-wbe_covid_n1_week <- left_join(wbe_n1_week, covid_weekly, by = "week") %>% drop_na(week)
+wbe_covid_n1_week <- left_join(wbe_n1_week, covid_weekly, by = "week") %>% drop_na(week) %>% 
+  mutate_at(vars(14:19),log10) %>% 
+  mutate(A_N1_POS = n_pos_A_N1/n_A_N1,
+         A_N2_POS = n_pos_A_N2/n_A_N2,
+         B_N1_POS = n_pos_B_N1/n_B_N1,
+         B_N2_POS = n_pos_B_N2/n_B_N2,
+         C_N1_POS = n_pos_C_N1/n_C_N1,
+         C_N2_POS = n_pos_C_N2/n_C_N2,
+         log10_cases = log10(cases.reported))
 
 saveRDS(wbe_covid_n1_week,
         here("data/processed_data/wbe_covid_n1_week.rds"))

@@ -8,11 +8,9 @@ df-print: paged
 code-overflow: wrap
 ---
 
-
 This script is for outcome of interest: total reported cases per week
 
 # Load Packages
-
 
 ```{r,echo=FALSE}
 knitr::opts_chunk$set(message=F)
@@ -28,9 +26,7 @@ library(ingredients)
 library(RColorBrewer)
 ```
 
-
 # Load Data
-
 
 ```{r}
 # n = 6 (original data)
@@ -106,9 +102,7 @@ data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>%
          log10_cases = log10(cases.reported))
 ```
 
-
 # Split data
-
 
 ```{r}
 data_n6_train <- data_n6 %>% head(n = 75)
@@ -130,9 +124,7 @@ data_n1_train <- data_n1 %>% head(n = 75)
 data_n1_test <- data_n1 %>% tail(n = 50)
 ```
 
-
 # Specify models & workflows
-
 
 ```{r}
 #general model for all iterations
@@ -169,11 +161,9 @@ select_workflow <- workflow() %>%
   add_formula(log10_cases ~ A_N1_POS+A_N2_POS+A_N1+A_N2)
 ```
 
-
 # Fit Detection Frequency
 
 ## n = 6
-
 
 ```{r}
 #fit model to data
@@ -216,9 +206,7 @@ saveRDS(rf_fitted_model_ap_n6,
         here("data/processed_data/rand_forest/DF_n6_fit_train.rds"))
 ```
 
-
 ## n = 5
-
 
 ```{r}
 #fit model to data
@@ -241,9 +229,7 @@ ap_n5_metrics_sum <- collect_metrics(cv_ap_n5,summarize = T)
 ap_n5_metrics_sum 
 ```
 
-
 ## n = 4
-
 
 ```{r}
 #fit model to data
@@ -266,9 +252,7 @@ ap_n4_metrics_sum <- collect_metrics(cv_ap_n4,summarize = T)
 ap_n4_metrics_sum
 ```
 
-
 ## n = 3
-
 
 ```{r}
 #fit model to data
@@ -291,9 +275,7 @@ ap_n3_metrics_sum <- collect_metrics(cv_ap_n3,summarize = T)
 ap_n3_metrics_sum 
 ```
 
-
 ## n = 2
-
 
 ```{r}
 #fit model to data
@@ -316,9 +298,7 @@ ap_n2_metrics_sum <- collect_metrics(cv_ap_n2,summarize = T)
 ap_n2_metrics_sum 
 ```
 
-
 ## n =1
-
 
 ```{r}
 #fit model to data
@@ -341,11 +321,9 @@ ap_n1_metrics_sum <- collect_metrics(cv_ap_n1,summarize = T)
 ap_n1_metrics_sum 
 ```
 
-
 # Fit Viral Load
 
 ## n = 6
-
 
 ```{r}
 #fit model to data
@@ -367,9 +345,7 @@ cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = F)
 cv_vl_n6_metrics 
 ```
 
-
 \
-
 
 ```{r}
 #fit model to training data
@@ -391,9 +367,7 @@ saveRDS(rf_fitted_model_vl_n6,
         here("data/processed_data/rand_forest/VL_n6_fit_train.rds"))
 ```
 
-
 ## n = 5
-
 
 ```{r}
 #fit model to data
@@ -415,9 +389,7 @@ cv_vl_n5_metrics <- collect_metrics(cv_vl_n5,summarize = F)
 cv_vl_n5_metrics 
 ```
 
-
 ## n = 4
-
 
 ```{r}
 #fit model to data
@@ -439,9 +411,7 @@ cv_vl_n4_metrics <- collect_metrics(cv_vl_n4,summarize = F)
 cv_vl_n4_metrics 
 ```
 
-
 ## n = 3
-
 
 ```{r}
 #fit model to data
@@ -463,9 +433,7 @@ cv_vl_n3_metrics <- collect_metrics(cv_vl_n3,summarize = F)
 cv_vl_n3_metrics 
 ```
 
-
 ## n = 2
-
 
 ```{r}
 #fit model to data
@@ -487,9 +455,7 @@ cv_vl_n2_metrics <- collect_metrics(cv_vl_n2,summarize = F)
 cv_vl_n2_metrics 
 ```
 
-
 ## n = 1
-
 
 ```{r}
 #fit model to data
@@ -511,11 +477,9 @@ cv_vl_n1_metrics <- collect_metrics(cv_vl_n1,summarize = F)
 cv_vl_n1_metrics 
 ```
 
-
 # Fit all predictors
 
 ## n = 6
-
 
 ```{r}
 #fit model to training data
@@ -557,9 +521,7 @@ cv_all_n6_metrics <- collect_metrics(cv_all_n6,summarize = F)
 cv_all_n6_metrics 
 ```
 
-
 ## n = 5
-
 
 ```{r}
 #fit model to data
@@ -581,9 +543,7 @@ cv_all_n5_metrics <- collect_metrics(cv_all_n5,summarize = F)
 cv_all_n5_metrics 
 ```
 
-
 ## n = 4
-
 
 ```{r}
 #fit model to data
@@ -605,9 +565,7 @@ cv_all_n4_metrics <- collect_metrics(cv_all_n4,summarize = F)
 cv_all_n4_metrics 
 ```
 
-
 ## n = 3
-
 
 ```{r}
 #fit model to data
@@ -629,9 +587,7 @@ cv_all_n3_metrics <- collect_metrics(cv_all_n3,summarize = F)
 cv_all_n3_metrics 
 ```
 
-
 ## n = 2
-
 
 ```{r}
 #fit model to training data
@@ -673,9 +629,7 @@ cv_all_n2_metrics <- collect_metrics(cv_all_n2,summarize = F)
 cv_all_n2_metrics 
 ```
 
-
 ## n = 1
-
 
 ```{r}
 #fit model to data
@@ -697,11 +651,9 @@ cv_all_n1_metrics <- collect_metrics(cv_all_n1,summarize = F)
 cv_all_n1_metrics 
 ```
 
-
 # Fit Selected Variables
 
 ## Detection Freq Plant A, n = 6
-
 
 ```{r}
 #fit model to data
@@ -724,9 +676,7 @@ cv_select_ap_n6_metrics <- collect_metrics(cv_select_ap_n6,summarize = F)
 cv_select_ap_n6_metrics 
 ```
 
-
 ## DF & VL Plant A, n = 6
-
 
 ```{r}
 #fit model to data
@@ -749,13 +699,11 @@ cv_select_n6_metrics <- collect_metrics(cv_select_n6,summarize = F)
 cv_select_n6_metrics 
 ```
 
-
 # Augment Assay Pos Fits
 
 ## n = 6
 
 ### Training data
-
 
 ```{r}
 set.seed(13)
@@ -793,9 +741,7 @@ ggsave(here("figures/randforest_df_n6_timeseries.png"),
        width = 8, height = 3)
 ```
 
-
 ### Testing data
-
 
 ```{r}
 set.seed(13)
@@ -830,11 +776,9 @@ ggsave(here("figures/randforest_df_n6_timeseries_2022.png"),
        width = 8, height = 3)
 ```
 
-
 ## n = 1
 
 ### Training data
-
 
 ```{r}
 set.seed(13)
@@ -855,9 +799,7 @@ df_n1_train <- aug_ap_n1 %>% ggplot(aes(x=week)) +
 df_n1_train
 ```
 
-
 ### Testing data
-
 
 ```{r}
 set.seed(13)
@@ -885,13 +827,11 @@ df_n1_time <- cowplot::plot_grid(df_n1_train,df_n1_test,nrow = 2)
 saveRDS(df_n1_time, here("figures/project_8040/df_n1_predictions_timeseries.rds"))
 ```
 
-
 # Augment Viral Load Fits
 
 ## n = 6
 
 ### Training data
-
 
 ```{r}
 set.seed(13)
@@ -915,9 +855,7 @@ vl_time
 ggsave(here("figures/randforest_vl_n6_timeseries.png"))
 ```
 
-
 ### Testing data
-
 
 ```{r}
 set.seed(13)
@@ -936,11 +874,9 @@ aug_vl_n6_test %>% ggplot(aes(x=week)) +
 ggsave(here("figures/randforest_vl_n6_timeseries_2022.png"))
 ```
 
-
 ## n = 1
 
 ### Training data
-
 
 ```{r}
 set.seed(13)
@@ -955,9 +891,7 @@ aug_vl_n1 %>% ggplot(aes(x=week)) +
   geom_line(aes(y=.pred), color = "red")
 ```
 
-
 ### Testing data
-
 
 ```{r}
 set.seed(13)
@@ -972,13 +906,11 @@ aug_vl_n1_test %>% ggplot(aes(x=week)) +
   geom_line(aes(y=.pred), color = "red")
 ```
 
-
 # Augment All Fits
 
 ## n = 6
 
 ### Training data
-
 
 ```{r}
 set.seed(13)
@@ -1016,9 +948,7 @@ ggsave(here("figures/randforest_all_n6_timeseries.png"),
        width = 8, height = 3)
 ```
 
-
 ### Testing data
-
 
 ```{r}
 set.seed(13)
@@ -1053,9 +983,7 @@ ggsave(here("figures/randforest_all_n6_timeseries_2022.png"),
        width = 8, height = 3)
 ```
 
-
 # Comparing metrics
-
 
 ```{r}
 cv_vl_n6_metrics <- cv_vl_n6_metrics %>% mutate(.config="vl_n6",
@@ -1108,7 +1036,6 @@ saveRDS(cv_metrics,
         here("data/processed_data/rand_forest/cv_metrics.rds"))
 ```
 
-
 ## RSQ
 
 -   `ns`: p \> 0.05
@@ -1122,7 +1049,6 @@ saveRDS(cv_metrics,
 -   `****`: p \<= 0.0001
 
 ## RMSE
-
 
 ```{r}
 rmse_hist <- cv_metrics %>% filter(.metric=="rmse") %>% 
@@ -1150,11 +1076,9 @@ saveRDS(rmse_hist, here("figures/project_8040/rmse_histogram.rds"))
 rmse_hist
 ```
 
-
 ## Check distributions of results
 
 Mostly normally distributed
-
 
 ```{r}
 cv_metrics %>% 
@@ -1179,9 +1103,7 @@ cv_metrics %>%
   facet_wrap(~ .config)
 ```
 
-
 # Summary stats
-
 
 ```{r}
 data_n6_train %>% summarise_at(vars(14:28),mean)
@@ -1203,4 +1125,3 @@ data_n6_train %>% ggplot(aes(log10_cases)) +
 data_n6_train %>% ggplot(aes(cases.reported)) +
   geom_histogram(binwidth = 100)
 ```
-

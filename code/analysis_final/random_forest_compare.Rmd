@@ -1,0 +1,102 @@
+---
+title: "Random Forest Comparisons"
+author: "Leah Lariscy"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(RColorBrewer)
+```
+
+# Load data
+
+```{r}
+#detection frequency
+df_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_df.rds"))
+
+#viral load
+vl_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl.rds"))
+
+#all predictors
+all_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all.rds"))
+
+#bind dataframes
+metrics_compare <- rbind(df_metrics,
+                         vl_metrics,
+                         all_metrics)
+```
+
+# Visualize
+
+## Make color palette
+
+```{r}
+# Extract the last 6 colors from the "Reds", "Greens", and "Blues" palettes
+reds <- brewer.pal(9, "Reds")[4:9]
+greens <- brewer.pal(9, "Greens")[4:9]
+blues <- brewer.pal(9, "Blues")[4:9]
+
+# Combine the colors into a single list
+color_palette <- c(reds, greens, blues)
+
+# Display the colors to confirm their distinctiveness
+print(color_palette)
+
+# Ensure the list has exactly 18 colors
+color_palette <- color_palette[1:18]
+
+# Make list for naming models in ggplot
+labels <- c("DF n=1","DF n=2","DF n=3","DF n=4","DF n=5","DF n=6",
+            "VL n=1","VL n=2","VL n=3","VL n=4","VL n=5","VL n=6",
+            "All n=1","All n=2","All n=3","All n=4","All n=5","All n=6")
+```
+
+## RMSE
+
+```{r}
+rmse_hist <- metrics_compare %>% filter(.metric=="rmse") %>% 
+  ggplot(aes(.config, .estimate, fill=.config)) +
+  geom_boxplot() +
+  ggthemes::theme_clean() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
+  scale_fill_manual(name="Configuration",
+                    #labels=labels,
+                    values = color_palette) +
+  xlab("Feature selection configuration") +
+  ylab("RMSE") 
+
+rmse_hist
+```
+
+## R-squared
+
+```{r}
+rsq_hist <- metrics_compare %>% filter(.metric=="rsq") %>% 
+  ggplot(aes(.config, .estimate, fill=.config)) +
+  geom_boxplot() +
+  ggthemes::theme_clean() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
+  scale_fill_manual(name="Configuration",
+                    #labels=labels,
+                    values = color_palette) +
+  xlab("Feature selection configuration") +
+  ylab("R-squared") 
+
+rsq_hist
+```
