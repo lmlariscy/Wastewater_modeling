@@ -141,11 +141,11 @@ tune_rf_2 %>%
 ## Select the best model
 
 ```{r}
-#select the best model based on R-square value
-best_rsq_2 <- tune_rf_2 %>%
-  select_best(metric = "rsq")
+#select the best model based on RMSE
+best_rmse_2 <- tune_rf_2 %>%
+  select_best(metric = "rmse")
 
-final_rf_2 <- finalize_model(rf_model, best_rsq_2)
+final_rf_2 <- finalize_model(rf_model, best_rmse_2)
 
 final_rf_2
 ```
@@ -170,8 +170,8 @@ fit_vl_n6 <- final_wf_2 %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n6 <- vfold_cv(data_n6_train, v = 10, repeats = 10, 
-                        strata = log10_cases)
+folds_vl_n6 <- vfold_cv(data_n6_train, 
+                        v = nrow(data_n6_train))
 
 #run cross validation
 set.seed(13)
@@ -193,8 +193,8 @@ fit_vl_n5 <- final_wf_2 %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n5 <- vfold_cv(data_n5_train, v = 10, repeats = 10, 
-                        strata = log10_cases)
+folds_vl_n5 <- vfold_cv(data_n5_train, 
+                        v = nrow(data_n5_train))
 
 #run cross validation
 set.seed(13)
@@ -216,8 +216,8 @@ fit_vl_n4 <- final_wf_2 %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n4 <- vfold_cv(data_n4_train, v = 10, repeats = 10, 
-                        strata = log10_cases)
+folds_vl_n4 <- vfold_cv(data_n4_train, 
+                        v = nrow(data_n4_train))
 
 #run cross validation
 set.seed(13)
@@ -239,8 +239,8 @@ fit_vl_n3 <- final_wf_2 %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n3 <- vfold_cv(data_n3_train, v = 10, repeats = 10, 
-                        strata = log10_cases)
+folds_vl_n3 <- vfold_cv(data_n3_train, 
+                        v = nrow(data_n3_train))
 
 #run cross validation
 set.seed(13)
@@ -262,8 +262,8 @@ fit_vl_n2 <- final_wf_2 %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n2 <- vfold_cv(data_n2_train, v = 10, repeats = 10, 
-                        strata = log10_cases)
+folds_vl_n2 <- vfold_cv(data_n2_train, 
+                        v = nrow(data_n2_train))
 
 #run cross validation
 set.seed(13)
@@ -285,8 +285,8 @@ fit_vl_n1 <- final_wf_2 %>%
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n1 <- vfold_cv(data_n1_train, v = 10, repeats = 10, 
-                        strata = log10_cases)
+folds_vl_n1 <- vfold_cv(data_n1_train, 
+                        v = nrow(data_n1_train))
 
 #run cross validation
 set.seed(13)

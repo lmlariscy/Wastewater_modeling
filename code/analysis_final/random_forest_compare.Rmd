@@ -25,9 +25,12 @@ vl_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl.rds"))
 all_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all.rds"))
 
 #bind dataframes
+#undo log10 for RMSE
 metrics_compare <- rbind(df_metrics,
                          vl_metrics,
-                         all_metrics)
+                         all_metrics) %>% 
+                   filter(.metric == "rmse") %>% 
+                   mutate(estimate_denorm = 10^.estimate)
 ```
 
 # Visualize
@@ -58,9 +61,9 @@ labels <- c("DF n=1","DF n=2","DF n=3","DF n=4","DF n=5","DF n=6",
 ## RMSE
 
 ```{r}
-rmse_hist <- metrics_compare %>% filter(.metric=="rmse") %>% 
-  ggplot(aes(.config, .estimate, fill=.config)) +
-  geom_boxplot() +
+rmse_hist <- metrics_compare %>% 
+  ggplot(aes(.config, estimate_denorm, fill=.config)) +
+  geom_boxplot(outliers = F) +
   ggthemes::theme_clean() +
   theme(axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -76,27 +79,4 @@ rmse_hist <- metrics_compare %>% filter(.metric=="rmse") %>%
   ylab("RMSE") 
 
 rmse_hist
-```
-
-## R-squared
-
-```{r}
-rsq_hist <- metrics_compare %>% filter(.metric=="rsq") %>% 
-  ggplot(aes(.config, .estimate, fill=.config)) +
-  geom_boxplot() +
-  ggthemes::theme_clean() +
-  theme(axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.y = element_text(size = 12,face = "bold"),
-        legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
-        legend.key.height = unit(0.6, "cm"),
-        legend.position = "none") + #no legend after all..
-  scale_fill_manual(name="Configuration",
-                    #labels=labels,
-                    values = color_palette) +
-  xlab("Feature selection configuration") +
-  ylab("R-squared") 
-
-rsq_hist
 ```
