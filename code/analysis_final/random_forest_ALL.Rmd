@@ -69,13 +69,18 @@ data_n1_test <- data_n1 %>% tail(n = 50)
 ## Define model
 
 ```{r}
-#define model
+#define random forest model
 rf_model <- rand_forest(
   mtry = tune(), 
   trees = 1000, 
   min_n = tune()) %>% 
   set_engine("ranger", importance = "permutation") %>% 
   set_mode("regression") 
+
+#define null model
+null_model <- null_model() %>% 
+  set_engine("parsnip") %>% 
+  set_mode("regression")
 ```
 
 ## Define recipes
@@ -87,20 +92,72 @@ all_n6_recipe <- recipe(log10_cases ~
               data = data_n6_train) %>% 
               update_role(week, new_role = "ID") 
 
+all_n5_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+              A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
+              data = data_n5_train) %>% 
+              update_role(week, new_role = "ID") 
 
+all_n4_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+              A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
+              data = data_n4_train) %>% 
+              update_role(week, new_role = "ID")
+
+all_n3_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+              A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
+              data = data_n3_train) %>% 
+              update_role(week, new_role = "ID")
+
+all_n2_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+              A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
+              data = data_n2_train) %>% 
+              update_role(week, new_role = "ID")
+
+all_n1_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
+              A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
+              data = data_n1_train) %>% 
+              update_role(week, new_role = "ID")
 ```
 
 ## Create workflows
 
 ```{r}
 #workflow for all predictors model
-all_workflow <- workflow() %>% 
+all_workflow_n6 <- workflow() %>% 
   add_model(rf_model) %>% 
   add_recipe(all_n6_recipe)
 
+#workflow for null models
+all_null_workflow_n6 <- workflow() %>% 
+  add_model(null_model) %>% 
+  add_recipe(all_n6_recipe)
+
+all_null_workflow_n5 <- workflow() %>% 
+  add_model(null_model) %>% 
+  add_recipe(all_n5_recipe)
+
+all_null_workflow_n4 <- workflow() %>% 
+  add_model(null_model) %>% 
+  add_recipe(all_n4_recipe)
+
+all_null_workflow_n3 <- workflow() %>% 
+  add_model(null_model) %>% 
+  add_recipe(all_n3_recipe)
+
+all_null_workflow_n2 <- workflow() %>% 
+  add_model(null_model) %>% 
+  add_recipe(all_n2_recipe)
+
+all_null_workflow_n1 <- workflow() %>% 
+  add_model(null_model) %>% 
+  add_recipe(all_n1_recipe)
 ```
 
-## Set up cross-validation
+## Set up cross-validation for tuning
 
 ```{r}
 set.seed(13)
@@ -114,7 +171,7 @@ doParallel::registerDoParallel()
 
 set.seed(345)
 tune_rf_3 <- tune_grid(
-  all_workflow,
+  all_workflow_n6,
   resamples = folds_n6,
   grid = 20)
 ```
@@ -168,9 +225,29 @@ final_rf_3
 ## Create final workflow
 
 ```{r}
-final_wf_3 <- workflow() %>% 
+all_n6_final_wf <- workflow() %>% 
   add_model(final_rf_3) %>% 
   add_recipe(all_n6_recipe)
+
+all_n5_final_wf <- workflow() %>% 
+  add_model(final_rf_3) %>% 
+  add_recipe(all_n5_recipe)
+
+all_n4_final_wf <- workflow() %>% 
+  add_model(final_rf_3) %>% 
+  add_recipe(all_n4_recipe)
+
+all_n3_final_wf <- workflow() %>% 
+  add_model(final_rf_3) %>% 
+  add_recipe(all_n3_recipe)
+
+all_n2_final_wf <- workflow() %>% 
+  add_model(final_rf_3) %>% 
+  add_recipe(all_n2_recipe)
+
+all_n1_final_wf <- workflow() %>% 
+  add_model(final_rf_3) %>% 
+  add_recipe(all_n1_recipe)
 ```
 
 ## n = 6
@@ -178,7 +255,7 @@ final_wf_3 <- workflow() %>%
 ```{r}
 #fit model to data
 set.seed(13)
-fit_all_n6 <- final_wf_3 %>% 
+fit_all_n6 <- all_n6_final_wf %>% 
   fit(data = data_n6_train)
 
 #create folds for cross validation
@@ -196,12 +273,31 @@ all_n6_metrics_sum <- collect_metrics(cv_all_n6,summarize = T)
 all_n6_metrics_sum
 ```
 
+### Null model
+
+```{r}
+#create folds for cross validation
+set.seed(13)
+folds_all_n6_null <- vfold_cv(data_n6_train, 
+                        v = nrow(data_n6_train))
+
+#run cross validation
+set.seed(13)
+cv_all_n6_null <- fit_resamples(all_null_workflow_n6, 
+                                resamples = folds_all_n6_null)
+cv_all_n6_metrics_null <- collect_metrics(cv_all_n6_null ,summarize = F)
+all_n6_metrics_null_sum <- collect_metrics(cv_all_n6_null ,summarize = T)
+
+#check cross validation metrics
+all_n6_metrics_null_sum
+```
+
 ## n = 5
 
 ```{r}
 #fit model to data
 set.seed(13)
-fit_all_n5 <- final_wf_3 %>% 
+fit_all_n5 <- all_n5_final_wf %>% 
   fit(data = data_n5_train)
 
 #create folds for cross validation
@@ -219,12 +315,31 @@ all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T)
 all_n5_metrics_sum
 ```
 
+### Null model
+
+```{r}
+#create folds for cross validation
+set.seed(13)
+folds_all_n5_null <- vfold_cv(data_n5_train, 
+                        v = nrow(data_n5_train))
+
+#run cross validation
+set.seed(13)
+cv_all_n5_null <- fit_resamples(all_null_workflow_n5, 
+                                resamples = folds_all_n5_null)
+cv_all_n5_metrics_null <- collect_metrics(cv_all_n5_null ,summarize = F)
+all_n5_metrics_null_sum <- collect_metrics(cv_all_n5_null ,summarize = T)
+
+#check cross validation metrics
+all_n5_metrics_null_sum
+```
+
 ## n = 4
 
 ```{r}
 #fit model to data
 set.seed(13)
-fit_all_n4 <- final_wf_3 %>% 
+fit_all_n4 <- all_n4_final_wf %>% 
   fit(data = data_n4_train)
 
 #create folds for cross validation
@@ -242,12 +357,31 @@ all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T)
 all_n4_metrics_sum
 ```
 
+### Null model
+
+```{r}
+#create folds for cross validation
+set.seed(13)
+folds_all_n4_null <- vfold_cv(data_n4_train, 
+                        v = nrow(data_n4_train))
+
+#run cross validation
+set.seed(13)
+cv_all_n4_null <- fit_resamples(all_null_workflow_n4, 
+                                resamples = folds_all_n4_null)
+cv_all_n4_metrics_null <- collect_metrics(cv_all_n4_null ,summarize = F)
+all_n4_metrics_null_sum <- collect_metrics(cv_all_n4_null ,summarize = T)
+
+#check cross validation metrics
+all_n4_metrics_null_sum
+```
+
 ## n = 3
 
 ```{r}
 #fit model to data
 set.seed(13)
-fit_all_n3 <- final_wf_3 %>% 
+fit_all_n3 <- all_n3_final_wf %>% 
   fit(data = data_n3_train)
 
 #create folds for cross validation
@@ -265,12 +399,31 @@ all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T)
 all_n3_metrics_sum
 ```
 
+### Null model
+
+```{r}
+#create folds for cross validation
+set.seed(13)
+folds_all_n3_null <- vfold_cv(data_n3_train, 
+                        v = nrow(data_n3_train))
+
+#run cross validation
+set.seed(13)
+cv_all_n3_null <- fit_resamples(all_null_workflow_n3, 
+                                resamples = folds_all_n3_null)
+cv_all_n3_metrics_null <- collect_metrics(cv_all_n3_null ,summarize = F)
+all_n3_metrics_null_sum <- collect_metrics(cv_all_n3_null ,summarize = T)
+
+#check cross validation metrics
+all_n3_metrics_null_sum
+```
+
 ## n = 2
 
 ```{r}
 #fit model to data
 set.seed(13)
-fit_all_n2 <- final_wf_3 %>% 
+fit_all_n2 <- all_n2_final_wf %>% 
   fit(data = data_n2_train)
 
 #create folds for cross validation
@@ -288,12 +441,31 @@ all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T)
 all_n2_metrics_sum
 ```
 
+### Null model
+
+```{r}
+#create folds for cross validation
+set.seed(13)
+folds_all_n2_null <- vfold_cv(data_n2_train, 
+                        v = nrow(data_n2_train))
+
+#run cross validation
+set.seed(13)
+cv_all_n2_null <- fit_resamples(all_null_workflow_n2, 
+                                resamples = folds_all_n2_null)
+cv_all_n2_metrics_null <- collect_metrics(cv_all_n2_null ,summarize = F)
+all_n2_metrics_null_sum <- collect_metrics(cv_all_n2_null ,summarize = T)
+
+#check cross validation metrics
+all_n2_metrics_null_sum
+```
+
 ## n = 1
 
 ```{r}
 #fit model to data
 set.seed(13)
-fit_all_n1 <- final_wf_3 %>% 
+fit_all_n1 <- all_n1_final_wf %>% 
   fit(data = data_n1_train)
 
 #create folds for cross validation
@@ -309,6 +481,25 @@ all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T)
 
 #check cross validation metrics
 all_n1_metrics_sum
+```
+
+### Null model
+
+```{r}
+#create folds for cross validation
+set.seed(13)
+folds_all_n1_null <- vfold_cv(data_n1_train, 
+                        v = nrow(data_n1_train))
+
+#run cross validation
+set.seed(13)
+cv_all_n1_null <- fit_resamples(all_null_workflow_n1, 
+                                resamples = folds_all_n1_null)
+cv_all_n1_metrics_null <- collect_metrics(cv_all_n1_null ,summarize = F)
+all_n1_metrics_null_sum <- collect_metrics(cv_all_n1_null ,summarize = T)
+
+#check cross validation metrics
+all_n1_metrics_null_sum
 ```
 
 ## Export results
@@ -341,42 +532,30 @@ saveRDS(cv_metrics_all,
 # Observed vs predicted
 
 ```{r}
+#create bootstraps for predictions
 set.seed(13)
 bootstrap_all_n6 <- bootstraps(data_n6_train, times = 100)
 
+#run bootstrapping and save predictions
 bootstrap_all_n6_results <- fit_resamples(final_wf_3, 
         resamples = bootstrap_all_n6,
         control = control_resamples(save_pred = TRUE))
 
+#collect predictions and mutate back to original unit (log10 transformed prior to running model)
 predictions_all_n6 <- collect_predictions(bootstrap_all_n6_results, summarize = FALSE) %>% 
 mutate(prediction = 10^.pred,
        actual = 10^log10_cases)
 
 predictions_all_n6
 
+#plot observed vs predicted
 predictions_all_n6 %>% ggplot(aes(actual, prediction)) +
   geom_point() +
   stat_smooth(method = "lm")
-
-predictions_all_n6 %>% group_by(.row) %>% 
-  summarize(actual = mean(actual),
-            prediction_avg = mean(prediction),
-            prediction_se = s()) %>% 
-  ggplot(aes(.row)) +
-  geom_line(aes(y=actual), color = "blue") +
-  geom_line(aes(y=prediction_avg), color = "darkgreen") +
-    geom_point(aes(y=actual), color = "blue") +
-  geom_point(aes(y=prediction_avg), color = "darkgreen")
-
-
-predictions_all_n6 %>% ggplot(aes(.row)) +
-  stat_smooth(aes(y=actual), method = "gam", color = "blue") +
-  geom_path(aes(y=prediction_avg), color = "darkgreen")
-
-
 ```
 
 ```{r}
+#calculate 95% confidence interval for predictions
 predictions_all_n6_sum <- predictions_all_n6 %>%
   group_by(.row) %>%
   summarize(
@@ -388,10 +567,12 @@ predictions_all_n6_sum <- predictions_all_n6 %>%
     lower = prediction_avg - error,
     upper = prediction_avg + error) 
 
+#calculate spearman rank correlation
 all_n6_cor <- cor(predictions_all_n6_sum$actual,
          predictions_all_n6_sum$prediction_avg,
          method = "spearman")
 
+#plot timeseries
 predictions_all_n6_sum %>% 
   ggplot(aes(.row)) +
   geom_line(aes(y=prediction_avg), color = "blue") +
@@ -400,5 +581,4 @@ predictions_all_n6_sum %>%
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
-  
 ```
