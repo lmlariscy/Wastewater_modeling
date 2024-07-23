@@ -18,6 +18,7 @@ library(ggpubr)
 library(tsibble)
 library(ingredients)
 library(RColorBrewer)
+library(purrr)
 ```
 
 # Load Data
@@ -45,23 +46,30 @@ data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>% drop_n
 # Split data
 
 ```{r}
-data_n6_train <- data_n6 %>% head(n = 75)
-data_n6_test <- data_n6 %>% tail(n = 50)
+#first 75 observations should be used to train, last 50 observations should be used to test
+data_n6_split <- initial_time_split(data_n6, prop = 3/5)
+data_n6_train <- training(data_n6_split)
+data_n6_test <- testing(data_n6_split)
 
-data_n5_train <- data_n5 %>% head(n = 75)
-data_n5_test <- data_n5 %>% tail(n = 50)
+data_n5_split <- initial_time_split(data_n5, prop = 3/5)
+data_n5_train <- training(data_n5_split)
+data_n5_test <- testing(data_n6_split)
 
-data_n4_train <- data_n4 %>% head(n = 75)
-data_n4_test <- data_n4 %>% tail(n = 50)
+data_n4_split <- initial_time_split(data_n4, prop = 3/5)
+data_n4_train <- training(data_n4_split)
+data_n4_test <- testing(data_n4_split)
 
-data_n3_train <- data_n3 %>% head(n = 75)
-data_n3_test <- data_n3 %>% tail(n = 50)
+data_n3_split <- initial_time_split(data_n3, prop = 3/5)
+data_n3_train <- training(data_n3_split)
+data_n3_test <- testing(data_n3_split)
 
-data_n2_train <- data_n2 %>% head(n = 75)
-data_n2_test <- data_n2 %>% tail(n = 50)
+data_n2_split <- initial_time_split(data_n2, prop = 3/5)
+data_n2_train <- training(data_n2_split)
+data_n2_test <- testing(data_n2_split)
 
-data_n1_train <- data_n1 %>% head(n = 75)
-data_n1_test <- data_n1 %>% tail(n = 50)
+data_n1_split <- initial_time_split(data_n1, prop = 3/5)
+data_n1_train <- training(data_n1_split)
+data_n1_test <- testing(data_n1_split)
 ```
 
 # Model tuning
@@ -86,11 +94,12 @@ null_model <- null_model() %>%
 ## Define recipes
 
 ```{r}
-all_n6_recipe <- recipe(log10_cases ~ 
+all_n6_recipe <- recipe(cases.reported ~ 
               A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
               A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
               data = data_n6_train) %>% 
-              update_role(week, new_role = "ID") 
+              update_role(week, new_role = "ID") %>% 
+              step_log(cases.reported, base = 10)
 
 all_n5_recipe <- recipe(log10_cases ~ 
               A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
@@ -265,7 +274,15 @@ folds_all_n6 <- vfold_cv(data_n6_train,
 
 #run cross validation
 set.seed(13)
-cv_all_n6 <- fit_resamples(all_n6_final_wf, resamples = folds_all_n6)
+cv_all_n6 <- fit_resamples(all_n6_final_wf, 
+                           resamples = folds_all_n6,
+                           control = control_resamples(save_pred = TRUE))
+
+collect_predictions(cv_all_n6) %>% mutate(prediction = 10^(.pred),
+                                          observed = 10^(cases.reported)) %>% 
+  rmse(truth = observed, estimate = prediction)
+  
+
 cv_all_n6_metrics <- collect_metrics(cv_all_n6,summarize = F)
 all_n6_metrics_sum <- collect_metrics(cv_all_n6,summarize = T)
 
@@ -527,6 +544,31 @@ cv_metrics_all <- rbind(cv_all_n1_metrics,
 
 saveRDS(cv_metrics_all, 
         here("data/processed_data/rand_forest/cv_metrics_all.rds"))
+```
+
+```{r}
+cv_all_n6_metrics_sum <- all_n6_metrics_sum %>% mutate(.config="all_n6",
+                                                  feature="combined")
+cv_all_n5_metrics_sum <- all_n5_metrics_sum %>% mutate(.config="all_n5",
+                                                  feature="combined")
+cv_all_n4_metrics_sum <- all_n4_metrics_sum %>% mutate(.config="all_n4",
+                                                  feature="combined")
+cv_all_n3_metrics_sum <- all_n3_metrics_sum %>% mutate(.config="all_n3",
+                                                  feature="combined")
+cv_all_n2_metrics_sum <- all_n2_metrics_sum %>% mutate(.config="all_n2",
+                                                  feature="combined")
+cv_all_n1_metrics_sum <- all_n1_metrics_sum %>% mutate(.config="all_n1",
+                                                  feature="combined")
+
+cv_metrics_all_sum <- rbind(cv_all_n1_metrics_sum,
+                       cv_all_n2_metrics_sum,
+                       cv_all_n3_metrics_sum,
+                       cv_all_n4_metrics_sum,
+                       cv_all_n5_metrics_sum,
+                       cv_all_n6_metrics_sum)
+
+saveRDS(cv_metrics_all_sum, 
+        here("data/processed_data/rand_forest/cv_metrics_all_sum.rds"))
 ```
 
 # Observed vs predicted

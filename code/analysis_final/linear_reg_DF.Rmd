@@ -62,7 +62,7 @@ data_n1_train <- data_n1 %>% head(n = 75)
 data_n1_test <- data_n1 %>% tail(n = 50)
 ```
 
-# Model tuning
+# Model prep
 
 ## Define model
 

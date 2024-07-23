@@ -430,6 +430,31 @@ saveRDS(cv_metrics_df,
         here("data/processed_data/rand_forest/cv_metrics_df.rds"))
 ```
 
+```{r}
+cv_df_n6_metrics_sum <- df_n6_metrics_sum %>% mutate(.config="df_n6",
+                                                  feature="combined")
+cv_df_n5_metrics_sum <- df_n5_metrics_sum %>% mutate(.config="df_n5",
+                                                  feature="combined")
+cv_df_n4_metrics_sum <- df_n4_metrics_sum %>% mutate(.config="df_n4",
+                                                  feature="combined")
+cv_df_n3_metrics_sum <- df_n3_metrics_sum %>% mutate(.config="df_n3",
+                                                  feature="combined")
+cv_df_n2_metrics_sum <- df_n2_metrics_sum %>% mutate(.config="df_n2",
+                                                  feature="combined")
+cv_df_n1_metrics_sum <- df_n1_metrics_sum %>% mutate(.config="df_n1",
+                                                  feature="combined")
+
+cv_metrics_df_sum <- rbind(cv_df_n1_metrics_sum,
+                       cv_df_n2_metrics_sum,
+                       cv_df_n3_metrics_sum,
+                       cv_df_n4_metrics_sum,
+                       cv_df_n5_metrics_sum,
+                       cv_df_n6_metrics_sum)
+
+saveRDS(cv_metrics_df_sum, 
+        here("data/processed_data/rand_forest/cv_metrics_df_sum.rds"))
+```
+
 # Observed vs predicted
 
 ## Training data (2020-2021)

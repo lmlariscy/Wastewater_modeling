@@ -16,13 +16,13 @@ library(RColorBrewer)
 
 ```{r}
 #detection frequency
-df_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_df.rds"))
+df_metrics <- readRDS(here("data/processed_data/linear_reg/cv_metrics_df.rds"))
 
 #viral load
-vl_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl.rds"))
+vl_metrics <- readRDS(here("data/processed_data/linear_reg/cv_metrics_vl.rds"))
 
 #all predictors
-all_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all.rds"))
+all_metrics <- readRDS(here("data/processed_data/linear_reg/cv_metrics_all.rds"))
 
 #bind dataframes
 #undo log10 for RMSE
@@ -31,25 +31,6 @@ metrics_compare <- rbind(df_metrics,
                          all_metrics) %>% 
                    filter(.metric == "rmse") %>% 
                    mutate(estimate_denorm = 10^.estimate)
-```
-
-```{r}
-#detection frequency
-df_metrics_sum <- readRDS(here("data/processed_data/rand_forest/cv_metrics_df_sum.rds"))
-
-#viral load
-vl_metrics_sum <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl_sum.rds"))
-
-#all predictors
-all_metrics_sum <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all_sum.rds"))
-
-#bind dataframes
-#undo log10 for RMSE
-metrics_compare_sum <- rbind(df_metrics_sum,
-                         vl_metrics_sum,
-                         all_metrics_sum) %>% 
-                   filter(.metric == "rmse") %>% 
-                   mutate(estimate_denorm = 10^mean)
 ```
 
 # Visualize
@@ -98,27 +79,4 @@ rmse_hist <- metrics_compare %>%
   ylab("RMSE") 
 
 rmse_hist
-```
-
-rmse_bar
-
-```{r}
-rmse_dot <- metrics_compare_sum %>% 
-  ggplot(aes(.config, estimate_denorm, color=.config)) +
-  geom_point(size=6) +
-  ggthemes::theme_clean() +
-  theme(axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.y = element_text(size = 12,face = "bold"),
-        legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
-        legend.key.height = unit(0.6, "cm"),
-        legend.position = "none") + #no legend after all..
-  scale_color_manual(name="Configuration",
-                    #labels=labels,
-                    values = color_palette) +
-  xlab("Feature selection configuration") +
-  ylab("RMSE") 
-
-rmse_dot
 ```
