@@ -221,10 +221,10 @@ tune_rf_3 %>%
 
 ```{r}
 #select the best model based on RMSE
-best_rmse_3 <- tune_rf_3 %>%
-  select_best(metric = "rmse")
+best_rsq_3 <- tune_rf_3 %>%
+  select_best(metric = "rsq")
 
-final_rf_3 <- finalize_model(rf_model, best_rmse_3)
+final_rf_3 <- finalize_model(rf_model, best_rsq_3)
 
 final_rf_3
 ```
@@ -270,24 +270,23 @@ fit_all_n6 <- all_n6_final_wf %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n6 <- vfold_cv(data_n6_train, 
-                        v = nrow(data_n6_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n6 <- fit_resamples(all_n6_final_wf, 
                            resamples = folds_all_n6,
                            control = control_resamples(save_pred = TRUE))
-
-collect_predictions(cv_all_n6) %>% mutate(prediction = 10^(.pred),
-                                          observed = 10^(cases.reported)) %>% 
-  rmse(truth = observed, estimate = prediction)
   
+#calculate performance metrics
+cv_all_n6_metrics <- collect_metrics(cv_all_n6, summarize = F)
+cv_all_n6_metrics_sum <- collect_metrics(cv_all_n6, summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
-cv_all_n6_metrics <- collect_metrics(cv_all_n6,summarize = F)
-all_n6_metrics_sum <- collect_metrics(cv_all_n6,summarize = T)
-
-#check cross validation metrics
-all_n6_metrics_sum
+#quick check of performance
+cv_all_n6_metrics_sum
 ```
 
 ### Null model
@@ -296,17 +295,21 @@ all_n6_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n6_null <- vfold_cv(data_n6_train, 
-                        v = nrow(data_n6_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n6_null <- fit_resamples(all_null_workflow_n6, 
-                                resamples = folds_all_n6_null)
-cv_all_n6_metrics_null <- collect_metrics(cv_all_n6_null ,summarize = F)
-all_n6_metrics_null_sum <- collect_metrics(cv_all_n6_null ,summarize = T)
+                                resamples = folds_all_n6_null,
+                                control = control_resamples(save_pred = TRUE))
+
+cv_all_n6_null_metrics_sum <- collect_metrics(cv_all_n6_null, summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-all_n6_metrics_null_sum
+cv_all_n6_null_metrics_sum
 ```
 
 ## n = 5
@@ -320,13 +323,16 @@ fit_all_n5 <- all_n5_final_wf %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n5 <- vfold_cv(data_n5_train, 
-                        v = nrow(data_n5_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n5 <- fit_resamples(all_n5_final_wf, resamples = folds_all_n5)
 cv_all_n5_metrics <- collect_metrics(cv_all_n5,summarize = F)
-all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T)
+cv_all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T) %>%
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n5_metrics_sum
@@ -338,14 +344,17 @@ all_n5_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n5_null <- vfold_cv(data_n5_train, 
-                        v = nrow(data_n5_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n5_null <- fit_resamples(all_null_workflow_n5, 
                                 resamples = folds_all_n5_null)
 cv_all_n5_metrics_null <- collect_metrics(cv_all_n5_null ,summarize = F)
-all_n5_metrics_null_sum <- collect_metrics(cv_all_n5_null ,summarize = T)
+all_n5_metrics_null_sum <- collect_metrics(cv_all_n5_null ,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n5_metrics_null_sum
@@ -362,13 +371,16 @@ fit_all_n4 <- all_n4_final_wf %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n4 <- vfold_cv(data_n4_train, 
-                        v = nrow(data_n4_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n4 <- fit_resamples(all_n4_final_wf, resamples = folds_all_n4)
 cv_all_n4_metrics <- collect_metrics(cv_all_n4,summarize = F)
-all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T)
+cv_all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n4_metrics_sum
@@ -380,14 +392,17 @@ all_n4_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n4_null <- vfold_cv(data_n4_train, 
-                        v = nrow(data_n4_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n4_null <- fit_resamples(all_null_workflow_n4, 
                                 resamples = folds_all_n4_null)
 cv_all_n4_metrics_null <- collect_metrics(cv_all_n4_null ,summarize = F)
-all_n4_metrics_null_sum <- collect_metrics(cv_all_n4_null ,summarize = T)
+all_n4_metrics_null_sum <- collect_metrics(cv_all_n4_null ,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n4_metrics_null_sum
@@ -404,13 +419,16 @@ fit_all_n3 <- all_n3_final_wf %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n3 <- vfold_cv(data_n3_train, 
-                        v = nrow(data_n3_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n3 <- fit_resamples(all_n3_final_wf, resamples = folds_all_n3)
 cv_all_n3_metrics <- collect_metrics(cv_all_n3,summarize = F)
-all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T)
+cv_all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n3_metrics_sum
@@ -422,14 +440,17 @@ all_n3_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n3_null <- vfold_cv(data_n3_train, 
-                        v = nrow(data_n3_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n3_null <- fit_resamples(all_null_workflow_n3, 
                                 resamples = folds_all_n3_null)
 cv_all_n3_metrics_null <- collect_metrics(cv_all_n3_null ,summarize = F)
-all_n3_metrics_null_sum <- collect_metrics(cv_all_n3_null ,summarize = T)
+all_n3_metrics_null_sum <- collect_metrics(cv_all_n3_null ,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n3_metrics_null_sum
@@ -446,13 +467,16 @@ fit_all_n2 <- all_n2_final_wf %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n2 <- vfold_cv(data_n2_train, 
-                        v = nrow(data_n2_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n2 <- fit_resamples(all_n2_final_wf, resamples = folds_all_n2)
 cv_all_n2_metrics <- collect_metrics(cv_all_n2,summarize = F)
-all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T)
+cv_all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n2_metrics_sum
@@ -464,14 +488,17 @@ all_n2_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n2_null <- vfold_cv(data_n2_train, 
-                        v = nrow(data_n2_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n2_null <- fit_resamples(all_null_workflow_n2, 
                                 resamples = folds_all_n2_null)
 cv_all_n2_metrics_null <- collect_metrics(cv_all_n2_null ,summarize = F)
-all_n2_metrics_null_sum <- collect_metrics(cv_all_n2_null ,summarize = T)
+all_n2_metrics_null_sum <- collect_metrics(cv_all_n2_null ,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n2_metrics_null_sum
@@ -488,13 +515,16 @@ fit_all_n1 <- all_n1_final_wf %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n1 <- vfold_cv(data_n1_train, 
-                        v = nrow(data_n1_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n1 <- fit_resamples(all_n1_final_wf, resamples = folds_all_n1)
 cv_all_n1_metrics <- collect_metrics(cv_all_n1,summarize = F)
-all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T)
+cv_all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n1_metrics_sum
@@ -506,14 +536,17 @@ all_n1_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n1_null <- vfold_cv(data_n1_train, 
-                        v = nrow(data_n1_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n1_null <- fit_resamples(all_null_workflow_n1, 
                                 resamples = folds_all_n1_null)
 cv_all_n1_metrics_null <- collect_metrics(cv_all_n1_null ,summarize = F)
-all_n1_metrics_null_sum <- collect_metrics(cv_all_n1_null ,summarize = T)
+all_n1_metrics_null_sum <- collect_metrics(cv_all_n1_null ,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n1_metrics_null_sum
@@ -547,17 +580,17 @@ saveRDS(cv_metrics_all,
 ```
 
 ```{r}
-cv_all_n6_metrics_sum <- all_n6_metrics_sum %>% mutate(.config="all_n6",
+cv_all_n6_metrics_sum <- cv_all_n6_metrics_sum %>% mutate(.config="all_n6",
                                                   feature="combined")
-cv_all_n5_metrics_sum <- all_n5_metrics_sum %>% mutate(.config="all_n5",
+cv_all_n5_metrics_sum <- cv_all_n5_metrics_sum %>% mutate(.config="all_n5",
                                                   feature="combined")
-cv_all_n4_metrics_sum <- all_n4_metrics_sum %>% mutate(.config="all_n4",
+cv_all_n4_metrics_sum <- cv_all_n4_metrics_sum %>% mutate(.config="all_n4",
                                                   feature="combined")
-cv_all_n3_metrics_sum <- all_n3_metrics_sum %>% mutate(.config="all_n3",
+cv_all_n3_metrics_sum <- cv_all_n3_metrics_sum %>% mutate(.config="all_n3",
                                                   feature="combined")
-cv_all_n2_metrics_sum <- all_n2_metrics_sum %>% mutate(.config="all_n2",
+cv_all_n2_metrics_sum <- cv_all_n2_metrics_sum %>% mutate(.config="all_n2",
                                                   feature="combined")
-cv_all_n1_metrics_sum <- all_n1_metrics_sum %>% mutate(.config="all_n1",
+cv_all_n1_metrics_sum <- cv_all_n1_metrics_sum %>% mutate(.config="all_n1",
                                                   feature="combined")
 
 cv_metrics_all_sum <- rbind(cv_all_n1_metrics_sum,
@@ -588,7 +621,7 @@ bootstrap_all_n6_results <- fit_resamples(all_n6_final_wf,
 #collect predictions and mutate back to original unit (log10 transformed prior to running model)
 predictions_all_n6 <- collect_predictions(bootstrap_all_n6_results, summarize = FALSE) %>% 
 mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+       actual = 10^cases.reported)
 
 predictions_all_n6
 
@@ -608,8 +641,8 @@ predictions_all_n6_sum <- predictions_all_n6 %>%
     prediction_sd = sd(prediction),
     n = n(),
     error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - error,
-    upper = prediction_avg + error) 
+    lower = prediction_avg - 1.96*error,
+    upper = prediction_avg + 1.96*error) 
 
 #calculate spearman rank correlation
 all_n6_cor <- cor(predictions_all_n6_sum$actual,
@@ -642,7 +675,7 @@ bootstrap_all_n6_results_test <- fit_resamples(all_n6_final_wf,
 #collect predictions and mutate back to original unit (log10 transformed prior to running model)
 predictions_all_n6_test <- collect_predictions(bootstrap_all_n6_results_test, summarize = FALSE) %>% 
 mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+       actual = 10^cases.reported)
 
 predictions_all_n6_test
 
@@ -662,8 +695,8 @@ predictions_all_n6_sum_test <- predictions_all_n6_test %>%
     prediction_sd = sd(prediction),
     n = n(),
     error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - error,
-    upper = prediction_avg + error) 
+    lower = prediction_avg - 1.96*error,
+    upper = prediction_avg + 1.96*error) 
 
 #calculate spearman rank correlation
 all_n6_cor_test <- cor(predictions_all_n6_sum_test$actual,
@@ -696,7 +729,7 @@ bootstrap_all_n6_results_full <- fit_resamples(all_n6_final_wf,
 #collect predictions and mutate back to original unit (log10 transformed prior to running model)
 predictions_all_n6_full <- collect_predictions(bootstrap_all_n6_results_full, summarize = FALSE) %>% 
 mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+       actual = 10^cases.reported)
 
 #calculate 95% confidence interval for predictions
 predictions_all_n6_sum_full <- predictions_all_n6_full %>%
@@ -707,8 +740,8 @@ predictions_all_n6_sum_full <- predictions_all_n6_full %>%
     prediction_sd = sd(prediction),
     n = n(),
     error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - error,
-    upper = prediction_avg + error) 
+    lower = prediction_avg - 1.96*error,
+    upper = prediction_avg + 1.96*error) 
 
 #plot timeseries
 predictions_all_n6_sum_full %>% 
