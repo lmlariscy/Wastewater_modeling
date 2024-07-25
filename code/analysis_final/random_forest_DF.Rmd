@@ -14,8 +14,12 @@ knitr::opts_chunk$set(message=F)
 library(tidyverse)
 library(here)
 library(tidymodels)
+library(ggpubr)
 library(tsibble)
 library(ingredients)
+library(RColorBrewer)
+library(purrr)
+library(workboots)
 ```
 
 # Load Data
@@ -502,152 +506,171 @@ saveRDS(cv_metrics_df_sum,
 ## Training data (2020-2021)
 
 ```{r}
-#create bootstraps for predictions
-set.seed(13)
-bootstrap_df_n3 <- bootstraps(data_n3_train, times = 50)
+# generate predictions from 2000 bootstrap models
+set.seed(456)
+n3_pred_conf_int_train <- 
+  df_n3_final_wf %>%
+  predict_boots(
+    n = 2000,
+    training_data = data_n3_train,
+    new_data = data_n3_train,
+    interval = "confidence"
+  )
 
-#run bootstrapping and save predictions
-bootstrap_df_n3_results <- fit_resamples(df_n3_final_wf, 
-        resamples = bootstrap_df_n3,
-        control = control_resamples(save_pred = TRUE))
+# summarise with a 95% confidence interval
+n3_pred_conf_int_train_sum <- n3_pred_conf_int_train %>%
+  summarise_predictions()
 
-#collect predictions and mutate back to original unit (log10 transformed prior to running model)
-predictions_df_n3 <- collect_predictions(bootstrap_df_n3_results, summarize = FALSE) %>% 
-mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+#select important variables from original data
+n3_actual_train <- data_n3_train %>% select(week,log10_cases)
 
-predictions_df_n3
+#select important variables from predicted data
+n3_pred_train <- n3_pred_conf_int_train_sum %>% select(.pred,.pred_lower,.pred_upper)
 
-#plot observed vs predicted
-predictions_df_n3 %>% ggplot(aes(actual, prediction)) +
-  geom_point() +
-  stat_smooth(method = "lm")
-```
+#bind original and predicted data and undo log transformation
+n3_train_compare <- bind_cols(n3_actual_train, n3_pred_train) %>% 
+  mutate(prediction = 10^.pred,
+       actual = 10^log10_cases,
+       pred_lower = 10^.pred_lower,
+       pred_upper = 10^.pred_upper) %>% 
+  select(week,actual,prediction,pred_lower,pred_upper)
 
-```{r}
-#calculate 95% confidence interval for predictions
-predictions_df_n3_sum <- predictions_df_n3 %>%
-  group_by(.row) %>%
-  summarize(
-    actual = mean(actual),
-    prediction_avg = mean(prediction),
-    prediction_sd = sd(prediction),
-    n = n(),
-    error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - 1.96*error,
-    upper = prediction_avg + 1.96*error) 
+#calculate R-squared and RMSE
+n3_train_rsq <- n3_train_compare %>% 
+  rsq(truth = actual, estimate = prediction)
 
-#calculate spearman rank correlation
-df_n3_cor <- cor(predictions_df_n3$actual,
-         predictions_df_n3$prediction,
-         method = "spearman")
+n3_train_rmse <- n3_train_compare %>% 
+  rmse(truth = actual,estimate = prediction)
 
-rsq(predictions_df_n3, truth=actual, estimate=prediction)
-
-
-#plot timeseries
-predictions_df_n3_sum %>% 
-  ggplot(aes(.row)) +
-  geom_line(aes(y=prediction_avg), color = "blue") +
-  geom_point(aes(y=prediction_avg), color = "blue") +
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill = "blue", alpha = 0.3) +
+#visualize timeseries of actual vs predicted data
+n3_train_compare %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=prediction), color = "blue") +
+  geom_point(aes(y=prediction), color = "blue") +
+  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+
+#export files for use in comparison script
+saveRDS(n3_train_compare,here(
+  "data/processed_data/rand_forest/df_n3_train_predictions.rds"))
+
+saveRDS(n3_train_rsq,here(
+  "data/processed_data/rand_forest/df_n3_train_rsq.rds"))
+
+saveRDS(n3_train_rmse,here(
+  "data/processed_data/rand_forest/df_n3_train_rmse.rds"))
+
+ggsave(here("figures/random_forest/time_series/df_n3_train.png"))
 ```
 
 ## Testing data (2022)
 
 ```{r}
-#create bootstraps for predictions
-set.seed(13)
-bootstrap_df_n3_test <- bootstraps(data_n3_test, times = 50)
+# generate predictions from 2000 bootstrap models
+set.seed(456)
+n3_pred_conf_int_test <- 
+  df_n3_final_wf %>%
+  predict_boots(
+    n = 2000,
+    training_data = data_n3_train,
+    new_data = data_n3_test,
+    interval = "confidence"
+  )
 
-#run bootstrapping and save predictions
-bootstrap_df_n3_results_test <- fit_resamples(df_n3_final_wf, 
-        resamples = bootstrap_df_n3_test,
-        control = control_resamples(save_pred = TRUE))
+# summarise with a 95% confidence interval
+n3_pred_conf_int_test_sum <- n3_pred_conf_int_test %>%
+  summarise_predictions()
 
-#collect predictions and mutate back to original unit (log10 transformed prior to running model)
-predictions_df_n3_test <- collect_predictions(bootstrap_df_n3_results_test, summarize = FALSE) %>% 
-mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+#select important variables from original data
+n3_actual_test <- data_n3_test %>% select(week,log10_cases)
 
-predictions_df_n3_test
+#select important variables from predicted data
+n3_pred_test <- n3_pred_conf_int_test_sum %>% select(.pred,.pred_lower,.pred_upper)
 
-#plot observed vs predicted
-predictions_df_n3_test %>% ggplot(aes(actual, prediction)) +
-  geom_point() +
-  stat_smooth(method = "lm")
-```
+#bind original and predicted data and undo log transformation
+n3_test_compare <- bind_cols(n3_actual_test, n3_pred_test) %>% 
+  mutate(prediction = 10^.pred,
+       actual = 10^log10_cases,
+       pred_lower = 10^.pred_lower,
+       pred_upper = 10^.pred_upper) %>% 
+  select(week,actual,prediction,pred_lower,pred_upper)
 
-```{r}
-#calculate 95% confidence interval for predictions
-predictions_df_n3_sum_test <- predictions_df_n3_test %>%
-  group_by(.row) %>%
-  summarize(
-    actual = mean(actual),
-    prediction_avg = mean(prediction),
-    prediction_sd = sd(prediction),
-    n = n(),
-    error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - 1.96*error,
-    upper = prediction_avg + 1.96*error) 
+#calculate R-squared and RMSE
+n3_test_rsq <- n3_test_compare %>% 
+  rsq(truth = actual, estimate = prediction)
 
-#calculate spearman rank correlation
-df_n3_cor_test <- cor(predictions_df_n3_test$actual,
-         predictions_df_n3_test$prediction,
-         method = "spearman")
+n3_test_rmse <- n3_test_compare %>% 
+  rmse(truth = actual,estimate = prediction)
 
-rsq(predictions_df_n3_test, truth=actual, estimate=prediction)
-
-#plot timeseries
-predictions_df_n3_sum_test %>% 
-  ggplot(aes(.row)) +
-  geom_line(aes(y=prediction_avg), color = "blue") +
-  geom_point(aes(y=prediction_avg), color = "blue") +
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill = "blue", alpha = 0.3) +
+#visualize timeseries of actual vs predicted data
+n3_test_compare %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=prediction), color = "blue") +
+  geom_point(aes(y=prediction), color = "blue") +
+  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+
+#export files for use in comparison script
+saveRDS(n3_test_compare,here(
+  "data/processed_data/rand_forest/df_n3_test_predictions.rds"))
+
+saveRDS(n3_test_rsq,here(
+  "data/processed_data/rand_forest/df_n3_test_rsq.rds"))
+
+saveRDS(n3_test_rmse,here(
+  "data/processed_data/rand_forest/df_n3_test_rmse.rds"))
+
+ggsave(here("figures/random_forest/time_series/df_n3_test.png"))
 ```
 
 ## Full timeseries
 
 ```{r}
-#create bootstraps for predictions
-set.seed(13)
-bootstrap_df_n3_full <- bootstraps(data_n3, times = 50)
+# generate predictions from 2000 bootstrap models
+set.seed(456)
+n3_pred_conf_int_full <- 
+  df_n3_final_wf %>%
+  predict_boots(
+    n = 2000,
+    training_data = data_n3_train,
+    new_data = data_n3,
+    interval = "confidence"
+  )
 
-#run bootstrapping and save predictions
-bootstrap_df_n3_results_full <- fit_resamples(df_n3_final_wf, 
-        resamples = bootstrap_df_n3_full,
-        control = control_resamples(save_pred = TRUE))
+# summarise with a 95% confidence interval
+n3_pred_conf_int_full_sum <- n3_pred_conf_int_full %>%
+  summarise_predictions()
 
-#collect predictions and mutate back to original unit (log10 transformed prior to running model)
-predictions_df_n3_full <- collect_predictions(bootstrap_df_n3_results_full, summarize = FALSE) %>% 
-mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+#select important variables from original data
+n3_actual_full <- data_n3 %>% select(week,log10_cases)
 
-#calculate 95% confidence interval for predictions
-predictions_df_n3_sum_full <- predictions_df_n3_full %>%
-  group_by(.row) %>%
-  summarize(
-    actual = mean(actual),
-    prediction_avg = mean(prediction),
-    prediction_sd = sd(prediction),
-    n = n(),
-    error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - 1.96*error,
-    upper = prediction_avg + 1.96*error) 
+#select important variables from predicted data
+n3_pred_full <- n3_pred_conf_int_full_sum %>% select(.pred,.pred_lower,.pred_upper)
 
-#plot timeseries
-predictions_df_n3_sum_full %>% 
-  ggplot(aes(.row)) +
-  geom_line(aes(y=prediction_avg), color = "blue") +
-  geom_point(aes(y=prediction_avg), color = "blue") +
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill = "blue", alpha = 0.3) +
+#bind original and predicted data and undo log transformation
+n3_full_compare <- bind_cols(n3_actual_full, n3_pred_full) %>% 
+  mutate(prediction = 10^.pred,
+       actual = 10^log10_cases,
+       pred_lower = 10^.pred_lower,
+       pred_upper = 10^.pred_upper) %>% 
+  select(week,actual,prediction,pred_lower,pred_upper)
+
+n3_full_compare %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=prediction), color = "blue") +
+  geom_point(aes(y=prediction), color = "blue") +
+  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+
+#export files for use in comparison script
+saveRDS(n3_full_compare,here(
+  "data/processed_data/rand_forest/df_n3_full_predictions.rds"))
+
+ggsave(here("figures/random_forest/time_series/df_n3_full.png"))
 ```
