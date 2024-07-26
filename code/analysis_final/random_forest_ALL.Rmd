@@ -276,8 +276,7 @@ folds_all_n6 <- vfold_cv(data_n6_train,
 #run cross validation
 set.seed(13)
 cv_all_n6 <- fit_resamples(all_n6_final_wf, 
-                           resamples = folds_all_n6,
-                           control = control_resamples(save_pred = TRUE))
+                           resamples = folds_all_n6)
   
 #calculate performance metrics
 cv_all_n6_metrics <- collect_metrics(cv_all_n6, summarize = F)
@@ -301,8 +300,7 @@ folds_all_n6_null <- vfold_cv(data_n6_train,
 #run cross validation
 set.seed(13)
 cv_all_n6_null <- fit_resamples(all_null_workflow_n6, 
-                                resamples = folds_all_n6_null,
-                                control = control_resamples(save_pred = TRUE))
+                                resamples = folds_all_n6_null)
 
 cv_all_n6_null_metrics_sum <- collect_metrics(cv_all_n6_null, summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,

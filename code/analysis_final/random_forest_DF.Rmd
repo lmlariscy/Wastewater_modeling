@@ -247,8 +247,7 @@ folds_df_n6 <- vfold_cv(data_n6_train,
 #run cross validation
 set.seed(13)
 cv_df_n6 <- fit_resamples(df_n6_final_wf, 
-                           resamples = folds_df_n6,
-                           control = control_resamples(save_pred = TRUE))
+                           resamples = folds_df_n6)
   
 #calculate performance metrics
 cv_df_n6_metrics <- collect_metrics(cv_df_n6, summarize = F)
@@ -299,8 +298,7 @@ folds_df_n5 <- vfold_cv(data_n5_train,
 #run cross validation
 set.seed(13)
 cv_df_n5 <- fit_resamples(df_n5_final_wf, 
-                          resamples = folds_df_n5,
-                          control = control_resamples(save_pred = TRUE))
+                          resamples = folds_df_n5)
 
 cv_df_n5_metrics <- collect_metrics(cv_df_n5,summarize = F)
 df_n5_metrics_sum <- collect_metrics(cv_df_n5,summarize = T) %>% 
@@ -328,8 +326,7 @@ folds_df_n4 <- vfold_cv(data_n4_train,
 #run cross validation
 set.seed(13)
 cv_df_n4 <- fit_resamples(df_n4_final_wf, 
-                          resamples = folds_df_n4,
-                          control = control_resamples(save_pred = TRUE))
+                          resamples = folds_df_n4)
 
 cv_df_n4_metrics <- collect_metrics(cv_df_n4,summarize = F)
 df_n4_metrics_sum <- collect_metrics(cv_df_n4,summarize = T) %>% 
@@ -357,8 +354,7 @@ folds_df_n3 <- vfold_cv(data_n3_train,
 #run cross validation
 set.seed(13)
 cv_df_n3 <- fit_resamples(df_n3_final_wf, 
-                          resamples = folds_df_n3,
-                          control = control_resamples(save_pred = TRUE))
+                          resamples = folds_df_n3)
 
 cv_df_n3_metrics <- collect_metrics(cv_df_n3,summarize = F)
 df_n3_metrics_sum <- collect_metrics(cv_df_n3,summarize = T) %>% 
@@ -386,8 +382,7 @@ folds_df_n2 <- vfold_cv(data_n2_train,
 #run cross validation
 set.seed(13)
 cv_df_n2 <- fit_resamples(df_n2_final_wf, 
-                          resamples = folds_df_n2,
-                          control = control_resamples(save_pred = TRUE))
+                          resamples = folds_df_n2)
 
 cv_df_n2_metrics <- collect_metrics(cv_df_n2,summarize = F)
 df_n2_metrics_sum <- collect_metrics(cv_df_n2,summarize = T) %>% 
@@ -415,8 +410,7 @@ folds_df_n1 <- vfold_cv(data_n1_train,
 #run cross validation
 set.seed(13)
 cv_df_n1 <- fit_resamples(df_n1_final_wf, 
-                          resamples = folds_df_n1,
-                          control = control_resamples(save_pred = TRUE))
+                          resamples = folds_df_n1)
 
 cv_df_n1_metrics <- collect_metrics(cv_df_n1,summarize = F)
 df_n1_metrics_sum <- collect_metrics(cv_df_n1,summarize = T) %>% 

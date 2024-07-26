@@ -15,41 +15,30 @@ library(RColorBrewer)
 # Load data
 
 ```{r}
-#detection frequency
-df_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_df.rds"))
+#detection frequency metrics
+df_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_df_sum.rds"))
 
-#viral load
-vl_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl.rds"))
+#viral load metrics
+vl_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl_sum.rds"))
 
-#all predictors
-all_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all.rds"))
+#all predictors metrics
+all_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all_sum.rds"))
 
-#bind dataframes
-#undo log10 for RMSE
+#bind metrics dataframes
 metrics_compare <- rbind(df_metrics,
                          vl_metrics,
-                         all_metrics) %>% 
-                   filter(.metric == "rmse") %>% 
-                   mutate(estimate_denorm = 10^.estimate)
-```
+                         all_metrics)
 
-```{r}
-#detection frequency
-df_metrics_sum <- readRDS(here("data/processed_data/rand_forest/cv_metrics_df_sum.rds"))
+#detection frequency n=3 predictions
+df_n3_train_predictions <- readRDS(here("data/processed_data/rand_forest/df_n3_train_predictions.rds"))
+df_n3_test_predictions <- readRDS(here("data/processed_data/rand_forest/df_n3_test_predictions.rds"))
+df_n3_full_predictions <- readRDS(here("data/processed_data/rand_forest/df_n3_full_predictions.rds"))
 
-#viral load
-vl_metrics_sum <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl_sum.rds"))
 
-#all predictors
-all_metrics_sum <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all_sum.rds"))
-
-#bind dataframes
-#undo log10 for RMSE
-metrics_compare_sum <- rbind(df_metrics_sum,
-                         vl_metrics_sum,
-                         all_metrics_sum) %>% 
-                   filter(.metric == "rmse") %>% 
-                   mutate(estimate_denorm = 10^mean)
+#all predictors n=6 predictions
+all_n6_train_predictions <- readRDS(here("data/processed_data/rand_forest/all_n6_train_predictions.rds"))
+all_n6_test_predictions <- readRDS(here("data/processed_data/rand_forest/all_n6_test_predictions.rds"))
+all_n6_full_predictions <- readRDS(here("data/processed_data/rand_forest/all_n6_full_predictions.rds"))
 ```
 
 # Visualize
@@ -80,32 +69,12 @@ labels <- c("DF n=1","DF n=2","DF n=3","DF n=4","DF n=5","DF n=6",
 ## RMSE
 
 ```{r}
-rmse_hist <- metrics_compare %>% 
-  ggplot(aes(.config, estimate_denorm, fill=.config)) +
-  geom_boxplot(outliers = F) +
-  ggthemes::theme_clean() +
-  theme(axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.y = element_text(size = 12,face = "bold"),
-        legend.text = element_text(size = 10),
-        legend.title = element_text(size = 12),
-        legend.key.height = unit(0.6, "cm"),
-        legend.position = "none") + #no legend after all..
-  scale_fill_manual(name="Configuration",
-                    #labels=labels,
-                    values = color_palette) +
-  xlab("Feature selection configuration") +
-  ylab("RMSE") 
-
-rmse_hist
-```
-
-rmse_bar
-
-```{r}
-rmse_dot <- metrics_compare_sum %>% 
-  ggplot(aes(.config, estimate_denorm, color=.config)) +
-  geom_point(size=6) +
+metrics_compare %>% 
+  filter(.metric == "rmse") %>% 
+  ggplot(aes(.config, mean, color=.config)) +
+  geom_point(size = 4) +
+    geom_errorbar(aes(ymin = lower_ci,
+                ymax = upper_ci)) +
   ggthemes::theme_clean() +
   theme(axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -120,5 +89,33 @@ rmse_dot <- metrics_compare_sum %>%
   xlab("Feature selection configuration") +
   ylab("RMSE") 
 
-rmse_dot
+ggsave(here("figures/random_forest/metrics/rmse_compare.png"))
 ```
+
+## RSQ
+
+```{r}
+metrics_compare %>% 
+  filter(.metric == "rsq") %>% 
+  ggplot(aes(.config, mean, color=.config)) +
+  geom_point(size = 4) +
+    geom_errorbar(aes(ymin = lower_ci,
+                ymax = upper_ci)) +
+  ggthemes::theme_clean() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
+  scale_color_manual(name="Configuration",
+                    #labels=labels,
+                    values = color_palette) +
+  xlab("Feature selection configuration") +
+  ylab("R-Squared") 
+
+ggsave(here("figures/random_forest/metrics/rsq_compare.png"))
+```
+
+## Predictions
