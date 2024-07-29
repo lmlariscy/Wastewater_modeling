@@ -14,6 +14,7 @@ knitr::opts_chunk$set(message=F)
 library(tidyverse)
 library(here)
 library(tidymodels)
+library(ranger)
 library(ggpubr)
 library(tsibble)
 library(ingredients)
@@ -333,7 +334,7 @@ cv_all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T) %>%
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-all_n5_metrics_sum
+cv_all_n5_metrics_sum
 ```
 
 ### Null model
@@ -381,7 +382,7 @@ cv_all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T) %>%
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-all_n4_metrics_sum
+cv_all_n4_metrics_sum
 ```
 
 ### Null model
@@ -429,7 +430,7 @@ cv_all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T) %>%
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-all_n3_metrics_sum
+cv_all_n3_metrics_sum
 ```
 
 ### Null model
@@ -477,7 +478,7 @@ cv_all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T) %>%
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-all_n2_metrics_sum
+cv_all_n2_metrics_sum
 ```
 
 ### Null model
@@ -525,7 +526,7 @@ cv_all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T) %>%
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-all_n1_metrics_sum
+cv_all_n1_metrics_sum
 ```
 
 ### Null model
@@ -640,8 +641,12 @@ n6_train_compare <- bind_cols(n6_actual_train, n6_pred_train) %>%
 n6_train_rsq <- n6_train_compare %>% 
   rsq(truth = actual, estimate = prediction)
 
+n6_train_rsq
+
 n6_train_rmse <- n6_train_compare %>% 
   rmse(truth = actual,estimate = prediction)
+
+n6_train_rmse
 
 #visualize timeseries of actual vs predicted data
 n6_train_compare %>% 
@@ -702,8 +707,12 @@ n6_test_compare <- bind_cols(n6_actual_test, n6_pred_test) %>%
 n6_test_rsq <- n6_test_compare %>% 
   rsq(truth = actual, estimate = prediction)
 
+n6_test_rsq
+
 n6_test_rmse <- n6_test_compare %>% 
   rmse(truth = actual,estimate = prediction)
+
+n6_test_rmse
 
 #visualize timeseries of actual vs predicted data
 n6_test_compare %>% 

@@ -18,6 +18,7 @@ library(ggpubr)
 library(tsibble)
 library(ingredients)
 library(RColorBrewer)
+library(workboots)
 ```
 
 # Load Data
@@ -171,13 +172,18 @@ fit_all_n6 <- all_workflow_n6 %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n6 <- vfold_cv(data_n6_train, 
-                        v = nrow(data_n6_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n6 <- fit_resamples(all_workflow_n6, resamples = folds_all_n6)
+
+#calculate performance metrics
 cv_all_n6_metrics <- collect_metrics(cv_all_n6,summarize = F)
-all_n6_metrics_sum <- collect_metrics(cv_all_n6,summarize = T)
+all_n6_metrics_sum <- collect_metrics(cv_all_n6,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n6_metrics_sum
@@ -189,14 +195,18 @@ all_n6_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n6_null <- vfold_cv(data_n6_train, 
-                        v = nrow(data_n6_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n6_null <- fit_resamples(all_null_workflow_n6, 
                                 resamples = folds_all_n6_null)
-cv_all_n6_metrics_null <- collect_metrics(cv_all_n6_null ,summarize = F)
-all_n6_metrics_null_sum <- collect_metrics(cv_all_n6_null ,summarize = T)
+
+#calculate performance metrics
+cv_all_n6_metrics_null <- collect_metrics(cv_all_n6_null,summarize = F)
+all_n6_metrics_null_sum <- collect_metrics(cv_all_n6_null,summarize = T) %>%   mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n6_metrics_null_sum
@@ -213,13 +223,18 @@ fit_all_n5 <- all_workflow_n5 %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n5 <- vfold_cv(data_n5_train, 
-                        v = nrow(data_n5_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n5 <- fit_resamples(all_workflow_n5, resamples = folds_all_n5)
+
+#calculate performance metrics
 cv_all_n5_metrics <- collect_metrics(cv_all_n5,summarize = F)
-all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T)
+all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n5_metrics_sum
@@ -236,13 +251,18 @@ fit_all_n4 <- all_workflow_n4 %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n4 <- vfold_cv(data_n4_train, 
-                        v = nrow(data_n4_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n4 <- fit_resamples(all_workflow_n4, resamples = folds_all_n4)
+
+#calculate performance metrics
 cv_all_n4_metrics <- collect_metrics(cv_all_n4,summarize = F)
-all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T)
+all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n4_metrics_sum
@@ -259,13 +279,18 @@ fit_all_n3 <- all_workflow_n3 %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n3 <- vfold_cv(data_n3_train, 
-                        v = nrow(data_n3_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n3 <- fit_resamples(all_workflow_n3, resamples = folds_all_n3)
+
+#calculate performance metrics
 cv_all_n3_metrics <- collect_metrics(cv_all_n3,summarize = F)
-all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T)
+all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n3_metrics_sum
@@ -282,13 +307,18 @@ fit_all_n2 <- all_workflow_n2 %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n2 <- vfold_cv(data_n2_train, 
-                        v = nrow(data_n2_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n2 <- fit_resamples(all_workflow_n2, resamples = folds_all_n2)
+
+#calculate performance metrics
 cv_all_n2_metrics <- collect_metrics(cv_all_n2,summarize = F)
-all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T)
+all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n2_metrics_sum
@@ -305,13 +335,18 @@ fit_all_n1 <- all_workflow_n1 %>%
 #create folds for cross validation
 set.seed(13)
 folds_all_n1 <- vfold_cv(data_n1_train, 
-                        v = nrow(data_n1_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n1 <- fit_resamples(all_workflow_n1, resamples = folds_all_n1)
+
+#calculate performance metrics
 cv_all_n1_metrics <- collect_metrics(cv_all_n1,summarize = F)
-all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T)
+all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T) %>% 
+  mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n1_metrics_sum
@@ -323,14 +358,18 @@ all_n1_metrics_sum
 #create folds for cross validation
 set.seed(13)
 folds_all_n1_null <- vfold_cv(data_n1_train, 
-                        v = nrow(data_n1_train))
+                        v = 10,
+                        repeats = 10)
 
 #run cross validation
 set.seed(13)
 cv_all_n1_null <- fit_resamples(all_null_workflow_n1, 
                                 resamples = folds_all_n1_null)
-cv_all_n1_metrics_null <- collect_metrics(cv_all_n1_null ,summarize = F)
-all_n1_metrics_null_sum <- collect_metrics(cv_all_n1_null ,summarize = T)
+
+#calculate performance metrics
+cv_all_n1_metrics_null <- collect_metrics(cv_all_n1_null,summarize = F)
+all_n1_metrics_null_sum <- collect_metrics(cv_all_n1_null,summarize = T) %>%   mutate(lower_ci = mean-1.96*std_err,
+         upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
 all_n1_metrics_null_sum
@@ -339,25 +378,25 @@ all_n1_metrics_null_sum
 ## Export results
 
 ```{r}
-cv_all_n6_metrics <- cv_all_n6_metrics %>% mutate(.config="all_n6",
+all_n6_metrics_sum <- all_n6_metrics_sum %>% mutate(.config="all_n6",
                                                   feature="combined")
-cv_all_n5_metrics <- cv_all_n5_metrics %>% mutate(.config="all_n5",
+all_n5_metrics_sum <- all_n5_metrics_sum %>% mutate(.config="all_n5",
                                                   feature="combined")
-cv_all_n4_metrics <- cv_all_n4_metrics %>% mutate(.config="all_n4",
+all_n4_metrics_sum <- all_n4_metrics_sum %>% mutate(.config="all_n4",
                                                   feature="combined")
-cv_all_n3_metrics <- cv_all_n3_metrics %>% mutate(.config="all_n3",
+all_n3_metrics_sum <- all_n3_metrics_sum %>% mutate(.config="all_n3",
                                                   feature="combined")
-cv_all_n2_metrics <- cv_all_n2_metrics %>% mutate(.config="all_n2",
+all_n2_metrics_sum <- all_n2_metrics_sum %>% mutate(.config="all_n2",
                                                   feature="combined")
-cv_all_n1_metrics <- cv_all_n1_metrics %>% mutate(.config="all_n1",
+all_n1_metrics_sum <- all_n1_metrics_sum %>% mutate(.config="all_n1",
                                                   feature="combined")
 
-cv_metrics_all <- rbind(cv_all_n1_metrics,
-                       cv_all_n2_metrics,
-                       cv_all_n3_metrics,
-                       cv_all_n4_metrics,
-                       cv_all_n5_metrics,
-                       cv_all_n6_metrics)
+cv_metrics_all <- rbind(all_n1_metrics_sum,
+                       all_n2_metrics_sum,
+                       all_n3_metrics_sum,
+                       all_n4_metrics_sum,
+                       all_n5_metrics_sum,
+                       all_n6_metrics_sum)
 
 saveRDS(cv_metrics_all, 
         here("data/processed_data/linear_reg/cv_metrics_all.rds"))
@@ -368,147 +407,177 @@ saveRDS(cv_metrics_all,
 ## Training data (2020-2021)
 
 ```{r}
-#create bootstraps for predictions
-set.seed(13)
-bootstrap_all_n6 <- bootstraps(data_n6_train, times = 50)
+# generate predictions from 2000 bootstrap models
+set.seed(456)
+n6_pred_conf_int_train <- 
+  all_workflow_n6 %>%
+  predict_boots(
+    n = 2000,
+    training_data = data_n6_train,
+    new_data = data_n6_train,
+    interval = "confidence"
+  )
 
-#run bootstrapping and save predictions
-bootstrap_all_n6_results <- fit_resamples(all_workflow_n6, 
-        resamples = bootstrap_all_n6,
-        control = control_resamples(save_pred = TRUE))
+# summarise with a 95% confidence interval
+n6_pred_conf_int_train_sum <- n6_pred_conf_int_train %>%
+  summarise_predictions()
 
-#collect predictions and mutate back to original unit (log10 transformed prior to running model)
-predictions_all_n6 <- collect_predictions(bootstrap_all_n6_results, summarize = FALSE) %>% 
-mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+#select important variables from original data
+n6_actual_train <- data_n6_train %>% select(week,log10_cases)
 
-predictions_all_n6
+#select important variables from predicted data
+n6_pred_train <- n6_pred_conf_int_train_sum %>% select(.pred,.pred_lower,.pred_upper)
 
-#plot observed vs predicted
-predictions_all_n6 %>% ggplot(aes(actual, prediction)) +
-  geom_point() +
-  stat_smooth(method = "lm")
-```
+#bind original and predicted data and undo log transformation
+n6_train_compare <- bind_cols(n6_actual_train, n6_pred_train) %>% 
+  mutate(prediction = 10^.pred,
+       actual = 10^log10_cases,
+       pred_lower = 10^.pred_lower,
+       pred_upper = 10^.pred_upper) %>% 
+  select(week,actual,prediction,pred_lower,pred_upper)
 
-```{r}
-#calculate 95% confidence interval for predictions
-predictions_all_n6_sum <- predictions_all_n6 %>%
-  group_by(.row) %>%
-  summarize(
-    actual = mean(actual),
-    prediction_avg = mean(prediction),
-    prediction_sd = sd(prediction),
-    n = n(),
-    error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - error,
-    upper = prediction_avg + error) 
+#calculate R-squared and RMSE
+n6_train_rsq <- n6_train_compare %>% 
+  rsq(truth = actual, estimate = prediction)
 
-#calculate spearman rank correlation
-all_n6_cor <- cor(predictions_all_n6_sum$actual,
-         predictions_all_n6_sum$prediction_avg,
-         method = "spearman")
+n6_train_rsq
 
-#plot timeseries
-predictions_all_n6_sum %>% 
-  ggplot(aes(.row)) +
-  geom_line(aes(y=prediction_avg), color = "blue") +
-  geom_point(aes(y=prediction_avg), color = "blue") +
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill = "blue", alpha = 0.3) +
+n6_train_rmse <- n6_train_compare %>% 
+  rmse(truth = actual,estimate = prediction)
+
+n6_train_rmse
+
+#visualize timeseries of actual vs predicted data
+n6_train_compare %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=prediction), color = "blue") +
+  geom_point(aes(y=prediction), color = "blue") +
+  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+```
+
+```{r}
+#export files for use in comparison script
+saveRDS(n6_train_compare,here(
+  "data/processed_data/linear_reg/all_n6_train_predictions.rds"))
+
+saveRDS(n6_train_rsq,here(
+  "data/processed_data/linear_reg/all_n6_train_rsq.rds"))
+
+saveRDS(n6_train_rmse,here(
+  "data/processed_data/linear_reg/all_n6_train_rmse.rds"))
 ```
 
 ## Testing data (2022)
 
 ```{r}
-#create bootstraps for predictions
-set.seed(13)
-bootstrap_all_n6_test <- bootstraps(data_n6_test, times = 50)
+# generate predictions from 2000 bootstrap models
+set.seed(456)
+n6_pred_conf_int_test <- 
+  all_workflow_n6 %>%
+  predict_boots(
+    n = 2000,
+    training_data = data_n6_train,
+    new_data = data_n6_test,
+    interval = "confidence"
+  )
 
-#run bootstrapping and save predictions
-bootstrap_all_n6_results_test <- fit_resamples(all_workflow_n6, 
-        resamples = bootstrap_all_n6_test,
-        control = control_resamples(save_pred = TRUE))
+# summarise with a 95% confidence interval
+n6_pred_conf_int_test_sum <- n6_pred_conf_int_test %>%
+  summarise_predictions()
 
-#collect predictions and mutate back to original unit (log10 transformed prior to running model)
-predictions_all_n6_test <- collect_predictions(bootstrap_all_n6_results_test, summarize = FALSE) %>% 
-mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+#select important variables from original data
+n6_actual_test <- data_n6_test %>% select(week,log10_cases)
 
-predictions_all_n6_test
+#select important variables from predicted data
+n6_pred_test <- n6_pred_conf_int_test_sum %>% select(.pred,.pred_lower,.pred_upper)
 
-#plot observed vs predicted
-predictions_all_n6_test %>% ggplot(aes(actual, prediction)) +
-  geom_point() +
-  stat_smooth(method = "lm")
-```
+#bind original and predicted data and undo log transformation
+n6_test_compare <- bind_cols(n6_actual_test, n6_pred_test) %>% 
+  mutate(prediction = 10^.pred,
+       actual = 10^log10_cases,
+       pred_lower = 10^.pred_lower,
+       pred_upper = 10^.pred_upper) %>% 
+  select(week,actual,prediction,pred_lower,pred_upper)
 
-```{r}
-#calculate 95% confidence interval for predictions
-predictions_all_n6_sum_test <- predictions_all_n6_test %>%
-  group_by(.row) %>%
-  summarize(
-    actual = mean(actual),
-    prediction_avg = mean(prediction),
-    prediction_sd = sd(prediction),
-    n = n(),
-    error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - error,
-    upper = prediction_avg + error) 
+#calculate R-squared and RMSE
+n6_test_rsq <- n6_test_compare %>% 
+  rsq(truth = actual, estimate = prediction)
 
-#calculate spearman rank correlation
-all_n6_cor_test <- cor(predictions_all_n6_sum_test$actual,
-         predictions_all_n6_sum_test$prediction_avg,
-         method = "spearman")
+n6_test_rsq
 
-#plot timeseries
-predictions_all_n6_sum_test %>% 
-  ggplot(aes(.row)) +
-  geom_line(aes(y=prediction_avg), color = "blue") +
-  geom_point(aes(y=prediction_avg), color = "blue") +
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill = "blue", alpha = 0.3) +
+n6_test_rmse <- n6_test_compare %>% 
+  rmse(truth = actual,estimate = prediction)
+
+n6_test_rmse
+
+#visualize timeseries of actual vs predicted data
+n6_test_compare %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=prediction), color = "blue") +
+  geom_point(aes(y=prediction), color = "blue") +
+  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+```
+
+```{r}
+#export files for use in comparison script
+saveRDS(n6_test_compare,here(
+  "data/processed_data/linear_reg/all_n6_test_predictions.rds"))
+
+saveRDS(n6_test_rsq,here(
+  "data/processed_data/linear_reg/all_n6_test_rsq.rds"))
+
+saveRDS(n6_test_rmse,here(
+  "data/processed_data/linear_reg/all_n6_test_rmse.rds"))
 ```
 
 ## Full timeseries
 
 ```{r}
-#create bootstraps for predictions
-set.seed(13)
-bootstrap_all_n6_full <- bootstraps(data_n6, times = 50)
+# generate predictions from 2000 bootstrap models
+set.seed(456)
+n6_pred_conf_int_full <- 
+  all_workflow_n6 %>%
+  predict_boots(
+    n = 2000,
+    training_data = data_n6_train,
+    new_data = data_n6,
+    interval = "confidence"
+  )
 
-#run bootstrapping and save predictions
-bootstrap_all_n6_results_full <- fit_resamples(all_workflow_n6, 
-        resamples = bootstrap_all_n6_full,
-        control = control_resamples(save_pred = TRUE))
+# summarise with a 95% confidence interval
+n6_pred_conf_int_full_sum <- n6_pred_conf_int_full %>%
+  summarise_predictions()
 
-#collect predictions and mutate back to original unit (log10 transformed prior to running model)
-predictions_all_n6_full <- collect_predictions(bootstrap_all_n6_results_full, summarize = FALSE) %>% 
-mutate(prediction = 10^.pred,
-       actual = 10^log10_cases)
+#select important variables from original data
+n6_actual_full <- data_n6 %>% select(week,log10_cases)
 
-#calculate 95% confidence interval for predictions
-predictions_all_n6_sum_full <- predictions_all_n6_full %>%
-  group_by(.row) %>%
-  summarize(
-    actual = mean(actual),
-    prediction_avg = mean(prediction),
-    prediction_sd = sd(prediction),
-    n = n(),
-    error = qt(0.975, df = n-1) * prediction_sd / sqrt(n),
-    lower = prediction_avg - error,
-    upper = prediction_avg + error) 
+#select important variables from predicted data
+n6_pred_full <- n6_pred_conf_int_full_sum %>% select(.pred,.pred_lower,.pred_upper)
 
-#plot timeseries
-predictions_all_n6_sum_full %>% 
-  ggplot(aes(.row)) +
-  geom_line(aes(y=prediction_avg), color = "blue") +
-  geom_point(aes(y=prediction_avg), color = "blue") +
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill = "blue", alpha = 0.3) +
+#bind original and predicted data and undo log transformation
+n6_full_compare <- bind_cols(n6_actual_full, n6_pred_full) %>% 
+  mutate(prediction = 10^.pred,
+       actual = 10^log10_cases,
+       pred_lower = 10^.pred_lower,
+       pred_upper = 10^.pred_upper) %>% 
+  select(week,actual,prediction,pred_lower,pred_upper)
+
+n6_full_compare %>% 
+  ggplot(aes(x=week)) +
+  geom_line(aes(y=prediction), color = "blue") +
+  geom_point(aes(y=prediction), color = "blue") +
+  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+
+#export files for use in comparison script
+saveRDS(n6_full_compare,here(
+  "data/processed_data/linear_reg/all_n6_full_predictions.rds"))
 ```

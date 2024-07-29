@@ -28,9 +28,7 @@ all_metrics <- readRDS(here("data/processed_data/linear_reg/cv_metrics_all.rds")
 #undo log10 for RMSE
 metrics_compare <- rbind(df_metrics,
                          vl_metrics,
-                         all_metrics) %>% 
-                   filter(.metric == "rmse") %>% 
-                   mutate(estimate_denorm = 10^.estimate)
+                         all_metrics)
 ```
 
 # Visualize
@@ -79,4 +77,54 @@ rmse_hist <- metrics_compare %>%
   ylab("RMSE") 
 
 rmse_hist
+```
+
+```{r}
+metrics_compare %>% 
+  filter(.metric == "rmse") %>% 
+  ggplot(aes(.config, mean, color=.config)) +
+  geom_point(size = 4) +
+    geom_errorbar(aes(ymin = lower_ci,
+                ymax = upper_ci)) +
+  ggthemes::theme_clean() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
+  scale_color_manual(name="Configuration",
+                    #labels=labels,
+                    values = color_palette) +
+  xlab("Feature selection configuration") +
+  ylab("RMSE") 
+
+ggsave(here("figures/linear_reg1/metrics/rmse_compare.png"))
+```
+
+## RSQ
+
+```{r}
+metrics_compare %>% 
+  filter(.metric == "rsq") %>% 
+  ggplot(aes(.config, mean, color=.config)) +
+  geom_point(size = 4) +
+    geom_errorbar(aes(ymin = lower_ci,
+                ymax = upper_ci)) +
+  ggthemes::theme_clean() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(size = 12,face = "bold"),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
+        legend.position = "none") + #no legend after all..
+  scale_color_manual(name="Configuration",
+                    #labels=labels,
+                    values = color_palette) +
+  xlab("Feature selection configuration") +
+  ylab("R-Squared") 
+
+ggsave(here("figures/linear_reg/metrics/rsq_compare.png"))
 ```
