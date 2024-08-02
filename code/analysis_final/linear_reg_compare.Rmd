@@ -101,9 +101,10 @@ metrics_compare %>%
     geom_errorbar(aes(ymin = lower_ci,
                 ymax = upper_ci)) +
   ggthemes::theme_clean() +
-  theme(axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.y = element_text(size = 12,face = "bold"),
+  theme(#axis.title.x = element_blank(),
+        #axis.ticks.x = element_blank(),
+        axis.text.x = element_text(angle = 15),
+        axis.title = element_text(size = 12,face = "bold"),
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12),
         legend.key.height = unit(0.6, "cm"),
@@ -112,9 +113,10 @@ metrics_compare %>%
                     #labels=labels,
                     values = color_palette) +
   xlab("Feature selection configuration") +
-  ylab("RMSE") 
+  ylab("RMSE") +
+  scale_x_discrete(labels=labels)
 
-ggsave(here("figures/linear_reg/metrics/rmse_compare.png"))
+ggsave(here("figures/linear_reg/metrics/rmse_compare.png"), width = 9, height = 5)
 ```
 
 ## RSQ
@@ -127,9 +129,10 @@ metrics_compare %>%
     geom_errorbar(aes(ymin = lower_ci,
                 ymax = upper_ci)) +
   ggthemes::theme_clean() +
-  theme(axis.title.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.y = element_text(size = 12,face = "bold"),
+  theme(#axis.title.x = element_blank(),
+        #axis.ticks.x = element_blank(),
+        axis.text.x = element_text(angle = 15),
+        axis.title = element_text(size = 12,face = "bold"),
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12),
         legend.key.height = unit(0.6, "cm"),
@@ -138,9 +141,10 @@ metrics_compare %>%
                     #labels=labels,
                     values = color_palette) +
   xlab("Feature selection configuration") +
-  ylab("R-Squared") 
+  ylab("R-Squared") +
+  scale_x_discrete(labels=labels)
 
-ggsave(here("figures/linear_reg/metrics/rsq_compare.png"))
+ggsave(here("figures/linear_reg/metrics/rsq_compare.png"), width = 9, height = 5)
 ```
 
 ## Predictions
