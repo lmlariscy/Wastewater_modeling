@@ -12,6 +12,7 @@ library(here)
 library(RColorBrewer)
 library(vip)
 library(tsibble)
+library(ggpubr)
 ```
 
 # Load data
@@ -91,15 +92,15 @@ print(color_palette)
 color_palette <- color_palette[1:18]
 
 # Make list for naming models in ggplot
-labels <- c("All n=1","All n=2","All n=3","All n=4","All n=5","All n=6",
-            "DF n=1","DF n=2","DF n=3","DF n=4","DF n=5","DF n=6",
-            "VL n=1","VL n=2","VL n=3","VL n=4","VL n=5","VL n=6")
+labels <- c("All 1","All 2","All 3","All 4","All 5","All 6",
+            "DF 1","DF 2","DF 3","DF 4","DF 5","DF 6",
+            "VL 1","VL 2","VL 3","VL 4","VL 5","VL 6")
 ```
 
 ## RMSE
 
 ```{r}
-metrics_compare %>% 
+rmse_compare <- metrics_compare %>% 
   filter(.metric == "rmse") %>% 
   ggplot(aes(.config, mean, color=.config)) +
   geom_point(size = 4) +
@@ -108,7 +109,7 @@ metrics_compare %>%
   ggthemes::theme_clean() +
   theme(axis.title.x = element_blank(),
         #axis.ticks.x = element_blank(),
-        axis.text.x = element_text(angle = 15),
+        axis.text.x = element_text(angle = 20),
         axis.title.y = element_text(size = 12,face = "bold"),
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12),
@@ -119,24 +120,31 @@ metrics_compare %>%
                     values = color_palette) +
   xlab("Feature selection configuration") +
   ylab("RMSE") +
-  scale_x_discrete(labels=labels)
+  scale_x_discrete(labels=labels) +
+  geom_hline(yintercept = 0.425, alpha = 0) +
+  geom_hline(yintercept = 0.25, alpha = 0)
+
+rmse_compare
 
 ggsave(here("figures/random_forest/metrics/rmse_compare.png"), width = 9, height = 5)
+
+saveRDS(rmse_compare, 
+        here("figures/random_forest/metrics/rmse_compare.rds"))
 ```
 
 ## RSQ
 
 ```{r}
-metrics_compare %>% 
+rsq_compare <- metrics_compare %>% 
   filter(.metric == "rsq") %>% 
   ggplot(aes(.config, mean, color=.config)) +
   geom_point(size = 4) +
     geom_errorbar(aes(ymin = lower_ci,
                 ymax = upper_ci)) +
   ggthemes::theme_clean() +
-  theme(#axis.title.x = element_blank(),
+  theme(axis.title.x = element_blank(),
         #axis.ticks.x = element_blank(),
-        axis.text.x = element_text(angle = 15),
+        axis.text.x = element_text(angle = 20),
         axis.title = element_text(size = 12,face = "bold"),
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12),
@@ -145,11 +153,18 @@ metrics_compare %>%
   scale_color_manual(name="Configuration",
                     #labels=labels,
                     values = color_palette) +
-  xlab("Feature selection configuration") +
+  #xlab("Feature selection configuration") +
   ylab("R-Squared") +
-  scale_x_discrete(labels=labels)
+  scale_x_discrete(labels=labels) +
+  geom_hline(yintercept = 0.73, alpha = 0) +
+  geom_hline(yintercept = 0.28, alpha = 0)
+
+rsq_compare
 
 ggsave(here("figures/random_forest/metrics/rsq_compare.png"), width = 9, height = 5)
+
+saveRDS(rsq_compare,
+        here("figures/random_forest/metrics/rsq_compare.rds"))
 ```
 
 ## Predictions
@@ -172,13 +187,17 @@ all_n6_train_fig <- all_n6_train_predictions %>%
   annotate("text", label="Predicted", x=18500, y=1220, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=18500, y=1300, color="#003e99", size=4) +
   ylab("Weekly reported cases") +
-  xlab("Week") +
+  #xlab("Week") +
   ggthemes::theme_clean() +
-  theme(axis.title = element_text(face = "bold",size = 12)) 
+  theme(axis.title = element_text(face = "bold",size = 12),
+        axis.title.x = element_blank()) 
 
 all_n6_train_fig
 
 ggsave(here("figures/random_forest/time_series/all_n6_train.png"))
+
+saveRDS(all_n6_train_fig,
+        here("figures/random_forest/time_series/all_n6_train.rds"))
 ```
 
 #### New data (2022)
@@ -197,13 +216,17 @@ all_n6_test_fig <- all_n6_test_predictions %>%
   annotate("text", label="Predicted", x=19050, y=1410, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=19050, y=1500, color="#003e99", size=4) +
   ylab("Weekly reported cases") +
-  xlab("Week") +
+  #xlab("Week") +
   ggthemes::theme_clean() +
-  theme(axis.title = element_text(face = "bold",size = 12)) 
+  theme(axis.title = element_text(face = "bold",size = 12),
+        axis.title.x = element_blank()) 
 
 all_n6_test_fig
 
 ggsave(here("figures/random_forest/time_series/all_n6_test.png"))
+
+saveRDS(all_n6_test_fig,
+        here("figures/random_forest/time_series/all_n6_test.rds"))
 ```
 
 ### Detection frequency, n = 3
@@ -223,14 +246,18 @@ df_n3_train_fig <- df_n3_train_predictions %>%
   annotate("text", label=df_n3_train_rsq_round, x=18950, y=1300, size=4) +
   annotate("text", label="Predicted", x=18500, y=1220, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=18500, y=1300, color="#003e99", size=4) +
-  ylab("Weekly reported cases") +
-  xlab("Week") +
+  #ylab("Weekly reported cases") +
+  #xlab("Week") +
   ggthemes::theme_clean() +
-  theme(axis.title = element_text(face = "bold",size = 12)) 
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank()) 
 
 df_n3_train_fig
 
 ggsave(here("figures/random_forest/time_series/df_n3_train.png"))
+
+saveRDS(df_n3_train_fig,
+        here("figures/random_forest/time_series/df_n3_train.rds"))
 ```
 
 #### New data (2022)
@@ -248,14 +275,18 @@ df_n3_test_fig <- df_n3_test_predictions %>%
   annotate("text", label=df_n3_test_rsq_round, x=19350, y=1500, size=4) +
   annotate("text", label="Predicted", x=19050, y=1410, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=19050, y=1500, color="#003e99", size=4) +
-  ylab("Weekly reported cases") +
-  xlab("Week") +
+  #ylab("Weekly reported cases") +
+  #xlab("Week") +
   ggthemes::theme_clean() +
-  theme(axis.title = element_text(face = "bold",size = 12)) 
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank()) 
 
 df_n3_test_fig
 
 ggsave(here("figures/random_forest/time_series/df_n3_test.png"))
+
+saveRDS(df_n3_test_fig,
+        here("figures/random_forest/time_series/df_n3_test.rds"))
 ```
 
 ### Combine figures
@@ -288,7 +319,7 @@ vip::vip(all_n6_train_fit,
         axis.ticks.y = element_blank(),
         #legend.position = "none",
         axis.title.x = element_text(face = "bold",size = 12)) +
-  ggtitle("Combined Model Variable Importance Factors")
+  ggtitle("Combined Model Variable Importance Factors") 
 
 ggsave(here("figures/random_forest/variable_importance/vip_all_predictors.png"),
        width = 6, height = 6.5)
