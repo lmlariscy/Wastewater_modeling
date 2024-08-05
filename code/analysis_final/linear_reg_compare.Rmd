@@ -165,6 +165,34 @@ saveRDS(rsq_compare,
         here("figures/linear_reg/metrics/rsq_compare.rds"))
 ```
 
+```{r}
+rsq <- metrics_compare %>% 
+  filter(.metric == "rsq") %>% 
+  select(mean,.config,feature) %>% 
+  arrange(desc(mean)) %>% 
+  mutate(model = "linear_reg")
+
+rsq
+
+saveRDS(rsq,
+        here("data/processed_data/linear_reg/rsq_compare.rds"))
+```
+
+```{r}
+mean_rsq <- metrics_compare %>% 
+  filter(.metric == "rsq") %>% 
+  select(mean,feature) %>% 
+  group_by(feature) %>% 
+  summarise(mean_rsq=mean(mean)) %>% 
+  arrange(desc(mean_rsq)) %>% 
+  mutate(model = "linear_reg")
+  
+mean_rsq
+
+saveRDS(mean_rsq,
+        here("data/processed_data/linear_reg/rsq_mean_compare.rds"))
+```
+
 ## Predictions
 
 ### All predictors, n = 6

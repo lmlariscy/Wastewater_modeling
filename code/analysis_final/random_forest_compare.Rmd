@@ -167,6 +167,34 @@ saveRDS(rsq_compare,
         here("figures/random_forest/metrics/rsq_compare.rds"))
 ```
 
+```{r}
+rsq <- metrics_compare %>% 
+  filter(.metric == "rsq") %>% 
+  select(mean,.config,feature) %>% 
+  arrange(desc(mean)) %>% 
+  mutate(model = "rand_forest")
+
+rsq
+
+saveRDS(rsq,
+        here("data/processed_data/rand_forest/rsq_compare.rds"))
+```
+
+```{r}
+mean_rsq <- metrics_compare %>% 
+  filter(.metric == "rsq") %>% 
+  select(mean,feature) %>% 
+  group_by(feature) %>% 
+  summarise(mean_rsq=mean(mean)) %>% 
+  arrange(desc(mean_rsq)) %>% 
+  mutate(model = "rand_forest")
+  
+mean_rsq
+
+saveRDS(mean_rsq,
+        here("data/processed_data/rand_forest/rsq_mean_compare.rds"))
+```
+
 ## Predictions
 
 ### All predictors, n = 6

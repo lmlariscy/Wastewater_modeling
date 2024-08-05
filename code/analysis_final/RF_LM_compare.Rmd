@@ -23,6 +23,11 @@ lm_rmse <- readRDS(here("figures/linear_reg/metrics/rmse_compare.rds"))
 rf_rsq <- readRDS(here("figures/random_forest/metrics/rsq_compare.rds"))
 lm_rsq <- readRDS(here("figures/linear_reg/metrics/rsq_compare.rds"))
 
+rf_rsq_nums <- readRDS(
+  here("data/processed_data/rand_forest/rsq_compare.rds"))
+lm_rsq_nums <- readRDS(
+  here("data/processed_data/linear_reg/rsq_compare.rds"))
+
 #timeseries figures (training data)
 rf_all_train <- readRDS(
   here("figures/random_forest/time_series/all_n6_train.rds"))
@@ -66,6 +71,18 @@ ggarrange(rf_rsq,lm_rsq,
 
 ggsave(here("figures/rf_lm_compare/rsq_compare.png"),
             width=14, height=4)
+```
+
+```{r}
+rf_lm_rsq <- bind_rows(rf_rsq_nums,lm_rsq_nums) %>% 
+  arrange(desc(mean))
+```
+
+```{r}
+rf_lm_rsq %>% 
+  group_by(feature,model) %>% 
+  summarise(mean_rsq = mean(mean)) %>% 
+  arrange(desc(mean_rsq))
 ```
 
 ## Timeseries - training
