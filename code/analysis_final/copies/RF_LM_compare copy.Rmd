@@ -1,0 +1,93 @@
+---
+title: "RF and LM Comparisons"
+author: "Leah Lariscy"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(RColorBrewer)
+```
+
+# Load RDS files
+
+```{r}
+#RMSE figures
+rf_rmse <- readRDS(here("figures/random_forest/metrics/rmse_compare.rds"))
+lm_rmse <- readRDS(here("figures/linear_reg/metrics/rmse_compare.rds"))
+
+#RSQ figures
+rf_rsq <- readRDS(here("figures/random_forest/metrics/rsq_compare.rds"))
+lm_rsq <- readRDS(here("figures/linear_reg/metrics/rsq_compare.rds"))
+
+#timeseries figures (training data)
+rf_all_train <- readRDS(
+  here("figures/random_forest/time_series/all_n6_train.rds"))
+rf_df_train <- readRDS(
+  here("figures/random_forest/time_series/df_n3_train.rds"))
+lm_all_train <- readRDS(
+  here("figures/linear_reg/time_series/all_n6_train.rds"))
+lm_df_train <- readRDS(here(
+  "figures/linear_reg/time_series/df_n3_train.rds"))
+
+#timeseries figures (new data)
+rf_all_test <- readRDS(
+  here("figures/random_forest/time_series/all_n6_test.rds"))
+rf_df_test <- readRDS(
+  here("figures/random_forest/time_series/df_n3_test.rds"))
+lm_all_test <- readRDS(
+  here("figures/linear_reg/time_series/all_n6_test.rds"))
+lm_df_test <- readRDS(here(
+  "figures/linear_reg/time_series/df_n3_test.rds"))
+```
+
+# Combine figures
+
+## RMSE
+
+```{r}
+ggarrange(rf_rmse,lm_rmse,
+          labels = c("A","B"),
+          ncol = 2)
+
+ggsave(here("figures/rf_lm_compare/rmse_compare.png"),
+            width=14, height=4)
+```
+
+## RSQ
+
+```{r}
+ggarrange(rf_rsq,lm_rsq,
+          labels = c("A","B"),
+          ncol = 2)
+
+ggsave(here("figures/rf_lm_compare/rsq_compare.png"),
+            width=14, height=4)
+```
+
+## Timeseries - training
+
+```{r}
+ggarrange(rf_all_train,rf_df_train,lm_all_train,lm_df_train,
+          labels = c("A","B","C","D"),
+          ncol = 2,
+          nrow = 2)
+
+ggsave(here("figures/rf_lm_compare/training_timeseries.png"),
+       width = 12, height = 8)
+```
+
+## Timeseries - new data
+
+```{r}
+ggarrange(rf_all_test,rf_df_test,lm_all_test,lm_df_test,
+          labels = c("A","B","C","D"),
+          ncol = 2,
+          nrow = 2)
+
+ggsave(here("figures/rf_lm_compare/testing_timeseries.png"),
+       width = 12, height = 8)
+```
