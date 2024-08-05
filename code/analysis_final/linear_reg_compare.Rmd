@@ -286,14 +286,3 @@ ggsave(here("figures/linear_reg/time_series/df_n3_test.png"))
 saveRDS(df_n3_test_fig,
         here("figures/linear_reg/time_series/df_n3_test.rds"))
 ```
-
-### Combine figures
-
-```{r}
-ggarrange(all_n6_train_fig, all_n6_test_fig, df_n3_train_fig, df_n3_test_fig,
-          labels = c("A","B","C","D"),
-          ncol = 2, nrow = 2)
-
-ggsave(here("figures/linear_reg/time_series/combined_plot.png"),
-            width=10, height=6)
-```
