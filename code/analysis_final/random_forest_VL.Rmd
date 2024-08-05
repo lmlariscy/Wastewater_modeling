@@ -458,17 +458,17 @@ saveRDS(cv_metrics_vl,
 
 ```{r}
 cv_vl_n6_metrics_sum <- vl_n6_metrics_sum %>% mutate(.config="vl_n6",
-                                                  feature="combined")
+                                                  feature="vl")
 cv_vl_n5_metrics_sum <- vl_n5_metrics_sum %>% mutate(.config="vl_n5",
-                                                  feature="combined")
+                                                  feature="vl")
 cv_vl_n4_metrics_sum <- vl_n4_metrics_sum %>% mutate(.config="vl_n4",
-                                                  feature="combined")
+                                                  feature="vl")
 cv_vl_n3_metrics_sum <- vl_n3_metrics_sum %>% mutate(.config="vl_n3",
-                                                  feature="combined")
+                                                  feature="vl")
 cv_vl_n2_metrics_sum <- vl_n2_metrics_sum %>% mutate(.config="vl_n2",
-                                                  feature="combined")
+                                                  feature="vl")
 cv_vl_n1_metrics_sum <- vl_n1_metrics_sum %>% mutate(.config="vl_n1",
-                                                  feature="combined")
+                                                  feature="vl")
 
 cv_metrics_vl_sum <- rbind(cv_vl_n1_metrics_sum,
                        cv_vl_n2_metrics_sum,
