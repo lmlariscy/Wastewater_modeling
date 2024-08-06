@@ -129,6 +129,19 @@ saveRDS(rmse_compare,
         here("figures/linear_reg/metrics/rmse_compare.rds"))
 ```
 
+```{r}
+rmse <- metrics_compare %>% 
+  filter(.metric == "rmse") %>% 
+  select(mean,.config,feature) %>% 
+  arrange(mean) %>% 
+  mutate(model = "linear_reg")
+
+rmse
+
+saveRDS(rmse,
+        here("data/processed_data/linear_reg/rmse_compare.rds"))
+```
+
 ## RSQ
 
 ```{r}

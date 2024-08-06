@@ -132,6 +132,19 @@ saveRDS(rmse_compare,
         here("figures/random_forest/metrics/rmse_compare.rds"))
 ```
 
+```{r}
+rmse <- metrics_compare %>% 
+  filter(.metric == "rmse") %>% 
+  select(mean,.config,feature) %>% 
+  arrange(mean) %>% 
+  mutate(model = "rand_forest")
+
+rmse
+
+saveRDS(rmse,
+        here("data/processed_data/rand_forest/rmse_compare.rds"))
+```
+
 ## RSQ
 
 ```{r}
@@ -340,4 +353,61 @@ vip::vip(all_n6_train_fit,
 
 ggsave(here("figures/random_forest/variable_importance/vip_all_predictors.png"),
        width = 6, height = 6.5)
+```
+
+```{r}
+importance <- vi(all_n6_train_fit) %>% 
+  arrange(desc(Importance))
+
+importance
+```
+
+```{r}
+importance_clean <- importance %>% 
+  mutate(plant = str_sub(Variable, 1, 1),
+         target = str_sub(Variable, 3, 4),
+         data_type = if_else(str_detect(Variable, "POS"), "DF", "VL")) %>% 
+  select(!Variable)
+
+importance_clean
+```
+
+```{r}
+#sum importance by plant
+importance_clean %>% 
+  group_by(plant) %>% 
+  summarise(sum = sum(Importance)) %>% 
+  arrange(desc(sum))
+```
+
+```{r}
+#sum importance by plant and gene
+importance_clean %>% 
+  group_by(plant,target) %>% 
+  summarise(sum = sum(Importance)) %>% 
+  arrange(desc(sum))
+```
+
+```{r}
+#sum by plant and data type
+importance_clean %>% 
+  group_by(plant,data_type) %>% 
+  summarise(sum = sum(Importance)) %>% 
+  arrange(desc(sum))
+```
+
+```{r}
+#sum by target
+importance_clean %>% 
+  group_by(target) %>% 
+  summarise(sum = sum(Importance)) %>% 
+  arrange(desc(sum))
+```
+
+```{r}
+#sum by data type
+importance_clean %>% 
+  group_by(data_type) %>% 
+  summarise(sum = sum(Importance)) %>% 
+  arrange(desc(sum))
 ```
