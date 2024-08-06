@@ -1,0 +1,67 @@
+---
+title: "Clinical data summary stats"
+author: "Leah Lariscy"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(tsibble)
+library(lubridate)
+```
+
+# Load data
+
+```{r}
+weekly <- readRDS(
+  here("data/processed_data/clinical/covid_cases_weekly.rds")) %>% 
+  mutate(date = as.Date(week, format = "%Y-%m-%d"))
+```
+
+# Summarize
+
+## Total reported cases
+
+```{r}
+sum(weekly$cases.reported)
+```
+
+## Highest case weeks
+
+```{r}
+weekly %>% arrange(desc(cases.reported))
+```
+
+## Lowest case weeks
+
+```{r}
+weekly %>% arrange(cases.reported)
+```
+
+## Highest test weeks
+
+```{r}
+weekly %>% arrange(desc(pcr_tests))
+```
+
+## Lowest test weeks
+
+```{r}
+weekly %>% arrange(pcr_tests)
+```
+
+# Visualize
+
+```{r}
+weekly %>% ggplot(aes(week,cases.reported)) +
+  geom_point() +
+  geom_line()
+```
+
+```{r}
+weekly %>% ggplot(aes(week,pcr_tests)) +
+  geom_point() +
+  geom_line()
+```

@@ -226,7 +226,7 @@ vl_n6_week <- vl_avg_n6 %>%
               values_from = c(avg_viral_load),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:7), mean, ra.rm = F)
 
@@ -237,7 +237,7 @@ vl_n5_week <- vl_avg_n5 %>%
               values_from = c(avg_viral_load),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:7), mean, ra.rm = F)
 
@@ -248,7 +248,7 @@ vl_n4_week <- vl_avg_n4 %>%
               values_from = c(avg_viral_load),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:7), mean, ra.rm = F)
 
@@ -259,7 +259,7 @@ vl_n3_week <- vl_avg_n3 %>%
               values_from = c(avg_viral_load),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:7), mean, ra.rm = F)
 
@@ -270,7 +270,7 @@ vl_n2_week <- vl_avg_n2 %>%
               values_from = c(avg_viral_load),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:7), mean, ra.rm = F)
 
@@ -281,7 +281,7 @@ vl_n1_week <- vl_avg_n1 %>%
               values_from = c(avg_viral_load),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:7), mean, ra.rm = F)
 ```
@@ -299,7 +299,7 @@ df_n6_week <- df_sum_n6 %>%
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:13), sum, ra.rm = F)
 
@@ -309,7 +309,7 @@ df_n5_week <- df_sum_n5 %>%
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:13), sum, ra.rm = F)
 
@@ -319,7 +319,7 @@ df_n4_week <- df_sum_n4 %>%
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:13), sum, ra.rm = F)
 
@@ -329,7 +329,7 @@ df_n3_week <- df_sum_n3 %>%
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:13), sum, ra.rm = F)
 
@@ -339,7 +339,7 @@ df_n2_week <- df_sum_n2 %>%
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:13), sum, ra.rm = F)
 
@@ -349,7 +349,7 @@ df_n1_week <- df_sum_n1 %>%
               values_from = c(n, n_pos),
               names_sep = "_") %>% 
   mutate(date = as_date(date), 
-         week = yearweek(date)) %>% 
+         week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:13), sum, ra.rm = F)
 ```
@@ -380,7 +380,7 @@ wbe_n1_week <- left_join(df_n1_week,vl_n1_week, by = "week") #n=1
 covid_daily <- covid %>% 
   filter(between(date, as.Date("2020-06-30"), as.Date("2023-01-04"))) %>%  #filter for surveillance time series
   mutate(date = as_date(date),
-         week = yearweek(date))
+         week = yearweek(date, week_start = 7))
 
 covid_weekly <- covid_daily %>% 
   select(!c(cases.symptom.onset,
@@ -390,6 +390,9 @@ covid_weekly <- covid_daily %>%
   summarise_at(vars(1:3),sum,na.rm = F) %>% 
   #sum tests and positives by week
   ungroup()
+
+saveRDS(covid_weekly, 
+        here("data/processed_data/clinical/covid_cases_weekly.rds"))
 ```
 
 ### 2. Combine WBE and COVID data
