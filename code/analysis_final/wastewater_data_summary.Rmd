@@ -8,7 +8,6 @@ output: html_document
 
 ```{r}
 library(tidyverse)
-library(tsibble)
 ```
 
 # Load data
@@ -45,38 +44,205 @@ detection_freq_sum <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds"))
 collection_dates <- length(unique(viral_load_sum_daily$date))
 
 # Display the result
-print(paste("Number of unique observations:", collection_dates))
+print(paste("Number of collection dates:", collection_dates))
 ```
 
 ## Total collections
 
 ```{r}
 total_collections <- viral_load_sum_daily %>% n_groups()
-print(total_collections)
+print(paste("Number of collections:",total_collections))
 ```
 
 ## Total detections
 
 ```{r}
-cq_sum <- cq_unsum %>% group_by(date,facility,target,biological_replicate) %>% 
-  summarise(avg_copy_ul_rxn = mean(copy_num_uL_rxn)) 
+#count number of total biological replicates
+total_bio_reps <- cq_unsum %>% 
+  group_by(date,facility,target,biological_replicate) %>% 
+  n_groups()
 
-print(nrow(cq_sum))
+print(total_bio_reps)
 
-total_detects <- cq_sum %>% 
-  filter(avg_copy_ul_rxn > 0.05951030)
+#count number of biological replicates with at least one detectable reaction
+contains_detection <- cq_unsum %>%
+  group_by(date,facility,target,biological_replicate) %>%
+  summarize(contains_detection = any(nondetect == "detect" & ct_lod == "detectable"))
 
-print(nrow(total_detects))
+total_detections <- contains_detection %>% 
+  filter(contains_detection == "TRUE") %>% 
+  nrow()
 
-total_detection_freq <- nrow(total_detects)/nrow(cq_sum)
+print(total_detections)
+
+#count number of biological replicates with no detectable reactions
+total_nondetections <- contains_detection %>% 
+  filter(contains_detection == "FALSE") %>% 
+  nrow()
+
+print(total_nondetections)
+
+#calculate total detection rate
+total_detection_freq <- total_detections/nrow(cq_sum)
 
 print(total_detection_freq)
 ```
 
-```{r}
-cq_unsum %>% group_by(date,facility,target,biological_replicate) %>% n_groups()
+## N1 detections
 
-#how many non detects and below LoD?
-cq_unsum %>% filter(nondetect == "nondetect" | ct_lod == "nondetectable") %>% 
-  group_by(date,facility,target,biological_replicate) %>% n_groups()
+```{r}
+#count number of total n1 biological replicates
+total_bio_reps_n1 <- cq_unsum %>% 
+  filter(target == "N1") %>% 
+  group_by(date,facility,target,biological_replicate)
+
+print(n_groups(total_bio_reps_n1))
+
+#count number of biological replicates with at least one detectable reaction
+contains_detection_n1 <- cq_unsum %>%
+  filter(target == "N1") %>% 
+  group_by(date,facility,target,biological_replicate) %>%
+  summarize(contains_detection = any(nondetect == "detect" & ct_lod == "detectable"))
+
+total_detections_n1 <- contains_detection_n1 %>% 
+  filter(contains_detection == "TRUE") %>% 
+  nrow()
+
+print(total_detections_n1)
+
+#count number of biological replicates with no detectable reactions
+total_nondetections_n1 <- contains_detection_n1 %>% 
+  filter(contains_detection == "FALSE") %>% 
+  nrow()
+
+print(total_nondetections_n1)
+
+#calculate total detection rate
+total_detection_freq_n1 <- total_detections_n1/n_groups(total_bio_reps_n1)
+
+print(total_detection_freq_n1)
+```
+
+## N2 detections
+
+```{r}
+#count number of total n2 biological replicates
+total_bio_reps_n2 <- cq_unsum %>% 
+  filter(target == "N2") %>% 
+  group_by(date,facility,target,biological_replicate)
+
+print(n_groups(total_bio_reps_n2))
+
+#count number of biological replicates with at least one detectable reaction
+contains_detection_n2 <- cq_unsum %>%
+  filter(target == "N2") %>% 
+  group_by(date,facility,target,biological_replicate) %>%
+  summarize(contains_detection = any(nondetect == "detect" & ct_lod == "detectable"))
+
+total_detections_n2 <- contains_detection_n2 %>% 
+  filter(contains_detection == "TRUE") %>% 
+  nrow()
+
+print(total_detections_n2)
+
+#count number of biological replicates with no detectable reactions
+total_nondetections_n2 <- contains_detection_n2 %>% 
+  filter(contains_detection == "FALSE") %>% 
+  nrow()
+
+print(total_nondetections_n2)
+
+#calculate total detection rate
+total_detection_freq_n2 <- total_detections_n2/n_groups(total_bio_reps_n2)
+
+print(total_detection_freq_n2)
+```
+
+## Quantifiable detections
+
+```{r}
+#count number of biological replicates with quantifiable detections
+is_quantifiable <- cq_unsum %>%
+  group_by(date,facility,target,biological_replicate) %>%
+  summarize(is_quantifiable = any(ct_loq == "quantifiable" & nondetect == "detect"))
+
+total_quant <- is_quantifiable %>% 
+  filter(is_quantifiable == "TRUE") %>% 
+  nrow()
+
+print(total_quant)
+```
+
+## Quantifiable detections N1
+
+```{r}
+#count number of biological replicates with quantifiable detections
+is_quantifiable_n1 <- total_bio_reps_n1 %>%
+  summarize(is_quantifiable = any(ct_loq == "quantifiable" & nondetect == "detect"))
+
+total_quant_n1 <- is_quantifiable_n1 %>% 
+  filter(is_quantifiable == "TRUE") %>% 
+  nrow()
+
+print(total_quant_n1)
+```
+
+## Quantifiable detections N2
+
+```{r}
+#count number of biological replicates with quantifiable detections
+is_quantifiable_n2 <- total_bio_reps_n2 %>%
+  summarize(is_quantifiable = any(ct_loq == "quantifiable" & nondetect == "detect"))
+
+total_quant_n2 <- is_quantifiable_n2 %>% 
+  filter(is_quantifiable == "TRUE") %>% 
+  nrow()
+
+print(total_quant_n2)
+```
+
+# Final summaries
+
+```{r}
+#how many total samples/bio reps were tested?
+print(paste("Total reactions ran:", total_bio_reps))
+
+#how many bio reps were N1?
+print(paste("Total N1 reactions ran:", n_groups(total_bio_reps_n1)))
+
+#how many bio reps were N2?
+print(paste("Total N2 reactions ran:", n_groups(total_bio_reps_n2)))
+
+#how many total reactions were positive?
+print(paste("Total positive reactions:", total_detections)) 
+
+#how many total reactions were negative?
+print(paste("Total negative reactions:", total_nondetections))
+
+#what is the rate of positive reactions?
+print(paste("Total positive detection rate:", total_detection_freq))
+
+#how many total N1 reactions were positive?
+print(paste("Total positive N1 reactions:", total_detections_n1))
+
+#what is the rate of positive N1 reactions?
+print(paste("Total positive N1 detection rate:", total_detection_freq_n1))
+
+#how many total N2 reactions were positive?
+print(paste("Total positive N2 reactions:", total_detections_n2))
+
+#what is the rate of positive N2 reactions?
+print(paste("Total positive N2 detection rate:", total_detection_freq_n2))
+
+#how many total reactions were quantifiable?
+print(paste("Total quantifiable reactions:", total_quant))
+
+#what is the rate of quantifiable reactions out of detectable reactions?
+print(paste("Rate of quantifiable reactions out of total detected:", total_quant/total_detections))
+
+#how many total N1 reactions were quantifiable?
+print(paste("Total quantifiable N1 reactions:", total_quant_n1))
+
+#how many total N2 reactions were quantifiable?
+print(paste("Total quantifiable N2 reactions:", total_quant_n2))
 ```

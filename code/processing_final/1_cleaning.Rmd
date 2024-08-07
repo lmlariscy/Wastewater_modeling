@@ -326,6 +326,12 @@ n2_cfx_1 <- bind_rows(n2_cfx_nondetect,
                           n2_cfx_nonquant,
                           n2_cfx_quant) %>% 
                 arrange(sample_date) 
+
+saveRDS(n1_stepone_1, here("data/processed_data/wastewater/n1_stepone_unsummarized.rds"))
+saveRDS(n2_stepone_1, here("data/processed_data/wastewater/n2_stepone_unsummarized.rds"))
+saveRDS(n1_cfx_1, here("data/processed_data/wastewater/n1_cfx_unsummarized.rds"))
+saveRDS(n1_cfx_1, here("data/processed_data/wastewater/n1_cfx_unsummarized.rds"))
+
 ```
 
 ```{r}
