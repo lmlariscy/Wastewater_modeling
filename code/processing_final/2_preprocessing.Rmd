@@ -37,7 +37,7 @@ knitr::opts_chunk$set(message=F)
 ```{r}
 library(tidyverse)
 library(here)
-library(fpp3)
+library(tsibble)
 library(skimr)
 library(ggpubr)
 ```
@@ -77,6 +77,8 @@ wbe_vl_avg <- wbe %>%
   group_by(date,facility,target,biological_replicate) %>% 
   summarize(avg_viral_load = mean(viral_load)) %>% 
   ungroup()
+
+saveRDS(wbe_vl_avg, here("data/processed_data/wastewater/viral_load_tech_rep_avg.rds"))
 ```
 
 #### Subset bio reps & summarize
@@ -123,6 +125,8 @@ vl_avg_n1 <- wbe_vl_avg %>%
   group_by(date,facility,target) %>% 
   slice_sample(n=1) %>% 
   summarize(avg_viral_load = mean(avg_viral_load))
+
+saveRDS(vl_avg_n6, here("data/processed_data/wastewater/viral_load_daily_avg.rds"))
 ```
 
 ### 2. Sum DF technical reps
@@ -210,6 +214,8 @@ df_sum_n1 <- wbe_df_sum %>%
             n_pos = n-n_miss) %>% 
   ungroup() %>% 
   select(!n_miss)
+
+saveRDS(df_sum_n6, here("data/processed_data/wastewater/detection_frequency_daily.rds"))
 ```
 
 ### 3. Widen viral load data
@@ -284,6 +290,8 @@ vl_n1_week <- vl_avg_n1 %>%
          week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
   summarise_at(vars(2:7), mean, ra.rm = F)
+
+saveRDS(vl_n6_week, here("data/processed_data/wastewater/viral_load_weekly_avg.rds"))
 ```
 
 ### 4. Widen detection frequency data

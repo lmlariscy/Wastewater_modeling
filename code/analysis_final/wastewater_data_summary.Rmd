@@ -1,0 +1,82 @@
+---
+title: "Wastewater data summary stats"
+author: "Leah Lariscy"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(tsibble)
+```
+
+# Load data
+
+```{r}
+#cq data (not summarized)
+cq_unsum <- readRDS(here("data/processed_data/qpcr_plant_all.rds"))
+
+#viral load data (avg technical reps)
+viral_load_sum_tech_reps <- readRDS(here("data/processed_data/wastewater/viral_load_tech_rep_avg.rds"))
+
+#viral load data (daily avg)
+viral_load_sum_daily <- readRDS(here("data/processed_data/wastewater/viral_load_daily_avg.rds"))
+
+#viral load data (weekly avg)
+viral_load_sum_weekly <- readRDS(here("data/processed_data/wastewater/viral_load_weekly_avg.rds")) %>% 
+  select(c(week,A_N1,A_N2,B_N1,B_N2,C_N1,C_N2))
+
+#detection frequency data (daily total)
+detection_freq_unsum <- readRDS(here("data/processed_data/wastewater/detection_frequency_daily.rds")) %>% 
+  mutate(pos_rate = n_pos/n)
+
+#summarized detection frequency data (weekly total)
+detection_freq_sum <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds")) %>% 
+  select(c(week,A_N1_POS,A_N2_POS,B_N1_POS,B_N2_POS,C_N1_POS,C_N2_POS))
+```
+
+# Summarize
+
+## Total collection dates
+
+```{r}
+# Counting the number of unique collection dates
+collection_dates <- length(unique(viral_load_sum_daily$date))
+
+# Display the result
+print(paste("Number of unique observations:", collection_dates))
+```
+
+## Total collections
+
+```{r}
+total_collections <- viral_load_sum_daily %>% n_groups()
+print(total_collections)
+```
+
+## Total detections
+
+```{r}
+cq_sum <- cq_unsum %>% group_by(date,facility,target,biological_replicate) %>% 
+  summarise(avg_copy_ul_rxn = mean(copy_num_uL_rxn)) 
+
+print(nrow(cq_sum))
+
+total_detects <- cq_sum %>% 
+  filter(avg_copy_ul_rxn > 0.05951030)
+
+print(nrow(total_detects))
+
+total_detection_freq <- nrow(total_detects)/nrow(cq_sum)
+
+print(total_detection_freq)
+```
+
+```{r}
+cq_unsum %>% group_by(date,facility,target,biological_replicate) %>% n_groups()
+
+#how many non detects and below LoD?
+cq_unsum %>% filter(nondetect == "nondetect" | ct_lod == "nondetectable") %>% 
+  group_by(date,facility,target,biological_replicate) %>% n_groups()
+```

@@ -196,50 +196,142 @@ n1_cfx_half_loq <- as.numeric(10^((n1_cfx_loq-36.046)/-3.5293)/2)
 n2_cfx_half_loq <- as.numeric(10^((n2_cfx_loq-37.731)/-3.2505)/2)
 ```
 
+#### Calculate half of cp/uL LoD
+
+```{r}
+n1_stepone_half_lod <- as.numeric(10^((n1_stepone_lod-34.008)/-3.389)/2)
+
+n2_stepone_half_lod <- as.numeric(10^((n2_stepone_lod-32.416)/-3.3084)/2)
+
+n1_cfx_half_lod <- as.numeric(10^((n1_cfx_lod-36.046)/-3.5293)/2)
+
+n2_cfx_half_lod <- as.numeric(10^((n2_cfx_lod-37.731)/-3.2505)/2)
+```
+
 #### Transform Cq NAs, calculate copies/uL
 
 ```{r}
-#Replace NAs with LoD (temporarily)
 #Use standard curve slope for each target to calculate copies per uL per rxn
-#Replace cp/uL for observations with Cqs > LoQ with half cp/uL LoQ
+#Replace cp/uL for observations with Cqs > LoQ and < LoD with half cp/uL LoQ
+#Replace cp/uL for observations with Cqs > LoD with half cp/uL LoD
 
-#StepOne N1
-n1_stepone_1 <- n1_stepone_clean %>% 
-  mutate(ct = replace_na(ct, n1_stepone_lod),
-         copy_num_uL_rxn = as.numeric(10^((ct-34.008)/-3.389)),
-         copy_num_uL_rxn = ifelse(ct>n1_stepone_loq,
-                                  n1_stepone_half_loq,
-                                  copy_num_uL_rxn))
+#StepOne N1 ################################################################
+n1_stepone_ct <- n1_stepone_clean %>% 
+  mutate(nondetect = ifelse(is.na(ct), "nondetect", "detect"),
+         ct_loq = ifelse(ct < n1_stepone_loq, "quantifiable", "nonquant"),
+         ct_lod = ifelse(
+           ct < n1_stepone_lod, "detectable", "nondetectable"))
 
-#StepOne N2
-n2_stepone_1 <- n2_stepone_clean %>% 
-  mutate(ct = replace_na(ct, n2_stepone_lod),
-         copy_num_uL_rxn = as.numeric(10^((ct-32.416)/-3.3084)),
-         copy_num_uL_rxn = ifelse(ct>n2_stepone_loq,
-                                  n2_stepone_half_loq,
-                                  copy_num_uL_rxn))
+#transform nondetectable rxns
+n1_stepone_nondetect <- n1_stepone_ct %>% 
+  filter(nondetect == "nondetect" | ct_lod == "nondetectable") %>% 
+  mutate(copy_num_uL_rxn = n1_stepone_half_lod) 
 
-#CFX N1
-n1_cfx_1 <- n1_cfx_clean %>% 
-  mutate(ct = replace_na(ct, n1_cfx_lod), 
-         copy_num_uL_rxn = as.numeric(10^((ct-36.046)/-3.5293)),
-         copy_num_uL_rxn = ifelse(ct>n1_cfx_loq,
-                                  n1_cfx_half_loq,
-                                  copy_num_uL_rxn)) 
+#transform nonquant but detectable rxns
+n1_stepone_nonquant <- n1_stepone_ct %>% 
+  filter(ct_loq == "nonquant" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = n1_stepone_half_loq) 
 
-#CFX N2
-n2_cfx_1 <- n2_cfx_clean %>% 
-  mutate(ct = replace_na(ct, n2_cfx_lod),
-         copy_num_uL_rxn = as.numeric(10^((ct-37.731)/-3.2505)),
-         copy_num_uL_rxn = ifelse(ct>n2_cfx_loq,
-                                  n2_cfx_half_loq,
-                                  copy_num_uL_rxn)) 
+#transform quantifiable rxns
+n1_stepone_quant <- n1_stepone_ct %>% 
+  filter(ct_loq == "quantifiable" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = 10^((ct-34.008)/-3.389))
+
+#bind rows
+n1_stepone_1 <- bind_rows(n1_stepone_nondetect,
+                          n1_stepone_nonquant,
+                          n1_stepone_quant) %>% 
+                arrange(sample_date)
+
+#StepOne N2 ################################################################
+n2_stepone_ct <- n2_stepone_clean %>% 
+  mutate(nondetect = ifelse(is.na(ct), "nondetect", "detect"),
+         ct_loq = ifelse(ct < n2_stepone_loq, "quantifiable", "nonquant"),
+         ct_lod = ifelse(
+           ct < n2_stepone_lod, "detectable", "nondetectable"))
+
+#transform nondetectable rxns
+n2_stepone_nondetect <- n2_stepone_ct %>% 
+  filter(nondetect == "nondetect" | ct_lod == "nondetectable") %>% 
+  mutate(copy_num_uL_rxn = n2_stepone_half_lod) 
+
+#transform nonquant but detectable rxns
+n2_stepone_nonquant <- n2_stepone_ct %>% 
+  filter(ct_loq == "nonquant" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = n2_stepone_half_loq) 
+
+#transform quantifiable rxns
+n2_stepone_quant <- n2_stepone_ct %>% 
+  filter(ct_loq == "quantifiable" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = 10^((ct-32.416)/-3.3084))
+
+#bind rows
+n2_stepone_1 <- bind_rows(n2_stepone_nondetect,
+                          n2_stepone_nonquant,
+                          n2_stepone_quant) %>% 
+                arrange(sample_date)
+
+#CFX N1 ####################################################################
+n1_cfx_ct <- n1_cfx_clean %>% 
+  mutate(nondetect = ifelse(is.na(ct), "nondetect", "detect"),
+         ct_loq = ifelse(ct < n1_cfx_loq, "quantifiable", "nonquant"),
+         ct_lod = ifelse(
+           ct < n1_cfx_lod, "detectable", "nondetectable"))
+
+#transform nondetectable rxns
+n1_cfx_nondetect <- n1_cfx_ct %>% 
+  filter(nondetect == "nondetect" | ct_lod == "nondetectable") %>% 
+  mutate(copy_num_uL_rxn = n1_cfx_half_lod) 
+
+#transform nonquant but detectable rxns
+n1_cfx_nonquant <- n1_cfx_ct %>% 
+  filter(ct_loq == "nonquant" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = n1_cfx_half_loq) 
+
+#transform quantifiable rxns
+n1_cfx_quant <- n1_cfx_ct %>% 
+  filter(ct_loq == "quantifiable" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = 10^((ct-36.046)/-3.5293))
+
+#bind rows
+n1_cfx_1 <- bind_rows(n1_cfx_nondetect,
+                          n1_cfx_nonquant,
+                          n1_cfx_quant) %>% 
+                arrange(sample_date) 
+
+#CFX N2 ####################################################################
+n2_cfx_ct <- n2_cfx_clean %>% 
+  mutate(nondetect = ifelse(is.na(ct), "nondetect", "detect"),
+         ct_loq = ifelse(ct < n2_cfx_loq, "quantifiable", "nonquant"),
+         ct_lod = ifelse(
+           ct < n2_cfx_lod, "detectable", "nondetectable"))
+
+#transform nondetectable rxns
+n2_cfx_nondetect <- n2_cfx_ct %>% 
+  filter(nondetect == "nondetect" | ct_lod == "nondetectable") %>% 
+  mutate(copy_num_uL_rxn = n2_cfx_half_lod) 
+
+#transform nonquant but detectable rxns
+n2_cfx_nonquant <- n2_cfx_ct %>% 
+  filter(ct_loq == "nonquant" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = n2_cfx_half_loq) 
+
+#transform quantifiable rxns
+n2_cfx_quant <- n2_cfx_ct %>% 
+  filter(ct_loq == "quantifiable" & ct_lod == "detectable") %>% 
+  mutate(copy_num_uL_rxn = 10^((ct-37.731)/-3.2505))
+
+#bind rows
+n2_cfx_1 <- bind_rows(n2_cfx_nondetect,
+                          n2_cfx_nonquant,
+                          n2_cfx_quant) %>% 
+                arrange(sample_date) 
 ```
 
 ```{r}
 #Visualize distributions
 #N1 StepOne
-n1_stepone_1 %>% filter(ct<n1_stepone_lod) %>% ggplot(aes(ct)) + geom_histogram(binwidth = )
+n1_stepone_1 %>% filter(ct<n1_stepone_lod) %>% ggplot(aes(ct)) + geom_histogram()
 
 #N2 StepOne
 n2_stepone_1 %>% filter(ct<n2_stepone_lod) %>% ggplot(aes(ct)) + geom_histogram()
@@ -265,8 +357,7 @@ qpcr_all <- bind_rows(n1_stepone_1, n2_stepone_1, n1_cfx_1, n2_cfx_1) %>%
     biological_replicate=substr(sample_id, nchar(sample_id), nchar(sample_id))) %>% 
   #last number in sample_id is the biological rep
  arrange(date, facility, target, biological_replicate) %>% 
-  select(date, facility, target, biological_replicate, 
-         collection_num, ct, copy_num_uL_rxn)#select necessary variables
+  select(!sample_id)#select necessary variables
   
 #Save to processed data folder
 saveRDS(qpcr_all, here("data/processed_data/qpcr_all1.rds"))
@@ -295,7 +386,9 @@ qpcr_plant_all <- merge(qpcr_all, plant_v2,
          viral_load = copy_num_L*influent_flow_L) %>% 
         #calculate total copies per day (viral load) using flow data
          drop_na(target) %>% 
-         select(!notes)
+         select(!c(notes))
+
+qpcr_plant_all
 
 #Save to processed data folder
 saveRDS(qpcr_plant_all, here("data/processed_data/qpcr_plant_all.rds"))
