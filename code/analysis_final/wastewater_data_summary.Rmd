@@ -8,6 +8,7 @@ output: html_document
 
 ```{r}
 library(tidyverse)
+library(here)
 ```
 
 # Load data
@@ -54,6 +55,26 @@ total_collections <- viral_load_sum_daily %>% n_groups()
 print(paste("Number of collections:",total_collections))
 ```
 
+```{r}
+viral_load_sum_daily %>% 
+  ungroup() %>% 
+  filter(facility=="A") %>% 
+  group_by(date) %>% 
+  n_groups()
+
+viral_load_sum_daily %>% 
+  ungroup() %>% 
+  filter(facility=="B") %>% 
+  group_by(date) %>% 
+  n_groups()
+
+viral_load_sum_daily %>% 
+  ungroup() %>% 
+  filter(facility=="C") %>% 
+  group_by(date) %>% 
+  n_groups()
+```
+
 ## Total detections
 
 ```{r}
@@ -83,7 +104,7 @@ total_nondetections <- contains_detection %>%
 print(total_nondetections)
 
 #calculate total detection rate
-total_detection_freq <- total_detections/nrow(cq_sum)
+total_detection_freq <- total_detections/total_bio_reps
 
 print(total_detection_freq)
 ```
@@ -201,6 +222,31 @@ total_quant_n2 <- is_quantifiable_n2 %>%
 print(total_quant_n2)
 ```
 
+## Highest copies/uL
+
+```{r}
+cq_unsum %>% 
+  group_by(date,facility,target,biological_replicate) %>% 
+  summarise(avg_cp_L = mean(copy_num_L)) %>% 
+  arrange(desc(avg_cp_L))
+```
+
+## Highest viral load
+
+```{r}
+cq_unsum %>% 
+  group_by(date,facility,target,biological_replicate) %>% 
+  summarise(avg_vl = mean(viral_load)) %>% 
+  #arrange(desc(avg_vl))
+  arrange(avg_vl)
+```
+
+## Highest detection freq
+
+```{r}
+detection_freq_unsum
+```
+
 # Final summaries
 
 ```{r}
@@ -245,4 +291,10 @@ print(paste("Total quantifiable N1 reactions:", total_quant_n1))
 
 #how many total N2 reactions were quantifiable?
 print(paste("Total quantifiable N2 reactions:", total_quant_n2))
+
+#what is the rate of quantifiable reactions for N1?
+print(paste("Rate of N1 quantifiable reactions:", total_quant_n1/total_detections_n1))
+
+#what is the rate of quantifiable reactions for N2?
+print(paste("Rate of N2 quantifiable reactions:", total_quant_n2/total_detections_n2))
 ```

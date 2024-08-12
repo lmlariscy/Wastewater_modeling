@@ -10,6 +10,8 @@ output: html_document
 library(tidyverse)
 library(here)
 library(RColorBrewer)
+library(ggpubr)
+library(tsibble)
 ```
 
 # Load RDS files
@@ -72,6 +74,8 @@ ggsave(here("figures/rf_lm_compare/rmse_compare.png"),
 ```{r}
 rf_lm_rmse <- bind_rows(rf_rmse_nums,lm_rmse_nums) %>% 
   arrange(mean)
+
+rf_lm_rmse
 ```
 
 ```{r}
@@ -95,6 +99,8 @@ ggsave(here("figures/rf_lm_compare/rsq_compare.png"),
 ```{r}
 rf_lm_rsq <- bind_rows(rf_rsq_nums,lm_rsq_nums) %>% 
   arrange(desc(mean))
+
+rf_lm_rsq
 ```
 
 ```{r}
