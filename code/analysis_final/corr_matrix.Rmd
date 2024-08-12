@@ -1,0 +1,42 @@
+---
+title: "Correlation matrix"
+author: "Leah Lariscy"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(corrplot)
+library(tsibble)
+library(correlation)
+```
+
+# Load data
+
+```{r}
+data <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds"))
+```
+
+# Create matrix
+
+```{r}
+correlations <- data %>%
+  head(n=75) %>% 
+  select('Plant A N1 VL'=A_N1, 'Plant A N2 VL'=A_N2,
+         'Plant B N1 VL'=B_N1, 'Plant B N2 VL'=B_N2,
+         'Plant C N1 VL'=C_N1, 'Plant C N2 VL'=C_N2,
+         'Plant A N1 DF'=A_N1_POS, 'Plant A N2 DF'=A_N2_POS,
+         'Plant B N1 DF'=B_N1_POS, 'Plant B N2 DF'=B_N2_POS,
+         'Plant C N1 DF'=C_N1_POS, 'Plant C N2 DF'=C_N2_POS,
+         'Cases Reported'=cases.reported) %>% 
+  drop_na() %>% 
+  cor(method = "spearman")
+```
+
+# Plot matrix
+
+```{r}
+correlations %>% corrplot(type = "upper", col.lim = c(0,1))
+```

@@ -227,7 +227,8 @@ print(total_quant_n2)
 ```{r}
 cq_unsum %>% 
   group_by(date,facility,target,biological_replicate) %>% 
-  summarise(avg_cp_L = mean(copy_num_L)) %>% 
+  summarise(avg_cp_L = mean(copy_num_L),
+            avg_cq = mean(ct)) %>% 
   arrange(desc(avg_cp_L))
 ```
 
@@ -245,6 +246,54 @@ cq_unsum %>%
 
 ```{r}
 detection_freq_unsum
+```
+
+## Cq ranges
+
+```{r}
+#N1 year 1
+cq_high_y1_n1 <- cq_unsum %>% 
+  filter(target == "N1" & date <= '2021-06-30') %>% 
+  arrange(desc(ct)) %>% 
+  head(1)
+
+cq_low_y1_n1 <- cq_unsum %>% 
+  filter(target == "N1" & date <= '2021-06-30') %>% 
+  arrange(ct) %>% 
+  head(1)
+
+#N1 year 2
+cq_high_y2_n1 <- cq_unsum %>% 
+  filter(target == "N1" & date >= '2021-06-30') %>% 
+  arrange(desc(ct)) %>% 
+  head(1)
+
+cq_low_y2_n1 <- cq_unsum %>% 
+  filter(target == "N1" & date >= '2021-06-30') %>% 
+  arrange(ct) %>% 
+  head(1)
+
+#N2 year 1
+cq_high_y1_n2 <- cq_unsum %>% 
+  filter(target == "N2" & date <= '2021-06-30') %>% 
+  arrange(desc(ct)) %>% 
+  head(1)
+
+cq_low_y1_n2 <- cq_unsum %>% 
+  filter(target == "N2" & date <= '2021-06-30') %>% 
+  arrange(ct) %>% 
+  head(1)
+
+#N2 year 2
+cq_high_y2_n2 <- cq_unsum %>% 
+  filter(target == "N2" & date >= '2021-06-30') %>% 
+  arrange(desc(ct)) %>% 
+  head(1)
+
+cq_low_y2_n2 <- cq_unsum %>% 
+  filter(target == "N2" & date >= '2021-06-30') %>% 
+  arrange(ct) %>% 
+  head(1)
 ```
 
 # Final summaries
@@ -297,4 +346,14 @@ print(paste("Rate of N1 quantifiable reactions:", total_quant_n1/total_detection
 
 #what is the rate of quantifiable reactions for N2?
 print(paste("Rate of N2 quantifiable reactions:", total_quant_n2/total_detections_n2))
+```
+
+```{r}
+print(paste("Year 1 N1 Cq values range from",round(cq_low_y1_n1$ct,2),"to",round(cq_high_y1_n1$ct,2)))
+
+print(paste("Year 2 N1 Cq values range from",round(cq_low_y2_n1$ct,2),"to",round(cq_high_y2_n1$ct,2)))
+
+print(paste("Year 1 N2 Cq values range from",round(cq_low_y1_n2$ct,2),"to",round(cq_high_y1_n2$ct,2)))
+
+print(paste("Year 2 N2 Cq values range from",round(cq_low_y2_n2$ct,2),"to",round(cq_high_y2_n2$ct,2)))
 ```
