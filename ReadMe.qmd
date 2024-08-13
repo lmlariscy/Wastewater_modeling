@@ -5,9 +5,9 @@ format: html
 editor: visual
 ---
 
-## Data Legends
+# Data Legends (⚆ \_ ⚆ )
 
-### General descriptions
+## General descriptions
 
 | Abbreviation | Description                                        |
 |--------------|----------------------------------------------------|
@@ -18,10 +18,10 @@ editor: visual
 | VL           | Wastewater viral load (total copies per day)       |
 | 7-DMA        | Seven-day moving average                           |
 | WWTP         | Wastewater treatment plant                         |
-| PR           | Positivity rate (detection frequency)              |
+| DF           | Wastewater detection frequency                     |
 | COVID        | Generally refers to clinical data sets from GA DPH |
 
-### Cleaned data (weekly)
+## Cleaned data (weekly)
 
 To understand how these data were generated, please see scripts 1 and 2.
 
@@ -30,7 +30,7 @@ Generally speaking, this data set has been summarized by week, so there is one o
 *Variables of interest are italicized*.
 
 | Name                 | Description                                                         |
-|----------------------|---------------------------------------------------------------------|
+|------------------|-----------------------------------------------------|
 | week                 | Year, week of observation                                           |
 | n1_vl                | Viral load estimated by N1 qPCR assay                               |
 | n2_vl                | Viral load estimated by N2 qPCR assay                               |
@@ -58,3 +58,22 @@ Generally speaking, this data set has been summarized by week, so there is one o
 | pcr_pos_14dma        | DPH data (not calculated by me) positive test 14-day moving average |
 | *prop_pos*           | *Positivity rate of clinical tests*                                 |
 | *case_prop_pos_7dma* | *Positivity rate of clinical tests 7-day moving average*            |
+
+# Running the scripts (✿◠‿◠) 
+
+All necessary scripts are located in /code
+
+Data cleaning and processing scripts (in /processing_final)
+
+1.  First, run the data cleaning script 1_cleaning.Rmd (this is necessary for the pre-processing script)
+2.  Next, run the data pre-processing script 2_preprocessing.Rmd (this is necessary for most analysis scripts)
+
+Analysis scripts (in /analysis_final)
+
+3.  Start by running the summary scripts (1_clinical_data_summary.Rmd and 2_wastewater_data_summary.Rmd) to generate summary stats (not necessary for downstream scripts)
+4.  Run 3_corr_matrix.Rmd to to generate Spearman's correlations between wastewater variables and reported clinical cases (not necessary for downstream scripts)
+5.  For the modeling scripts, start by running the linear regressions (4_linear_reg_DF.Rmd, 5_linear_reg_VL.Rmd, and 6_linear_reg_ALL.Rmd) (necessary for downstream comparison scripts)
+6.  Next, run the linear regression comparison script to compare model performances between linear models (7_linear_reg_compare.Rmd) (necessary for linear model/random forest comparison script)
+7.  Run the random forest scripts (8_random_forest_DF.Rmd, 9_random_forest_VL.Rmd, 10_random_forest_ALL.Rmd) (necessary for downstream comparison scripts)
+8.  Run the random forest comparison script to compare performances between random forest models (11_random_forest_compare.Rmd) (necessary for final comparison script)
+9.  Finally, run the linear model/random forest comparison script to make final comparisons between all models (12_RF_LM_compare.Rmd)
