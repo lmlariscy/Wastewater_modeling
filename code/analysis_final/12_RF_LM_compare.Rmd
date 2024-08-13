@@ -79,6 +79,26 @@ rf_lm_rmse
 ```
 
 ```{r}
+#All RF
+rf_lm_rmse %>% filter(feature == "combined" & model == "rand_forest")
+
+#All LM
+rf_lm_rmse %>% filter(feature == "combined" & model == "linear_reg")
+
+#DF RF
+rf_lm_rmse %>% filter(feature == "df" & model == "rand_forest")
+
+#DF LM
+rf_lm_rmse %>% filter(feature == "df" & model == "linear_reg")
+
+#VL RF
+rf_lm_rmse %>% filter(feature == "vl" & model == "rand_forest")
+
+#VL LM
+rf_lm_rmse %>% filter(feature == "vl" & model == "linear_reg")
+```
+
+```{r}
 rf_lm_rmse %>% 
   group_by(feature,model) %>% 
   summarise(mean_rmse = mean(mean)) %>% 
@@ -101,6 +121,26 @@ rf_lm_rsq <- bind_rows(rf_rsq_nums,lm_rsq_nums) %>%
   arrange(desc(mean))
 
 rf_lm_rsq
+```
+
+```{r}
+#All RF
+rf_lm_rsq %>% filter(feature == "combined" & model == "rand_forest")
+
+#All LM
+rf_lm_rsq %>% filter(feature == "combined" & model == "linear_reg")
+
+#DF RF
+rf_lm_rsq %>% filter(feature == "df" & model == "rand_forest")
+
+#DF LM
+rf_lm_rsq %>% filter(feature == "df" & model == "linear_reg")
+
+#VL RF
+rf_lm_rsq %>% filter(feature == "vl" & model == "rand_forest")
+
+#VL LM
+rf_lm_rsq %>% filter(feature == "vl" & model == "linear_reg")
 ```
 
 ```{r}

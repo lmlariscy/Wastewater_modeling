@@ -54,13 +54,22 @@ weekly %>% arrange(pcr_tests)
 # Visualize
 
 ```{r}
-weekly %>% ggplot(aes(week,cases.reported)) +
+cases_reported_fig <- weekly %>% ggplot(aes(week,cases.reported)) +
   geom_point() +
-  geom_line()
+  geom_line() +
+  ylab("Cases Reported") +
+  xlab("") +
+  ggthemes::theme_clean()
+
+ggsave(here("figures/timeseries/cases_reported.png"))
+saveRDS(cases_reported_fig, here("figures/timeseries/cases_reported.rds"))
 ```
 
 ```{r}
 weekly %>% ggplot(aes(week,pcr_tests)) +
   geom_point() +
-  geom_line()
+  geom_line() +
+  ggthemes::theme_clean()
+
+ggsave(here("figures/timeseries/test_admin.png"))
 ```

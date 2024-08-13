@@ -357,3 +357,53 @@ print(paste("Year 1 N2 Cq values range from",round(cq_low_y1_n2$ct,2),"to",round
 
 print(paste("Year 2 N2 Cq values range from",round(cq_low_y2_n2$ct,2),"to",round(cq_high_y2_n2$ct,2)))
 ```
+
+# Visualize
+
+```{r}
+viral_load <- viral_load_sum_weekly %>% 
+  pivot_longer(cols = 2:7) %>% 
+  drop_na() %>% 
+  group_by(week) %>% 
+  summarise(mean = mean(value)) %>% 
+  ggplot(aes(week,mean)) +
+  geom_line() +
+  geom_point() +
+  ylab("Mean viral load") +
+  xlab("") +
+  scale_y_log10() +
+  ggthemes::theme_clean()
+
+ggsave(here("figures/timeseries/log10_viral_load.png"))
+```
+
+```{r}
+detection_freq <- detection_freq_sum %>% 
+  pivot_longer(cols = 2:7) %>% 
+  drop_na() %>% 
+  group_by(week) %>% 
+  summarise(mean = mean(value)) %>% 
+  ggplot(aes(week,mean)) +
+  geom_line() +
+  geom_point() +
+  ylab("Mean detection frequency") +
+  xlab("") +
+  ggthemes::theme_clean()
+
+ggsave(here("figures/timeseries/detection_frequency.png"))
+```
+
+## Combine figures
+
+```{r}
+cases_reported <- readRDS(here("figures/timeseries/cases_reported.rds"))
+
+ggarrange(cases_reported,viral_load,detection_freq,
+          labels = c("A","B","C"),
+          nrow = 3,
+          ncol = 1)
+
+ggsave(here("figures/timeseries/clinical_wastewater_combined.png"),
+       width = 10,
+       height = 8)
+```
