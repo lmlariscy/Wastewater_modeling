@@ -70,7 +70,7 @@ Data cleaning and processing scripts (in /processing_final)
 
 Analysis scripts (in /analysis_final)
 
-3.  Start by running the summary scripts (1_clinical_data_summary.Rmd and 2_wastewater_data_summary.Rmd) to generate summary stats (not necessary for downstream scripts)
+3.  Start by running the summary scripts (1_clinical_data_summary.Rmd and 2_wastewater_data_summary.Rmd) to generate summary stats (clinical script is necessary for wastewater script)
 4.  Run 3_corr_matrix.Rmd to to generate Spearman's correlations between wastewater variables and reported clinical cases (not necessary for downstream scripts)
 5.  For the modeling scripts, start by running the linear regressions (4_linear_reg_DF.Rmd, 5_linear_reg_VL.Rmd, and 6_linear_reg_ALL.Rmd) (necessary for downstream comparison scripts)
 6.  Next, run the linear regression comparison script to compare model performances between linear models (7_linear_reg_compare.Rmd) (necessary for linear model/random forest comparison script)
