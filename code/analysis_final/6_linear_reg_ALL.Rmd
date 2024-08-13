@@ -14,10 +14,9 @@ knitr::opts_chunk$set(message=F)
 library(tidyverse)
 library(here)
 library(tidymodels)
-library(ggpubr)
 library(tsibble)
 library(ingredients)
-library(RColorBrewer)
+library(workboots)
 ```
 
 # Load Data
@@ -72,7 +71,7 @@ data_n1_test <- data_n1 %>% tail(n = 50)
 #define linear regression model
 lm_model <- linear_reg() %>% 
   set_engine("lm") %>% 
-  set_mode("regression") 
+  set_mode("regression")
 
 #define null model
 null_model <- null_model() %>% 
@@ -83,32 +82,38 @@ null_model <- null_model() %>%
 ## Define recipes
 
 ```{r}
-vl_n6_recipe <- recipe(log10_cases ~ 
+all_n6_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
               A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
               data = data_n6_train) %>% 
               update_role(week, new_role = "ID") 
 
-vl_n5_recipe <- recipe(log10_cases ~ 
+all_n5_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
               A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
               data = data_n5_train) %>% 
               update_role(week, new_role = "ID") 
 
-vl_n4_recipe <- recipe(log10_cases ~ 
+all_n4_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
               A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
               data = data_n4_train) %>% 
               update_role(week, new_role = "ID")
 
-vl_n3_recipe <- recipe(log10_cases ~ 
+all_n3_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
               A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
               data = data_n3_train) %>% 
               update_role(week, new_role = "ID")
 
-vl_n2_recipe <- recipe(log10_cases ~ 
+all_n2_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
               A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
               data = data_n2_train) %>% 
               update_role(week, new_role = "ID")
 
-vl_n1_recipe <- recipe(log10_cases ~ 
+all_n1_recipe <- recipe(log10_cases ~ 
+              A_N1_POS+A_N2_POS+B_N1_POS+B_N2_POS+C_N1_POS+C_N2_POS+
               A_N1+A_N2+B_N1+B_N2+C_N1+C_N2+week,
               data = data_n1_train) %>% 
               update_role(week, new_role = "ID")
@@ -117,39 +122,39 @@ vl_n1_recipe <- recipe(log10_cases ~
 ## Create workflows
 
 ```{r}
-#workflow for viral load models (to be tuned)
-vl_workflow_n6 <- workflow() %>% 
+#workflow for all predictors model (to be tuned)
+all_workflow_n6 <- workflow() %>% 
   add_model(lm_model) %>% 
-  add_recipe(vl_n6_recipe)
+  add_recipe(all_n6_recipe)
 
-vl_workflow_n5 <- workflow() %>% 
+all_workflow_n5 <- workflow() %>% 
   add_model(lm_model) %>% 
-  add_recipe(vl_n5_recipe)
+  add_recipe(all_n5_recipe)
 
-vl_workflow_n4 <- workflow() %>% 
+all_workflow_n4 <- workflow() %>% 
   add_model(lm_model) %>% 
-  add_recipe(vl_n4_recipe)
+  add_recipe(all_n4_recipe)
 
-vl_workflow_n3 <- workflow() %>% 
+all_workflow_n3 <- workflow() %>% 
   add_model(lm_model) %>% 
-  add_recipe(vl_n3_recipe)
+  add_recipe(all_n3_recipe)
 
-vl_workflow_n2 <- workflow() %>% 
+all_workflow_n2 <- workflow() %>% 
   add_model(lm_model) %>% 
-  add_recipe(vl_n2_recipe)
+  add_recipe(all_n2_recipe)
 
-vl_workflow_n1 <- workflow() %>% 
+all_workflow_n1 <- workflow() %>% 
   add_model(lm_model) %>% 
-  add_recipe(vl_n1_recipe)
+  add_recipe(all_n1_recipe)
 
 #workflow for null models
-vl_null_workflow_n6 <- workflow() %>% 
+all_null_workflow_n6 <- workflow() %>% 
   add_model(null_model) %>% 
-  add_recipe(vl_n6_recipe)
+  add_recipe(all_n6_recipe)
 
-vl_null_workflow_n1 <- workflow() %>% 
+all_null_workflow_n1 <- workflow() %>% 
   add_model(null_model) %>% 
-  add_recipe(vl_n1_recipe)
+  add_recipe(all_n1_recipe)
 ```
 
 # Model fitting & CV
@@ -159,27 +164,27 @@ vl_null_workflow_n1 <- workflow() %>%
 ```{r}
 #fit model to data
 set.seed(13)
-fit_vl_n6 <- vl_workflow_n6 %>% 
+fit_all_n6 <- all_workflow_n6 %>% 
   fit(data = data_n6_train)
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n6 <- vfold_cv(data_n6_train, 
+folds_all_n6 <- vfold_cv(data_n6_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n6 <- fit_resamples(vl_workflow_n6, resamples = folds_vl_n6)
+cv_all_n6 <- fit_resamples(all_workflow_n6, resamples = folds_all_n6)
 
 #calculate performance metrics
-cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = F)
-vl_n6_metrics_sum <- collect_metrics(cv_vl_n6,summarize = T) %>% 
+cv_all_n6_metrics <- collect_metrics(cv_all_n6,summarize = F)
+all_n6_metrics_sum <- collect_metrics(cv_all_n6,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n6_metrics_sum
+all_n6_metrics_sum
 ```
 
 ### Null model
@@ -187,23 +192,22 @@ vl_n6_metrics_sum
 ```{r}
 #create folds for cross validation
 set.seed(13)
-folds_vl_n6_null <- vfold_cv(data_n6_train, 
+folds_all_n6_null <- vfold_cv(data_n6_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n6_null <- fit_resamples(vl_null_workflow_n6, 
-                                resamples = folds_vl_n6_null)
+cv_all_n6_null <- fit_resamples(all_null_workflow_n6, 
+                                resamples = folds_all_n6_null)
 
 #calculate performance metrics
-cv_vl_n6_metrics_null <- collect_metrics(cv_vl_n6_null,summarize = F)
-vl_n6_metrics_null_sum <- collect_metrics(cv_vl_n6_null,summarize = T) %>% 
-  mutate(lower_ci = mean-1.96*std_err,
+cv_all_n6_metrics_null <- collect_metrics(cv_all_n6_null,summarize = F)
+all_n6_metrics_null_sum <- collect_metrics(cv_all_n6_null,summarize = T) %>%   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n6_metrics_null_sum
+all_n6_metrics_null_sum
 ```
 
 ## n = 5
@@ -211,27 +215,27 @@ vl_n6_metrics_null_sum
 ```{r}
 #fit model to data
 set.seed(13)
-fit_vl_n5 <- vl_workflow_n5 %>% 
+fit_all_n5 <- all_workflow_n5 %>% 
   fit(data = data_n5_train)
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n5 <- vfold_cv(data_n5_train, 
+folds_all_n5 <- vfold_cv(data_n5_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n5 <- fit_resamples(vl_workflow_n5, resamples = folds_vl_n5)
+cv_all_n5 <- fit_resamples(all_workflow_n5, resamples = folds_all_n5)
 
 #calculate performance metrics
-cv_vl_n5_metrics <- collect_metrics(cv_vl_n5,summarize = F)
-vl_n5_metrics_sum <- collect_metrics(cv_vl_n5,summarize = T) %>% 
+cv_all_n5_metrics <- collect_metrics(cv_all_n5,summarize = F)
+all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n5_metrics_sum
+all_n5_metrics_sum
 ```
 
 ## n = 4
@@ -239,27 +243,27 @@ vl_n5_metrics_sum
 ```{r}
 #fit model to data
 set.seed(13)
-fit_vl_n4 <- vl_workflow_n4 %>% 
+fit_all_n4 <- all_workflow_n4 %>% 
   fit(data = data_n4_train)
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n4 <- vfold_cv(data_n4_train, 
+folds_all_n4 <- vfold_cv(data_n4_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n4 <- fit_resamples(vl_workflow_n4, resamples = folds_vl_n4)
+cv_all_n4 <- fit_resamples(all_workflow_n4, resamples = folds_all_n4)
 
 #calculate performance metrics
-cv_vl_n4_metrics <- collect_metrics(cv_vl_n4,summarize = F)
-vl_n4_metrics_sum <- collect_metrics(cv_vl_n4,summarize = T) %>% 
+cv_all_n4_metrics <- collect_metrics(cv_all_n4,summarize = F)
+all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n4_metrics_sum
+all_n4_metrics_sum
 ```
 
 ## n = 3
@@ -267,27 +271,27 @@ vl_n4_metrics_sum
 ```{r}
 #fit model to data
 set.seed(13)
-fit_vl_n3 <- vl_workflow_n3 %>% 
+fit_all_n3 <- all_workflow_n3 %>% 
   fit(data = data_n3_train)
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n3 <- vfold_cv(data_n3_train, 
+folds_all_n3 <- vfold_cv(data_n3_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n3 <- fit_resamples(vl_workflow_n3, resamples = folds_vl_n3)
+cv_all_n3 <- fit_resamples(all_workflow_n3, resamples = folds_all_n3)
 
 #calculate performance metrics
-cv_vl_n3_metrics <- collect_metrics(cv_vl_n3,summarize = F)
-vl_n3_metrics_sum <- collect_metrics(cv_vl_n3,summarize = T) %>% 
+cv_all_n3_metrics <- collect_metrics(cv_all_n3,summarize = F)
+all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n3_metrics_sum
+all_n3_metrics_sum
 ```
 
 ## n = 2
@@ -295,27 +299,27 @@ vl_n3_metrics_sum
 ```{r}
 #fit model to data
 set.seed(13)
-fit_vl_n2 <- vl_workflow_n2 %>% 
+fit_all_n2 <- all_workflow_n2 %>% 
   fit(data = data_n2_train)
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n2 <- vfold_cv(data_n2_train, 
+folds_all_n2 <- vfold_cv(data_n2_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n2 <- fit_resamples(vl_workflow_n2, resamples = folds_vl_n2)
+cv_all_n2 <- fit_resamples(all_workflow_n2, resamples = folds_all_n2)
 
 #calculate performance metrics
-cv_vl_n2_metrics <- collect_metrics(cv_vl_n2,summarize = F)
-vl_n2_metrics_sum <- collect_metrics(cv_vl_n2,summarize = T) %>% 
+cv_all_n2_metrics <- collect_metrics(cv_all_n2,summarize = F)
+all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n2_metrics_sum
+all_n2_metrics_sum
 ```
 
 ## n = 1
@@ -323,27 +327,27 @@ vl_n2_metrics_sum
 ```{r}
 #fit model to data
 set.seed(13)
-fit_vl_n1 <- vl_workflow_n1 %>% 
+fit_all_n1 <- all_workflow_n1 %>% 
   fit(data = data_n1_train)
 
 #create folds for cross validation
 set.seed(13)
-folds_vl_n1 <- vfold_cv(data_n1_train, 
+folds_all_n1 <- vfold_cv(data_n1_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n1 <- fit_resamples(vl_workflow_n1, resamples = folds_vl_n1)
+cv_all_n1 <- fit_resamples(all_workflow_n1, resamples = folds_all_n1)
 
 #calculate performance metrics
-cv_vl_n1_metrics <- collect_metrics(cv_vl_n1,summarize = F)
-vl_n1_metrics_sum <- collect_metrics(cv_vl_n1,summarize = T) %>% 
+cv_all_n1_metrics <- collect_metrics(cv_all_n1,summarize = F)
+all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n1_metrics_sum
+all_n1_metrics_sum
 ```
 
 ### Null model
@@ -351,50 +355,49 @@ vl_n1_metrics_sum
 ```{r}
 #create folds for cross validation
 set.seed(13)
-folds_vl_n1_null <- vfold_cv(data_n1_train, 
+folds_all_n1_null <- vfold_cv(data_n1_train, 
                         v = 10,
                         repeats = 10)
 
 #run cross validation
 set.seed(13)
-cv_vl_n1_null <- fit_resamples(vl_null_workflow_n1, 
-                                resamples = folds_vl_n1_null)
+cv_all_n1_null <- fit_resamples(all_null_workflow_n1, 
+                                resamples = folds_all_n1_null)
 
 #calculate performance metrics
-cv_vl_n1_metrics_null <- collect_metrics(cv_vl_n1_null,summarize = F)
-vl_n1_metrics_null_sum <- collect_metrics(cv_vl_n1_null,summarize = T) %>% 
-  mutate(lower_ci = mean-1.96*std_err,
+cv_all_n1_metrics_null <- collect_metrics(cv_all_n1_null,summarize = F)
+all_n1_metrics_null_sum <- collect_metrics(cv_all_n1_null,summarize = T) %>%   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
 #check cross validation metrics
-vl_n1_metrics_null_sum
+all_n1_metrics_null_sum
 ```
 
 ## Export results
 
 ```{r}
-vl_n6_metrics_sum <- vl_n6_metrics_sum %>% mutate(.config="vl_n6",
-                                                feature="vl")
-vl_n5_metrics_sum <- vl_n5_metrics_sum %>% mutate(.config="vl_n5",
-                                                feature="vl")
-vl_n4_metrics_sum <- vl_n4_metrics_sum %>% mutate(.config="vl_n4",
-                                                feature="vl")
-vl_n3_metrics_sum <- vl_n3_metrics_sum %>% mutate(.config="vl_n3",
-                                                feature="vl")
-vl_n2_metrics_sum <- vl_n2_metrics_sum %>% mutate(.config="vl_n2",
-                                                feature="vl")
-vl_n1_metrics_sum <- vl_n1_metrics_sum %>% mutate(.config="vl_n1",
-                                                feature="vl")
+all_n6_metrics_sum <- all_n6_metrics_sum %>% mutate(.config="all_n6",
+                                                  feature="combined")
+all_n5_metrics_sum <- all_n5_metrics_sum %>% mutate(.config="all_n5",
+                                                  feature="combined")
+all_n4_metrics_sum <- all_n4_metrics_sum %>% mutate(.config="all_n4",
+                                                  feature="combined")
+all_n3_metrics_sum <- all_n3_metrics_sum %>% mutate(.config="all_n3",
+                                                  feature="combined")
+all_n2_metrics_sum <- all_n2_metrics_sum %>% mutate(.config="all_n2",
+                                                  feature="combined")
+all_n1_metrics_sum <- all_n1_metrics_sum %>% mutate(.config="all_n1",
+                                                  feature="combined")
 
-cv_metrics_vl <- rbind(vl_n1_metrics_sum,
-                       vl_n2_metrics_sum,
-                       vl_n3_metrics_sum,
-                       vl_n4_metrics_sum,
-                       vl_n5_metrics_sum,
-                       vl_n6_metrics_sum)
+cv_metrics_all <- rbind(all_n1_metrics_sum,
+                       all_n2_metrics_sum,
+                       all_n3_metrics_sum,
+                       all_n4_metrics_sum,
+                       all_n5_metrics_sum,
+                       all_n6_metrics_sum)
 
-saveRDS(cv_metrics_vl, 
-        here("data/processed_data/linear_reg/cv_metrics_vl.rds"))
+saveRDS(cv_metrics_all, 
+        here("data/processed_data/linear_reg/cv_metrics_all.rds"))
 ```
 
 # Observed vs predicted
@@ -405,7 +408,7 @@ saveRDS(cv_metrics_vl,
 # generate predictions from 2000 bootstrap models
 set.seed(456)
 n6_pred_conf_int_train <- 
-  vl_workflow_n6 %>%
+  all_workflow_n6 %>%
   predict_boots(
     n = 2000,
     training_data = data_n6_train,
@@ -451,16 +454,18 @@ n6_train_compare %>%
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+```
 
+```{r}
 #export files for use in comparison script
 saveRDS(n6_train_compare,here(
-  "data/processed_data/linear_reg/vl_n6_train_predictions.rds"))
+  "data/processed_data/linear_reg/all_n6_train_predictions.rds"))
 
 saveRDS(n6_train_rsq,here(
-  "data/processed_data/linear_reg/vl_n6_train_rsq.rds"))
+  "data/processed_data/linear_reg/all_n6_train_rsq.rds"))
 
 saveRDS(n6_train_rmse,here(
-  "data/processed_data/linear_reg/vl_n6_train_rmse.rds"))
+  "data/processed_data/linear_reg/all_n6_train_rmse.rds"))
 ```
 
 ## Testing data (2022)
@@ -469,7 +474,7 @@ saveRDS(n6_train_rmse,here(
 # generate predictions from 2000 bootstrap models
 set.seed(456)
 n6_pred_conf_int_test <- 
-  vl_workflow_n6 %>%
+  all_workflow_n6 %>%
   predict_boots(
     n = 2000,
     training_data = data_n6_train,
@@ -515,16 +520,18 @@ n6_test_compare %>%
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+```
 
+```{r}
 #export files for use in comparison script
 saveRDS(n6_test_compare,here(
-  "data/processed_data/rand_forest/vl_n6_test_predictions.rds"))
+  "data/processed_data/linear_reg/all_n6_test_predictions.rds"))
 
 saveRDS(n6_test_rsq,here(
-  "data/processed_data/rand_forest/vl_n6_test_rsq.rds"))
+  "data/processed_data/linear_reg/all_n6_test_rsq.rds"))
 
 saveRDS(n6_test_rmse,here(
-  "data/processed_data/rand_forest/vl_n6_test_rmse.rds"))
+  "data/processed_data/linear_reg/all_n6_test_rmse.rds"))
 ```
 
 ## Full timeseries
@@ -533,7 +540,7 @@ saveRDS(n6_test_rmse,here(
 # generate predictions from 2000 bootstrap models
 set.seed(456)
 n6_pred_conf_int_full <- 
-  vl_workflow_n6 %>%
+  all_workflow_n6 %>%
   predict_boots(
     n = 2000,
     training_data = data_n6_train,
@@ -570,5 +577,5 @@ n6_full_compare %>%
 
 #export files for use in comparison script
 saveRDS(n6_full_compare,here(
-  "data/processed_data/linear_reg/vl_n6_full_predictions.rds"))
+  "data/processed_data/linear_reg/all_n6_full_predictions.rds"))
 ```
