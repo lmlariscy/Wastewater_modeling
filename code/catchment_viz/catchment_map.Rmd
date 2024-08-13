@@ -107,4 +107,3 @@ ggsave((here("figures/wrf_plot.tiff")))
 plot(wrf_plot)
 
 ```
-

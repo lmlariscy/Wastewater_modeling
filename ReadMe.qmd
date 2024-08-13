@@ -77,3 +77,7 @@ Analysis scripts (in /analysis_final)
 7.  Run the random forest scripts (8_random_forest_DF.Rmd, 9_random_forest_VL.Rmd, 10_random_forest_ALL.Rmd) (necessary for downstream comparison scripts)
 8.  Run the random forest comparison script to compare performances between random forest models (11_random_forest_compare.Rmd) (necessary for final comparison script)
 9.  Finally, run the linear model/random forest comparison script to make final comparisons between all models (12_RF_LM_compare.Rmd)
+
+Wastewater catchment visualization script (in /catchment_viz)
+
+10. Run catchment_map.Rmd to generate a map of the WWTP catchment zones
