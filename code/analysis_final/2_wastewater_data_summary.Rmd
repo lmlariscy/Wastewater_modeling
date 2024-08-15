@@ -374,6 +374,8 @@ viral_load <- viral_load_sum_weekly %>%
   scale_y_log10() +
   ggthemes::theme_clean()
 
+viral_load
+
 ggsave(here("figures/timeseries/log10_viral_load.png"))
 ```
 
@@ -389,6 +391,8 @@ detection_freq <- detection_freq_sum %>%
   ylab("Mean detection frequency") +
   xlab("") +
   ggthemes::theme_clean()
+
+detection_freq
 
 ggsave(here("figures/timeseries/detection_frequency.png"))
 ```

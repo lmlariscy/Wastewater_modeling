@@ -22,9 +22,29 @@ data <- readRDS(here("data/processed_data/wbe_covid_n6_week.rds"))
 
 # Create matrix
 
+## Full data
+
 ```{r}
 correlations <- data %>%
+  #head(n=75) %>% 
+  drop_na() %>% 
+  select('Plant A N1 VL'=A_N1, 'Plant A N2 VL'=A_N2,
+         'Plant B N1 VL'=B_N1, 'Plant B N2 VL'=B_N2,
+         'Plant C N1 VL'=C_N1, 'Plant C N2 VL'=C_N2,
+         'Plant A N1 DF'=A_N1_POS, 'Plant A N2 DF'=A_N2_POS,
+         'Plant B N1 DF'=B_N1_POS, 'Plant B N2 DF'=B_N2_POS,
+         'Plant C N1 DF'=C_N1_POS, 'Plant C N2 DF'=C_N2_POS,
+         'Cases Reported'=cases.reported) %>% 
+  drop_na() %>% 
+  cor(method = "spearman")
+```
+
+## Training data
+
+```{r}
+correlations_train <- data %>%
   head(n=75) %>% 
+  drop_na() %>% 
   select('Plant A N1 VL'=A_N1, 'Plant A N2 VL'=A_N2,
          'Plant B N1 VL'=B_N1, 'Plant B N2 VL'=B_N2,
          'Plant C N1 VL'=C_N1, 'Plant C N2 VL'=C_N2,
@@ -38,6 +58,8 @@ correlations <- data %>%
 
 # Plot matrix
 
+## Full data
+
 ```{r}
 # Reshape the correlation matrix using melt
 cor_matrix_melted <- melt(correlations)
@@ -46,7 +68,7 @@ cor_matrix_melted <- melt(correlations)
 ggplot(cor_matrix_melted, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                       midpoint = .4, limit = c(0, 1), space = "Lab",
+                       midpoint = .4, limit = c(-.4, 1), space = "Lab",
                        name="Spearman\nCorrelation") +
   geom_text(aes(label = round(value, 2)), color = "black", size = 2.5) +
   ggthemes::theme_clean() + 
@@ -54,6 +76,24 @@ ggplot(cor_matrix_melted, aes(x = Var1, y = Var2, fill = value)) +
                                    hjust = 1),
         axis.title = element_blank()) +
   coord_fixed()
+```
 
-ggsave(here())
+## Training data
+
+```{r}
+# Reshape the correlation matrix using melt
+cor_matrix_melted_train <- melt(correlations_train)
+
+# Create the heatmap with numerical values
+ggplot(cor_matrix_melted_train, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+                       midpoint = .4, limit = c(-.3, 1), space = "Lab",
+                       name="Spearman\nCorrelation") +
+  geom_text(aes(label = round(value, 2)), color = "black", size = 2.5) +
+  ggthemes::theme_clean() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   hjust = 1),
+        axis.title = element_blank()) +
+  coord_fixed()
 ```
