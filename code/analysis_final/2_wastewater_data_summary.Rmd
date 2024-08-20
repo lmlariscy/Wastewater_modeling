@@ -238,8 +238,8 @@ cq_unsum %>%
 cq_unsum %>% 
   group_by(date,facility,target,biological_replicate) %>% 
   summarise(avg_vl = mean(viral_load)) %>% 
-  #arrange(desc(avg_vl))
-  arrange(avg_vl)
+  arrange(desc(avg_vl))
+  #arrange(avg_vl)
 ```
 
 ## Highest detection freq
