@@ -44,9 +44,14 @@ n1_stepone_v2 <- read_csv(
 n1_cfx_v2 <- read_csv(
   here("data/raw_data/updated_data/cfx_n1_FINAL_UPDATE.csv")) 
     #year 2 data
-n1_stepone_std <- read_csv(here("data/raw_data/standard_curves.csv")) %>% 
+n1_stepone_std <- read_csv(
+  here("data/raw_data/standard_curves_stepone.csv")) %>% 
   filter(target == "N1")
     #year 1 N1 standard curve
+n1_cfx_std <- read_csv(
+  here("data/raw_data/standard_curves_CFX.csv")) %>% 
+  filter(target == "N1" & curve == "N1_2")
+    #year 2 N1 standard curve
 
 # Load N2 data
 n2_stepone_v2 <- read_csv(
@@ -55,9 +60,14 @@ n2_stepone_v2 <- read_csv(
 n2_cfx_v2 <- read_csv(
   here("data/raw_data/updated_data/cfx_n2_FINAL_UPDATE.csv")) 
     #year 2 data
-n2_stepone_std <- read_csv(here("data/raw_data/standard_curves.csv")) %>% 
+n2_stepone_std <- read_csv(
+  here("data/raw_data/standard_curves_stepone.csv")) %>% 
   filter(target == "N2")
     #year 1 N2 standard curve
+n2_cfx_std <- read_csv(
+  here("data/raw_data/standard_curves_CFX.csv")) %>% 
+  filter(target == "N2" & curve == "N2_2")
+    #year 2 N1 standard curve
 
 # Load Plant data
 plant_v2 <- read_csv(here("data/raw_data/updated_data/plant_data_UPDATED.csv"))
@@ -203,14 +213,28 @@ n1_stepone_lm <- lm(ct~log10(quantity), data = n1_stepone_std)
 n1_stepone_intercept <- coef(n1_stepone_lm)[1]
 n1_stepone_slope <- coef(n1_stepone_lm)[2]
 
-print(paste("N1 starting quant =", round(n1_stepone_slope,2), "x", "Cq", "+", round(n1_stepone_intercept,2)))
+print(paste("Cq =", round(n1_stepone_slope,2), "x", "log10quant", "+", round(n1_stepone_intercept,2)))
 
 #stepone N2
 n2_stepone_lm <- lm(ct~log10(quantity), data = n2_stepone_std)
 n2_stepone_intercept <- coef(n2_stepone_lm)[1]
 n2_stepone_slope <- coef(n2_stepone_lm)[2]
 
-print(paste("N2 starting quant =", round(n2_stepone_slope,2), "x", "Cq", "+", round(n2_stepone_intercept,2)))
+print(paste("Cq =", round(n2_stepone_slope,2), "x", "log10quant", "+", round(n2_stepone_intercept,2)))
+
+#CFX N1
+n1_cfx_lm <- lm(ct~log10(quantity), data = n1_cfx_std)
+n1_cfx_intercept <- coef(n1_cfx_lm)[1]
+n1_cfx_slope <- coef(n1_cfx_lm)[2]
+
+print(paste("Cq =", round(n1_cfx_slope,2), "x", "log10quant", "+", round(n1_cfx_intercept,2)))
+
+#CFX N2
+n2_cfx_lm <- lm(ct~log10(quantity), data = n2_cfx_std)
+n2_cfx_intercept <- coef(n2_cfx_lm)[1]
+n2_cfx_slope <- coef(n2_cfx_lm)[2]
+
+print(paste("Cq =", round(n2_cfx_slope,2), "x", "log10quant", "+", round(n2_cfx_intercept,2)))
 ```
 
 ### Calculate half of cp/uL LoQ
@@ -225,9 +249,11 @@ n1_stepone_half_loq <- as.numeric(
 n2_stepone_half_loq <- as.numeric(
   10^((n2_stepone_loq-n2_stepone_intercept)/n2_stepone_slope)/2)
 
-n1_cfx_half_loq <- as.numeric(10^((n1_cfx_loq-36.046)/-3.5293)/2)
+n1_cfx_half_loq <- as.numeric(
+  10^((n1_cfx_loq-n1_cfx_intercept)/n1_cfx_slope)/2)
 
-n2_cfx_half_loq <- as.numeric(10^((n2_cfx_loq-37.731)/-3.2505)/2)
+n2_cfx_half_loq <- as.numeric(
+  10^((n2_cfx_loq-n2_cfx_intercept)/n2_cfx_slope)/2)
 ```
 
 ### Calculate half of cp/uL LoD
@@ -239,9 +265,11 @@ n1_stepone_half_lod <- as.numeric(
 n2_stepone_half_lod <- as.numeric(
   10^((n2_stepone_lod-n2_stepone_intercept)/n2_stepone_slope)/2)
 
-n1_cfx_half_lod <- as.numeric(10^((n1_cfx_lod-36.046)/-3.5293)/2)
+n1_cfx_half_lod <- as.numeric(
+  10^((n1_cfx_lod-n1_cfx_intercept)/n1_cfx_slope)/2)
 
-n2_cfx_half_lod <- as.numeric(10^((n2_cfx_lod-37.731)/-3.2505)/2)
+n2_cfx_half_lod <- as.numeric(
+  10^((n2_cfx_lod-n2_cfx_intercept)/n2_cfx_slope)/2)
 ```
 
 ### Calculate LoD and LoQ in copies/L
@@ -258,11 +286,11 @@ n2_stepone_loq_liters <- as.numeric(
 n2_stepone_loq_liters %>% format(scientific = T)
 
 n1_cfx_loq_liters <- as.numeric(
-  10^((n1_cfx_loq-36.046)/-3.5293)*20/5*60/280*1000*1000)
+  10^((n1_cfx_loq-n1_cfx_intercept)/n1_cfx_slope)*20/5*60/280*1000*1000)
 n1_cfx_loq_liters %>% format(scientific = T)
 
 n2_cfx_loq_liters <- as.numeric(
-  10^((n2_cfx_loq-37.731)/-3.2505)*20/5*60/280*1000*1000)
+  10^((n2_cfx_loq-n2_cfx_intercept)/n2_cfx_slope)*20/5*60/280*1000*1000)
 n2_cfx_loq_liters %>% format(scientific = T)
 
 #lod
@@ -275,11 +303,11 @@ n2_stepone_lod_liters <- as.numeric(
 n2_stepone_lod_liters %>% format(scientific = T)
 
 n1_cfx_lod_liters <- as.numeric(
-  10^((n1_cfx_lod-36.046)/-3.5293)*20/5*60/280*1000*1000)
+  10^((n1_cfx_lod-n1_cfx_intercept)/n1_cfx_slope)*20/5*60/280*1000*1000)
 n1_cfx_lod_liters %>% format(scientific = T)
 
 n2_cfx_lod_liters <- as.numeric(
-  10^((n2_cfx_lod-37.731)/-3.2505)*20/5*60/280*1000*1000)
+  10^((n2_cfx_lod-n2_cfx_intercept)/n2_cfx_slope)*20/5*60/280*1000*1000)
 n2_cfx_lod_liters %>% format(scientific = T)
 ```
 
@@ -374,7 +402,7 @@ n1_cfx_nonquant <- n1_cfx_ct %>%
 #transform quantifiable rxns
 n1_cfx_quant <- n1_cfx_ct %>% 
   filter(ct_loq == "quantifiable" & ct_lod == "detectable") %>% 
-  mutate(copy_num_uL_rxn = 10^((ct-36.046)/-3.5293),
+  mutate(copy_num_uL_rxn = 10^((ct-n1_cfx_intercept)/n1_cfx_slope),
          copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000)
 
 #bind rows
@@ -405,7 +433,7 @@ n2_cfx_nonquant <- n2_cfx_ct %>%
 #transform quantifiable rxns
 n2_cfx_quant <- n2_cfx_ct %>% 
   filter(ct_loq == "quantifiable" & ct_lod == "detectable") %>% 
-  mutate(copy_num_uL_rxn = 10^((ct-37.731)/-3.2505),
+  mutate(copy_num_uL_rxn = 10^((ct-n2_cfx_intercept)/n2_cfx_slope),
          copy_num_L = copy_num_uL_rxn*20/5*60/280*1000*1000)
 
 #bind rows
