@@ -68,7 +68,7 @@ cor_matrix_melted <- melt(correlations)
 ggplot(cor_matrix_melted, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                       midpoint = .4, limit = c(-.4, 1), space = "Lab",
+                       midpoint = .4, limit = c(-.5, 1), space = "Lab",
                        name="Spearman\nCorrelation") +
   geom_text(aes(label = round(value, 2)), color = "black", size = 2.5) +
   ggthemes::theme_clean() + 
@@ -88,7 +88,7 @@ cor_matrix_melted_train <- melt(correlations_train)
 ggplot(cor_matrix_melted_train, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                       midpoint = .4, limit = c(-.3, 1), space = "Lab",
+                       midpoint = .4, limit = c(-.5, 1), space = "Lab",
                        name="Spearman\nCorrelation") +
   geom_text(aes(label = round(value, 2)), color = "black", size = 2.5) +
   ggthemes::theme_clean() + 
