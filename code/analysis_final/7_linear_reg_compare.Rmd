@@ -150,8 +150,8 @@ rmse_compare <- metrics_compare %>%
   #xlab("Feature selection configuration") +
   #ylab("RMSE") +
   scale_x_discrete(labels=labels) +
-  geom_hline(yintercept = 0.425, alpha = 0) +
-  geom_hline(yintercept = 0.25, alpha = 0)
+  geom_hline(yintercept = 0.45, alpha = 0) +
+  geom_hline(yintercept = 0.2, alpha = 0)
 
 rmse_compare
 
@@ -199,8 +199,8 @@ rsq_compare <- metrics_compare %>%
   xlab("Feature selection configuration") +
   ylab("R-Squared") +
   scale_x_discrete(labels=labels) +
-  geom_hline(yintercept = 0.73, alpha = 0) +
-  geom_hline(yintercept = 0.28, alpha = 0)
+  geom_hline(yintercept = 0.8, alpha = 0) +
+  geom_hline(yintercept = 0.25, alpha = 0)
 
 rsq_compare
 

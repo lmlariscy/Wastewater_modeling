@@ -40,6 +40,7 @@ library(here)
 library(tsibble)
 library(skimr)
 library(ggpubr)
+library(DescTools)
 ```
 
 ## Load data
@@ -75,7 +76,7 @@ This will be used to subset data by n of biological replicates
 ```{r}
 wbe_vl_avg <- wbe %>% 
   group_by(date,facility,target,biological_replicate) %>% 
-  summarize(avg_viral_load = mean(viral_load)) %>% 
+  summarize(avg_viral_load = exp(mean(log(viral_load)))) %>% 
   ungroup()
 
 saveRDS(wbe_vl_avg, here("data/processed_data/wastewater/viral_load_tech_rep_avg.rds"))
@@ -89,42 +90,42 @@ set.seed(13)
 vl_avg_n6 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=6) %>% 
-  summarize(avg_viral_load = mean(avg_viral_load))
+  summarize(avg_viral_load = exp(mean(log(avg_viral_load))))
 
 #n = 5
 set.seed(13)
 vl_avg_n5 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=5) %>% 
-  summarize(avg_viral_load = mean(avg_viral_load))
+  summarize(avg_viral_load = exp(mean(log(avg_viral_load))))
 
 #n = 4
 set.seed(13)
 vl_avg_n4 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=4) %>% 
-  summarize(avg_viral_load = mean(avg_viral_load))
+  summarize(avg_viral_load = exp(mean(log(avg_viral_load))))
 
 #n = 3
 set.seed(13)
 vl_avg_n3 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=3) %>% 
-  summarize(avg_viral_load = mean(avg_viral_load))
+  summarize(avg_viral_load = exp(mean(log(avg_viral_load))))
 
 #n = 2
 set.seed(13)
 vl_avg_n2 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=2) %>% 
-  summarize(avg_viral_load = mean(avg_viral_load))
+  summarize(avg_viral_load = exp(mean(log(avg_viral_load))))
 
 #n = 1
 set.seed(13)
 vl_avg_n1 <- wbe_vl_avg %>% 
   group_by(date,facility,target) %>% 
   slice_sample(n=1) %>% 
-  summarize(avg_viral_load = mean(avg_viral_load))
+  summarize(avg_viral_load = exp(mean(log(avg_viral_load))))
 
 saveRDS(vl_avg_n6, here("data/processed_data/wastewater/viral_load_daily_avg.rds"))
 ```
@@ -146,7 +147,7 @@ wbe_df_sum <- qpcr_na %>%
         ungroup()
 ```
 
-#### Subset bio reps & summarize
+#### Subset bio reps & summarize by date
 
 ```{r}
 # n = 6
@@ -234,7 +235,7 @@ vl_n6_week <- vl_avg_n6 %>%
   mutate(date = as_date(date), 
          week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
-  summarise_at(vars(2:7), mean, ra.rm = F)
+  summarise(across(c(2,3,4,5,6,7), ~ exp(mean(log(.)))))
 
 # n = 5
 vl_n5_week <- vl_avg_n5 %>% 
@@ -245,7 +246,7 @@ vl_n5_week <- vl_avg_n5 %>%
   mutate(date = as_date(date), 
          week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
-  summarise_at(vars(2:7), mean, ra.rm = F)
+  summarise(across(c(2,3,4,5,6,7), ~ exp(mean(log(.)))))
 
 # n = 4
 vl_n4_week <- vl_avg_n4 %>% 
@@ -256,7 +257,7 @@ vl_n4_week <- vl_avg_n4 %>%
   mutate(date = as_date(date), 
          week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
-  summarise_at(vars(2:7), mean, ra.rm = F)
+  summarise(across(c(2,3,4,5,6,7), ~ exp(mean(log(.)))))
 
 # n = 3
 vl_n3_week <- vl_avg_n3 %>% 
@@ -267,7 +268,7 @@ vl_n3_week <- vl_avg_n3 %>%
   mutate(date = as_date(date), 
          week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
-  summarise_at(vars(2:7), mean, ra.rm = F)
+  summarise(across(c(2,3,4,5,6,7), ~ exp(mean(log(.)))))
 
 # n = 2
 vl_n2_week <- vl_avg_n2 %>% 
@@ -278,7 +279,7 @@ vl_n2_week <- vl_avg_n2 %>%
   mutate(date = as_date(date), 
          week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
-  summarise_at(vars(2:7), mean, ra.rm = F)
+  summarise(across(c(2,3,4,5,6,7), ~ exp(mean(log(.)))))
 
 # n = 1
 vl_n1_week <- vl_avg_n1 %>% 
@@ -289,7 +290,7 @@ vl_n1_week <- vl_avg_n1 %>%
   mutate(date = as_date(date), 
          week = yearweek(date, week_start = 7)) %>% 
   group_by(week) %>% 
-  summarise_at(vars(2:7), mean, ra.rm = F)
+  summarise(across(c(2,3,4,5,6,7), ~ exp(mean(log(.)))))
 
 saveRDS(vl_n6_week, here("data/processed_data/wastewater/viral_load_weekly_avg.rds"))
 ```

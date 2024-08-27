@@ -9,6 +9,8 @@ output: html_document
 ```{r}
 library(tidyverse)
 library(here)
+library(tsibble)
+library(ggpubr)
 ```
 
 # Load data
@@ -236,8 +238,9 @@ cq_unsum %>%
 
 ```{r}
 cq_unsum %>% 
-  group_by(date,facility,target,biological_replicate) %>% 
-  summarise(avg_vl = mean(viral_load)) %>% 
+  group_by(date,facility,target) %>% 
+  summarise(avg_vl = exp(mean(log(viral_load)))) %>% 
+  filter(target == "N2") %>% 
   arrange(desc(avg_vl))
   #arrange(avg_vl)
 ```
@@ -245,7 +248,8 @@ cq_unsum %>%
 ## Highest detection freq
 
 ```{r}
-detection_freq_unsum
+detection_freq_unsum %>% 
+  arrange(desc(pos_rate))
 ```
 
 ## Cq ranges
@@ -365,7 +369,7 @@ viral_load <- viral_load_sum_weekly %>%
   pivot_longer(cols = 2:7) %>% 
   drop_na() %>% 
   group_by(week) %>% 
-  summarise(mean = mean(value)) %>% 
+  summarise(mean = exp(mean(log(value)))) %>% 
   ggplot(aes(week,mean)) +
   geom_line() +
   geom_point() +
