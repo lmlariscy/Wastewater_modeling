@@ -138,18 +138,25 @@ ggplot(cor_matrix_melted_train, aes(x = Var1, y = Var2, fill = value)) +
 # Reshape the correlation matrix using melt
 cor_matrix_melted_y2 <- melt(correlations_y2)
 
+#filter out duplicate correlations
+cor_matrix_melted_y2 <- cor_matrix_melted_y2 %>%
+  filter(as.numeric(Var1) > as.numeric(Var2))
+
 # Create the heatmap with numerical values
 ggplot(cor_matrix_melted_y2, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                       midpoint = .4, limit = c(-.5, 1), space = "Lab",
-                       name="Spearman\nCorrelation") +
+                       midpoint = .2, limit = c(-0.5, 1), space = "Lab",
+                       name="Rho",
+                      ) +
   geom_text(aes(label = round(value, 2)), color = "black", size = 2.5) +
   ggthemes::theme_clean() + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, 
                                    hjust = 1),
         axis.title = element_blank()) +
   coord_fixed()
+
+ggsave(here("figures/corr_matrix/spearman_year2.tiff"))
 ```
 
 ## Year 1
@@ -158,16 +165,22 @@ ggplot(cor_matrix_melted_y2, aes(x = Var1, y = Var2, fill = value)) +
 # Reshape the correlation matrix using melt
 cor_matrix_melted_y1 <- melt(correlations_y1)
 
+#filter out duplicate correlations
+cor_matrix_melted_y1 <- cor_matrix_melted_y1 %>%
+  filter(as.numeric(Var1) > as.numeric(Var2))
+
 # Create the heatmap with numerical values
 ggplot(cor_matrix_melted_y1, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white",
-                       midpoint = .4, limit = c(-.5, 1), space = "Lab",
-                       name="Spearman\nCorrelation") +
+                       midpoint = .2, limit = c(-.5, 1), space = "Lab",
+                       name="Rho") +
   geom_text(aes(label = round(value, 2)), color = "black", size = 2.5) +
   ggthemes::theme_clean() + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, 
                                    hjust = 1),
         axis.title = element_blank()) +
   coord_fixed()
+
+ggsave(here("figures/corr_matrix/spearman_year1.tiff"))
 ```
