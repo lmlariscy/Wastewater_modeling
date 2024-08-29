@@ -1,0 +1,67 @@
+---
+title: "Standard curves"
+author: "Leah Lariscy"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(stats)
+```
+
+# Load data
+
+```{r}
+n1_stepone_std <- read_csv(
+  here("data/raw_data/standard_curves_stepone.csv")) %>% 
+  filter(target == "N1")
+    #year 1 N1 standard curve
+n1_cfx_std <- read_csv(
+  here("data/raw_data/standard_curves_CFX.csv")) %>% 
+  filter(target == "N1" & curve == "N1_2")
+    #year 2 N1 standard curve
+n2_stepone_std <- read_csv(
+  here("data/raw_data/standard_curves_stepone.csv")) %>% 
+  filter(target == "N2")
+    #year 1 N2 standard curve
+n2_cfx_std <- read_csv(
+  here("data/raw_data/standard_curves_CFX.csv")) %>% 
+  filter(target == "N2" & curve == "N2_2")
+    #year 2 N1 standard curve
+```
+
+# Calculate std curves
+
+```{r}
+#this chunk copied from cleaning script
+#stepone N1
+n1_stepone_lm <- lm(ct~log10(quantity), data = n1_stepone_std)
+n1_stepone_intercept <- coef(n1_stepone_lm)[1]
+n1_stepone_slope <- coef(n1_stepone_lm)[2]
+
+print(paste("Cq =", round(n1_stepone_slope,2), "x", "log10quant", "+", round(n1_stepone_intercept,2)))
+
+#stepone N2
+n2_stepone_lm <- lm(ct~log10(quantity), data = n2_stepone_std)
+n2_stepone_intercept <- coef(n2_stepone_lm)[1]
+n2_stepone_slope <- coef(n2_stepone_lm)[2]
+
+print(paste("Cq =", round(n2_stepone_slope,2), "x", "log10quant", "+", round(n2_stepone_intercept,2)))
+
+#CFX N1
+n1_cfx_lm <- lm(ct~log10(quantity), data = n1_cfx_std)
+n1_cfx_intercept <- coef(n1_cfx_lm)[1]
+n1_cfx_slope <- coef(n1_cfx_lm)[2]
+
+print(paste("Cq =", round(n1_cfx_slope,2), "x", "log10quant", "+", round(n1_cfx_intercept,2)))
+
+#CFX N2
+n2_cfx_lm <- lm(ct~log10(quantity), data = n2_cfx_std)
+n2_cfx_intercept <- coef(n2_cfx_lm)[1]
+n2_cfx_slope <- coef(n2_cfx_lm)[2]
+
+print(paste("Cq =", round(n2_cfx_slope,2), "x", "log10quant", "+", round(n2_cfx_intercept,2)))
+```
