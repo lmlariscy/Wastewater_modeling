@@ -398,7 +398,11 @@ covid_weekly <- covid_daily %>%
   group_by(week) %>% 
   summarise_at(vars(1:3),sum,na.rm = F) %>% 
   #sum tests and positives by week
-  ungroup()
+  ungroup() %>% 
+  mutate(cases.reported = 
+           round((cases.reported*100000)/128711, digits = 2))
+  #convert total reported cases to cases per 100,000
+  #ACC population = 128,711
 
 saveRDS(covid_weekly, 
         here("data/processed_data/clinical/covid_cases_weekly.rds"))
