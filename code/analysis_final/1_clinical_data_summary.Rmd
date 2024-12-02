@@ -57,7 +57,7 @@ weekly %>% arrange(pcr_tests)
 cases_reported_fig <- weekly %>% ggplot(aes(week,cases.reported)) +
   geom_point() +
   geom_line() +
-  ylab("Cases Reported") +
+  ylab("Cases reported (per 100,000)") +
   xlab("") +
   ggthemes::theme_clean()
 
@@ -69,6 +69,8 @@ saveRDS(cases_reported_fig, here("figures/timeseries/cases_reported.rds"))
 weekly %>% ggplot(aes(week,pcr_tests)) +
   geom_point() +
   geom_line() +
+  ylab("Tests administered") +
+  xlab("") +
   ggthemes::theme_clean()
 
 ggsave(here("figures/timeseries/test_admin.png"))
