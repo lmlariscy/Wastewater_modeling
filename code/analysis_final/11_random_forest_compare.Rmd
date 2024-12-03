@@ -260,9 +260,9 @@ all_n6_train_fig <- all_n6_train_predictions %>%
   annotate("text", label=all_n6_train_rsq_round, x=18950, y=3250, size=4) +
   annotate("text", label="Predicted", x=18500, y=3050, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=18500, y=3250, color="#003e99", size=4) +
-  ylab("Weekly reported cases") +
+  ylab("Weekly cases per 100,000") +
   #xlab("Week") +
-  geom_hline(yintercept = 3750, alpha = 0) +
+  geom_hline(yintercept = 4000, alpha = 0) +
   ggthemes::theme_clean() +
   theme(axis.title = element_text(face = "bold",size = 12),
         axis.title.x = element_blank()) 
@@ -294,7 +294,7 @@ all_n6_test_fig <- all_n6_test_predictions %>%
   annotate("text", label=all_n6_test2_rsq_round, x=19330, y=6000, size=4) +
   annotate("text", label="Predicted", x=19045, y=5650, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=19045, y=6000, color="#003e99", size=4) +
-  ylab("Weekly reported cases") +
+  ylab("Weekly cases per 100,000") +
   #xlab("Week") +
   geom_vline(xintercept = 19115, linetype = 2) +
   geom_hline(yintercept = 6800, alpha = 0) +
@@ -329,7 +329,7 @@ df_n3_train_fig <- df_n3_train_predictions %>%
   annotate("text", label="Observed", x=18500, y=3250, color="#003e99", size=4) +
   #ylab("Weekly reported cases") +
   #xlab("Week") +
-  geom_hline(yintercept = 3750, alpha = 0) +
+  geom_hline(yintercept = 4000, alpha = 0) +
   ggthemes::theme_clean() +
   theme(axis.title.x = element_blank(),
         axis.title.y = element_blank()) 
