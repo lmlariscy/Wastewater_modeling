@@ -454,6 +454,14 @@ n6_train_compare %>%
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+
+#visualize relationship of actual vs predicted data
+n6_train_compare %>% 
+  ggplot(aes(actual,prediction)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+ggsave(here("figures/random_forest/model_performance/LM_ALL_n6_predict_actual.png"))
 ```
 
 ```{r}

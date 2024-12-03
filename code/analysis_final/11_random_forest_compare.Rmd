@@ -70,7 +70,11 @@ all_n6_full_predictions <- readRDS(here("data/processed_data/rand_forest/all_n6_
 
 #all predictors n=6 fit (for variable importance viz)
 all_n6_train_fit <- readRDS(
+  here("data/processed_data/rand_forest/ALL_n6_fit_train.rds"))
+df_n6_train_fit <- readRDS(
   here("data/processed_data/rand_forest/DF_n6_fit_train.rds"))
+vl_n6_train_fit <- readRDS(
+  here("data/processed_data/rand_forest/VL_n6_fit_train.rds"))
 ```
 
 # Calculate RMSE/RSQ
@@ -387,17 +391,58 @@ all_variables <- c("Plant A N1 VL","Plant A N1 DF","Plant A N2 VL",
 
 redon_pal <- c("#5B859EFF", "#1E395FFF", "#75884BFF", "#1E5A46FF", "#DF8D71FF", "#AF4F2FFF", "#D48F90FF", "#732F30FF", "#AB84A5FF", "#59385CFF", "#D8B847FF", "#B38711FF")
 
+# Extract the last 6 colors from the "Reds", "Greens", and "Blues" palettes
+reds <- brewer.pal(9, "Reds")[6:9]
+greens <- brewer.pal(9, "Greens")[6:9]
+blues <- brewer.pal(9, "Blues")[6:9]
+
+# Combine the colors into a single list
+color_palette <- c(reds, greens, blues)
+
 vip::vip(all_n6_train_fit, 
          mapping = aes(fill = .data[["Variable"]]),
          num_features = 12) +
   ggthemes::theme_clean() +
-  scale_fill_manual(values = redon_pal, labels = all_variables) +
+  scale_fill_manual(values = color_palette, labels = all_variables) +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         #legend.position = "none",
         axis.title.x = element_text(size = 12))
 
 ggsave(here("figures/random_forest/variable_importance/vip_all_predictors.png"),
+       width = 6, height = 6.5)
+```
+
+```{r}
+# Combine the colors into a single list
+color_palette2 <- c("#EF3B2C", "#A50F15", "#41AB5D", "#006D2C","#4292C6", "#08519C")
+
+vip::vip(df_n6_train_fit, 
+         mapping = aes(fill = .data[["Variable"]]),
+         num_features = 6) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = color_palette2) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        #legend.position = "none",
+        axis.title.x = element_text(size = 12))
+
+ggsave(here("figures/random_forest/variable_importance/vip_df_predictors.png"),
+       width = 6, height = 6.5)
+```
+
+```{r}
+vip::vip(vl_n6_train_fit, 
+         mapping = aes(fill = .data[["Variable"]]),
+         num_features = 6) +
+  ggthemes::theme_clean() +
+  scale_fill_manual(values = color_palette2) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        #legend.position = "none",
+        axis.title.x = element_text(size = 12))
+
+ggsave(here("figures/random_forest/variable_importance/vip_vl_predictors.png"),
        width = 6, height = 6.5)
 ```
 
@@ -419,43 +464,69 @@ importance_clean
 ```
 
 ```{r}
-#sum importance by plant
-importance_clean %>% 
+#average importance by plant
+plant_vip <- importance_clean %>% 
   group_by(plant) %>% 
-  summarise(sum = sum(Importance)) %>% 
-  arrange(desc(sum))
+  summarise(avg = mean(Importance)) %>% 
+  arrange(desc(avg))
+
+plant_vip
+
+A <- plant_vip$avg[1]
+B <- plant_vip$avg[2]
+C <- plant_vip$avg[3]
+
+A/B
+A/C
+B/C
 ```
 
 ```{r}
-#sum importance by plant and gene
-importance_clean %>% 
+#average importance by plant and gene
+plant_gene_vip <- importance_clean %>% 
   group_by(plant,target) %>% 
-  summarise(sum = sum(Importance)) %>% 
-  arrange(desc(sum))
+  summarise(avg = mean(Importance)) %>% 
+  arrange(desc(avg))
+
+plant_gene_vip
 ```
 
 ```{r}
-#sum by plant and data type
+#average by plant and data type
 importance_clean %>% 
   group_by(plant,data_type) %>% 
-  summarise(sum = sum(Importance)) %>% 
-  arrange(desc(sum))
+  summarise(avg = mean(Importance)) %>% 
+  arrange(desc(avg))
 ```
 
 ```{r}
-#sum by target
-importance_clean %>% 
+#average by target
+gene_vip <- importance_clean %>% 
   group_by(target) %>% 
-  summarise(sum = sum(Importance)) %>% 
-  arrange(desc(sum))
+  summarise(avg = mean(Importance)) %>% 
+  arrange(desc(avg))
+
+gene_vip
+
+N1 <- gene_vip$avg[1]
+N2 <- gene_vip$avg[2]
+
+N1/N2
 ```
 
 ```{r}
-#sum by data type
-importance_clean %>% 
+#average by data type
+data_vip <- importance_clean %>% 
   group_by(data_type) %>% 
-  summarise(sum = sum(Importance)) %>% 
-  arrange(desc(sum))
+  summarise(avg = mean(Importance)) %>% 
+  arrange(desc(avg))
+
+data_vip
+
+DF <- data_vip$avg[1]
+VL <- data_vip$avg[2]
+
+DF/VL
 ```
 
 ```{r}

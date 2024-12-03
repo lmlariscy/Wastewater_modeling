@@ -238,6 +238,9 @@ set.seed(13)
 fit_df_n6 <- df_n6_final_wf %>% 
   fit(data_n6_train)
 
+saveRDS(fit_df_n6, 
+        here("data/processed_data/rand_forest/DF_n6_fit_train.rds"))
+
 #create folds for cross validation
 set.seed(13)
 folds_df_n6 <- vfold_cv(data_n6_train, 

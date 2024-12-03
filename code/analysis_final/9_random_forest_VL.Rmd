@@ -237,6 +237,9 @@ set.seed(13)
 fit_vl_n6 <- vl_n6_final_wf %>% 
   fit(data = data_n6_train)
 
+saveRDS(fit_vl_n6, 
+        here("data/processed_data/rand_forest/VL_n6_fit_train.rds"))
+
 #create folds for cross validation
 set.seed(13)
 folds_vl_n6 <- vfold_cv(data_n6_train, 
@@ -531,6 +534,12 @@ n6_train_compare %>%
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
+
+#visualize relationship of actual vs predicted data
+n6_train_compare %>% 
+  ggplot(aes(actual,prediction)) +
+  geom_point() +
+  geom_smooth(method = "lm")
 
 #export files for use in comparison script
 saveRDS(n6_train_compare,here(

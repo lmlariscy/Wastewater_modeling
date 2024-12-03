@@ -269,7 +269,7 @@ fit_all_n6 <- all_n6_final_wf %>%
   fit(data = data_n6_train)
 
 saveRDS(fit_all_n6, 
-        here("data/processed_data/rand_forest/DF_n6_fit_train.rds"))
+        here("data/processed_data/rand_forest/ALL_n6_fit_train.rds"))
 
 #create folds for cross validation
 set.seed(13)
@@ -661,6 +661,16 @@ n6_train_compare %>%
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
 
+ggsave(here("figures/random_forest/time_series/n6_train.png"))
+
+#visualize relationship of actual vs predicted data
+n6_train_compare %>% 
+  ggplot(aes(actual,prediction)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+ggsave(here("figures/random_forest/model_performance/RF_ALL_n6_predict_actual.png.png"))
+
 #export files for use in comparison script
 saveRDS(n6_train_compare,here(
   "data/processed_data/rand_forest/all_n6_train_predictions.rds"))
@@ -670,8 +680,6 @@ saveRDS(n6_train_rsq,here(
 
 saveRDS(n6_train_rmse,here(
   "data/processed_data/rand_forest/all_n6_train_rmse.rds"))
-
-ggsave(here("figures/random_forest/time_series/n6_train.png"))
 ```
 
 ## Testing data (2022)
