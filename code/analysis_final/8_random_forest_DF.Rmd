@@ -449,17 +449,17 @@ df_n1_metrics_null_sum
 ## Export results
 
 ```{r}
-cv_df_n6_metrics <- cv_df_n6_metrics %>% mutate(.config="df_n6",
+cv_df_n6_metrics <- cv_df_n6_metrics %>% mutate(.config="n6",
                                                 feature="df")
-cv_df_n5_metrics <- cv_df_n5_metrics %>% mutate(.config="df_n5",
+cv_df_n5_metrics <- cv_df_n5_metrics %>% mutate(.config="n5",
                                                 feature="df")
-cv_df_n4_metrics <- cv_df_n4_metrics %>% mutate(.config="df_n4",
+cv_df_n4_metrics <- cv_df_n4_metrics %>% mutate(.config="n4",
                                                 feature="df")
-cv_df_n3_metrics <- cv_df_n3_metrics %>% mutate(.config="df_n3",
+cv_df_n3_metrics <- cv_df_n3_metrics %>% mutate(.config="n3",
                                                 feature="df")
-cv_df_n2_metrics <- cv_df_n2_metrics %>% mutate(.config="df_n2",
+cv_df_n2_metrics <- cv_df_n2_metrics %>% mutate(.config="n2",
                                                 feature="df")
-cv_df_n1_metrics <- cv_df_n1_metrics %>% mutate(.config="df_n1",
+cv_df_n1_metrics <- cv_df_n1_metrics %>% mutate(.config="n1",
                                                 feature="df")
 
 cv_metrics_df <- rbind(cv_df_n1_metrics,

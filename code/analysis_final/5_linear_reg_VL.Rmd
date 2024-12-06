@@ -394,6 +394,30 @@ cv_metrics_vl <- rbind(vl_n1_metrics_sum,
 
 saveRDS(cv_metrics_vl, 
         here("data/processed_data/linear_reg/cv_metrics_vl.rds"))
+
+#export unsummarized metrics
+cv_vl_n6_metrics <- cv_vl_n6_metrics %>% mutate(.config="n6",
+                                                feature="vl")
+cv_vl_n5_metrics <- cv_vl_n5_metrics %>% mutate(.config="n5",
+                                                feature="vl")
+cv_vl_n4_metrics <- cv_vl_n4_metrics %>% mutate(.config="n4",
+                                                feature="vl")
+cv_vl_n3_metrics <- cv_vl_n3_metrics %>% mutate(.config="n3",
+                                                feature="vl")
+cv_vl_n2_metrics <- cv_vl_n2_metrics %>% mutate(.config="n2",
+                                                feature="vl")
+cv_vl_n1_metrics <- cv_vl_n1_metrics %>% mutate(.config="n1",
+                                                feature="vl")
+
+cv_metrics_vl_raw <- rbind(cv_vl_n6_metrics,
+                       cv_vl_n5_metrics,
+                       cv_vl_n4_metrics,
+                       cv_vl_n3_metrics,
+                       cv_vl_n2_metrics,
+                       cv_vl_n1_metrics)
+
+saveRDS(cv_metrics_vl_raw, 
+        here("data/processed_data/linear_reg/cv_metrics_vl_raw.rds"))
 ```
 
 # Observed vs predicted

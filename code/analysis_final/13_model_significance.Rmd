@@ -1,0 +1,52 @@
+---
+title: "Significance testing"
+author: "Leah Lariscy"
+date: "2024-12-06"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(RColorBrewer)
+library(ggpubr)
+library(tsibble)
+```
+
+# Load data
+
+```{r}
+#load linear model metrics
+lm_df <- readRDS(here("data/processed_data/linear_reg/cv_metrics_df_raw.rds")) 
+lm_vl <- readRDS(here("data/processed_data/linear_reg/cv_metrics_vl_raw.rds"))
+lm_all <- readRDS(here("data/processed_data/linear_reg/cv_metrics_all_raw.rds"))
+
+lm_metrics <- rbind(lm_df, lm_vl, lm_all) %>% mutate(model = "lm")
+
+#load random forest metrics
+rf_df <- readRDS(here("data/processed_data/rand_forest/cv_metrics_df.rds"))
+rf_vl <- readRDS(here("data/processed_data/rand_forest/cv_metrics_vl.rds"))
+rf_all <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all.rds"))
+
+rf_metrics <- rbind(rf_df, rf_vl, rf_all) %>% mutate(model = "rf")
+
+#combine linear and random forest model metrics
+total_metrics <- rbind(lm_metrics, rf_metrics) 
+```
+
+# Visualize
+
+```{r}
+total_rsq <- total_metrics %>% filter(.metric == "rsq")
+
+total_anova_feature <- aov(.estimate ~ feature, data = total_rsq)
+summary(total_anova_feature)
+
+total_anova_biorep <- aov(.estimate ~ .config, data = total_rsq)
+summary(total_anova_biorep)
+
+total_anova_model <- aov(.estimate ~ model, data = total_rsq)
+summary(total_anova_model)
+```

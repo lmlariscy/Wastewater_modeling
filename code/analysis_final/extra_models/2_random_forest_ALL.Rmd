@@ -557,17 +557,17 @@ all_n1_metrics_null_sum
 ## Export results
 
 ```{r}
-cv_all_n6_metrics <- cv_all_n6_metrics %>% mutate(.config="n6",
+cv_all_n6_metrics <- cv_all_n6_metrics %>% mutate(.config="all_n6",
                                                   feature="combined")
-cv_all_n5_metrics <- cv_all_n5_metrics %>% mutate(.config="n5",
+cv_all_n5_metrics <- cv_all_n5_metrics %>% mutate(.config="all_n5",
                                                   feature="combined")
-cv_all_n4_metrics <- cv_all_n4_metrics %>% mutate(.config="n4",
+cv_all_n4_metrics <- cv_all_n4_metrics %>% mutate(.config="all_n4",
                                                   feature="combined")
-cv_all_n3_metrics <- cv_all_n3_metrics %>% mutate(.config="n3",
+cv_all_n3_metrics <- cv_all_n3_metrics %>% mutate(.config="all_n3",
                                                   feature="combined")
-cv_all_n2_metrics <- cv_all_n2_metrics %>% mutate(.config="n2",
+cv_all_n2_metrics <- cv_all_n2_metrics %>% mutate(.config="all_n2",
                                                   feature="combined")
-cv_all_n1_metrics <- cv_all_n1_metrics %>% mutate(.config="n1",
+cv_all_n1_metrics <- cv_all_n1_metrics %>% mutate(.config="all_n1",
                                                   feature="combined")
 
 cv_metrics_all <- rbind(cv_all_n1_metrics,

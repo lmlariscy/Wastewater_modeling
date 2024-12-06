@@ -435,17 +435,17 @@ vl_n1_metrics_null_sum
 ## Export results
 
 ```{r}
-cv_vl_n6_metrics <- cv_vl_n6_metrics %>% mutate(.config="vl_n6",
+cv_vl_n6_metrics <- cv_vl_n6_metrics %>% mutate(.config="n6",
                                                 feature="vl")
-cv_vl_n5_metrics <- cv_vl_n5_metrics %>% mutate(.config="vl_n5",
+cv_vl_n5_metrics <- cv_vl_n5_metrics %>% mutate(.config="n5",
                                                 feature="vl")
-cv_vl_n4_metrics <- cv_vl_n4_metrics %>% mutate(.config="vl_n4",
+cv_vl_n4_metrics <- cv_vl_n4_metrics %>% mutate(.config="n4",
                                                 feature="vl")
-cv_vl_n3_metrics <- cv_vl_n3_metrics %>% mutate(.config="vl_n3",
+cv_vl_n3_metrics <- cv_vl_n3_metrics %>% mutate(.config="n3",
                                                 feature="vl")
-cv_vl_n2_metrics <- cv_vl_n2_metrics %>% mutate(.config="vl_n2",
+cv_vl_n2_metrics <- cv_vl_n2_metrics %>% mutate(.config="n2",
                                                 feature="vl")
-cv_vl_n1_metrics <- cv_vl_n1_metrics %>% mutate(.config="vl_n1",
+cv_vl_n1_metrics <- cv_vl_n1_metrics %>% mutate(.config="n1",
                                                 feature="vl")
 
 cv_metrics_vl <- rbind(cv_vl_n1_metrics,
