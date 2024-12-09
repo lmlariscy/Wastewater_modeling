@@ -249,8 +249,10 @@ folds_df_n6 <- vfold_cv(data_n6_train,
 
 #run cross validation
 set.seed(13)
+control <- control_resamples(save_pred = T)
 cv_df_n6 <- fit_resamples(df_n6_final_wf, 
-                           resamples = folds_df_n6)
+                          resamples = folds_df_n6,
+                          control = control)
   
 #calculate performance metrics
 cv_df_n6_metrics <- collect_metrics(cv_df_n6, summarize = F)
@@ -260,6 +262,29 @@ df_n6_metrics_sum <- collect_metrics(cv_df_n6, summarize = T) %>%
 
 #quick check of performance
 df_n6_metrics_sum
+```
+
+```{r}
+#collect predictions and visualize
+
+#predicted vs observed
+collect_predictions(cv_df_n6) %>% 
+  ggplot(aes(log10_cases, .pred)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/pred_v_obs/RF_DF.png"))
+
+#residuals
+collect_predictions(cv_df_n6) %>% 
+  mutate(residual = .pred-log10_cases) %>% 
+  ggplot(aes(log10_cases, residual)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/residuals/RF_DF.png"))
 ```
 
 ### Null model

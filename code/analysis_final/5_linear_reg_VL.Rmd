@@ -17,6 +17,7 @@ library(tidymodels)
 library(tsibble)
 library(ingredients)
 library(workboots)
+library(ggpmisc)
 ```
 
 # Load Data
@@ -169,7 +170,9 @@ folds_vl_n6 <- vfold_cv(data_n6_train,
 
 #run cross validation
 set.seed(13)
-cv_vl_n6 <- fit_resamples(vl_workflow_n6, resamples = folds_vl_n6)
+control <- control_resamples(save_pred = T)
+cv_vl_n6 <- fit_resamples(vl_workflow_n6, resamples = folds_vl_n6,
+                          control = control)
 
 #calculate performance metrics
 cv_vl_n6_metrics <- collect_metrics(cv_vl_n6,summarize = F)
@@ -179,6 +182,29 @@ vl_n6_metrics_sum <- collect_metrics(cv_vl_n6,summarize = T) %>%
 
 #check cross validation metrics
 vl_n6_metrics_sum
+```
+
+```{r}
+#collect predictions and visualize
+
+#predicted vs observed
+collect_predictions(cv_vl_n6) %>% 
+  ggplot(aes(log10_cases, .pred)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/pred_v_obs/LM_VL.png"))
+
+#residuals
+collect_predictions(cv_vl_n6) %>% 
+  mutate(residual = .pred-log10_cases) %>% 
+  ggplot(aes(log10_cases, residual)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/residuals/LM_VL.png"))
 ```
 
 ### Null model

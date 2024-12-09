@@ -279,8 +279,10 @@ folds_all_n6 <- vfold_cv(data_n6_train,
 
 #run cross validation
 set.seed(13)
+control <- control_resamples(save_pred = T)
 cv_all_n6 <- fit_resamples(all_n6_final_wf, 
-                           resamples = folds_all_n6)
+                           resamples = folds_all_n6,
+                           control = control)
   
 #calculate performance metrics
 cv_all_n6_metrics <- collect_metrics(cv_all_n6, summarize = F)
@@ -290,6 +292,29 @@ cv_all_n6_metrics_sum <- collect_metrics(cv_all_n6, summarize = T) %>%
 
 #quick check of performance
 cv_all_n6_metrics_sum
+```
+
+```{r}
+#collect predictions and visualize
+
+#predicted vs observed
+collect_predictions(cv_all_n6) %>% 
+  ggplot(aes(log10_cases, .pred)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/pred_v_obs/RF_ALL.png"))
+
+#residuals
+collect_predictions(cv_all_n6) %>% 
+  mutate(residual = .pred-log10_cases) %>% 
+  ggplot(aes(log10_cases, residual)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/residuals/RF_ALL.png"))
 ```
 
 ### Null model
@@ -748,50 +773,4 @@ saveRDS(n6_test_rmse,here(
 ggsave(here("figures/random_forest/time_series/n6_test.png"))
 ```
 
-## Full timeseries
-
-```{r}
-# generate predictions from 2000 bootstrap models
-set.seed(456)
-n6_pred_conf_int_full <- 
-  all_n6_final_wf %>%
-  predict_boots(
-    n = 2000,
-    training_data = data_n6_train,
-    new_data = data_n6,
-    interval = "confidence"
-  )
-
-# summarise with a 95% confidence interval
-n6_pred_conf_int_full_sum <- n6_pred_conf_int_full %>%
-  summarise_predictions()
-
-#select important variables from original data
-n6_actual_full <- data_n6 %>% select(week,log10_cases)
-
-#select important variables from predicted data
-n6_pred_full <- n6_pred_conf_int_full_sum %>% select(.pred,.pred_lower,.pred_upper)
-
-#bind original and predicted data and undo log transformation
-n6_full_compare <- bind_cols(n6_actual_full, n6_pred_full) %>% 
-  mutate(prediction = 10^.pred,
-       actual = 10^log10_cases,
-       pred_lower = 10^.pred_lower,
-       pred_upper = 10^.pred_upper) %>% 
-  select(week,actual,prediction,pred_lower,pred_upper)
-
-n6_full_compare %>% 
-  ggplot(aes(x=week)) +
-  geom_line(aes(y=prediction), color = "blue") +
-  geom_point(aes(y=prediction), color = "blue") +
-  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
-  geom_line(aes(y=actual), color = "red") +
-  geom_point(aes(y=actual), color = "red") +
-  ggthemes::theme_clean()
-
-#export files for use in comparison script
-saveRDS(n6_full_compare,here(
-  "data/processed_data/rand_forest/all_n6_full_predictions.rds"))
-
-ggsave(here("figures/random_forest/time_series/n6_full.png"))
-```
+## 

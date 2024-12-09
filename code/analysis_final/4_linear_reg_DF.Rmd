@@ -44,8 +44,8 @@ data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>% drop_n
 # Split data
 
 ```{r}
-data_n6_train <- data_n6 %>% head(n = 75)
-data_n6_test <- data_n6 %>% tail(n = 50)
+data_n6_train <- data_n6 %>% head(n = 75) #training data
+data_n6_test <- data_n6 %>% tail(n = 50) #non-training data
 
 data_n5_train <- data_n5 %>% head(n = 75)
 data_n5_test <- data_n5 %>% tail(n = 50)
@@ -156,29 +156,55 @@ df_null_workflow_n1 <- workflow() %>%
 ## n = 6
 
 ```{r}
-#fit model to data
+#Training data
+#fit model
 set.seed(13)
 fit_df_n6 <- df_workflow_n6 %>% 
   fit(data_n6_train)
 
-#create folds for cross validation
+#create folds for cross validation 
 set.seed(13)
 folds_df_n6 <- vfold_cv(data_n6_train, 
                         v = 10,
                         repeats = 10)
 
-#run cross validation
+#run cross validation 
 set.seed(13)
-cv_df_n6 <- fit_resamples(df_workflow_n6, resamples = folds_df_n6)
+control <- control_resamples(save_pred = T)
+cv_df_n6 <- fit_resamples(df_workflow_n6, resamples = folds_df_n6,
+                          control = control)
 
-#calculate performance metrics
+#calculate performance metrics 
 cv_df_n6_metrics <- collect_metrics(cv_df_n6,summarize = F)
 df_n6_metrics_sum <- collect_metrics(cv_df_n6,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
          upper_ci = mean+1.96*std_err)
 
-#check cross validation metrics
+#check cross validation metrics 
 df_n6_metrics_sum 
+```
+
+```{r}
+#collect predictions and visualize
+
+#predicted vs observed
+collect_predictions(cv_df_n6) %>% 
+  ggplot(aes(log10_cases, .pred)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/pred_v_obs/LM_DF.png"))
+
+#residuals
+collect_predictions(cv_df_n6) %>% 
+  mutate(residual = .pred-log10_cases) %>% 
+  ggplot(aes(log10_cases, residual)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/residuals/LM_DF.png"))
 ```
 
 ### Null model
