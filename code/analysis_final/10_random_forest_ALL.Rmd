@@ -263,7 +263,7 @@ all_n1_final_wf <- workflow() %>%
 ## n = 6
 
 ```{r}
-#fit model to data
+#fit the final model
 set.seed(13)
 fit_all_n6 <- all_n6_final_wf %>% 
   fit(data = data_n6_train)
@@ -292,40 +292,122 @@ cv_all_n6_metrics_sum <- collect_metrics(cv_all_n6, summarize = T) %>%
 
 #quick check of performance
 cv_all_n6_metrics_sum
+
+saveRDS(cv_all_n6_metrics_sum, here("data/processed_data/model_compare/RF_ALL_n6_metrics.rds"))
+```
+
+### Predictions
+
+```{r}
+#return data to original unit
+n6_preds_clean <- collect_predictions(cv_all_n6) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
 ```
 
 ```{r}
-#collect predictions and visualize
+#collect metrics on cleaned data
+n6_rmse <- n6_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
 
-#predicted vs observed
-collect_predictions(cv_all_n6) %>% 
-  ggplot(aes(log10_cases, .pred)) +
+n6_rsq <- n6_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n6_metrics_sum <- bind_cols(n6_rmse, n6_rsq) %>% 
+  mutate(model = "rf",
+         feature = "combined",
+         n = 6)
+
+saveRDS(n6_metrics_sum, here("data/processed_data/model_compare/correct_metrics/RF_ALL_n6.rds"))
+```
+
+```{r}
+#predicted vs observed lm
+n6_preds_clean %>% 
+  ggplot(aes(cases_observed, cases_predicted)) +
   geom_point() +
-  stat_poly_line() +
+  ggpmisc::stat_poly_line() +
   stat_poly_eq(use_label("eq"))
 
 ggsave(here("figures/model_eval/pred_v_obs/RF_ALL.png"))
 
-#residuals
-collect_predictions(cv_all_n6) %>% 
-  mutate(residual = .pred-log10_cases) %>% 
-  ggplot(aes(log10_cases, residual)) +
+#residuals lm
+n6_preds_clean %>% 
+  mutate(residual = cases_predicted-cases_observed) %>% 
+  ggplot(aes(cases_observed, residual)) +
   geom_point() +
   stat_poly_line() +
   stat_poly_eq(use_label("eq"))
 
 ggsave(here("figures/model_eval/residuals/RF_ALL.png"))
+```
 
-collect_predictions(cv_all_n6) %>%
-  ggplot(aes(x=.row)) +
-  #geom_line(aes(y=.pred), color = "#FB6A4A") +
-  geom_jitter(aes(y=.pred), color = "#FB6A4A", 
-              shape = 16, ) +
-  geom_line(aes(y=log10_cases), color = "#003e99") +
-  geom_point(aes(y=log10_cases), color = "#003e99", shape = 16) +
+```{r}
+#collect predictions
+n6_pred_sum <- n6_preds_clean %>% 
+  group_by(row) %>% 
+  #summarize data
+  summarize(cases_observed = mean(cases_observed),
+            avg_pred = mean(cases_predicted),
+            se_pred = sd(cases_predicted)/n(),
+            pred_lower_ci = avg_pred-1.96*se_pred,
+            pred_upper_ci = avg_pred+1.96*se_pred)
+
+#plot summarized data
+  n6_pred_fig <- n6_pred_sum %>% ggplot(aes(x=row)) +
+  geom_line(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_point(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  #geom_errorbar(aes(ymin = pred_lower_ci,
+                    #ymax = pred_upper_ci)) +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
   ggthemes::theme_clean()
 
 ggsave(here("figures/timeseries/cross_validation/RF_ALL_n6.tiff"))
+saveRDS(n6_pred_fig, here("figures/timeseries/cross_validation/RF_ALL_n6.rds"))
+```
+
+### New data
+
+```{r}
+n6_new_preds <- predict(fit_all_n6, data_n6_test) %>% 
+  bind_cols(data_n6_test)
+```
+
+```{r}
+#collect predictions
+all_n6_pred_sum_test <- n6_new_preds %>%
+  #undo log10 normalization
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+  select(week, cases_observed, cases_predicted)
+ 
+
+ n6_pred_test_fig <- all_n6_pred_sum_test %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=cases_predicted), color = "#FB6A4A") +
+  geom_point(aes(y=cases_predicted), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
+  ggthemes::theme_clean()
+ 
+n6_pred_test_fig
+
+ggsave(here("figures/timeseries/cross_validation/RF_ALL_n6_test.tiff"))
+saveRDS(n6_pred_test_fig, 
+        here("figures/timeseries/cross_validation/RF_ALL_n6_test.rds"))
 ```
 
 ### Null model
@@ -462,7 +544,9 @@ folds_all_n3 <- vfold_cv(data_n3_train,
 
 #run cross validation
 set.seed(13)
-cv_all_n3 <- fit_resamples(all_n3_final_wf, resamples = folds_all_n3)
+cv_all_n3 <- fit_resamples(all_n3_final_wf, 
+                           resamples = folds_all_n3,
+                           control = control)
 cv_all_n3_metrics <- collect_metrics(cv_all_n3,summarize = F)
 cv_all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T) %>% 
   mutate(lower_ci = mean-1.96*std_err,
@@ -470,6 +554,127 @@ cv_all_n3_metrics_sum <- collect_metrics(cv_all_n3,summarize = T) %>%
 
 #check cross validation metrics
 cv_all_n3_metrics_sum
+```
+
+### Predictions
+
+```{r}
+#return data to original unit
+n3_preds_clean <- collect_predictions(cv_all_n3) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+```
+
+```{r}
+#collect metrics on cleaned data
+n3_rmse <- n3_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n3_rsq <- n3_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n3_metrics_sum <- bind_cols(n3_rmse, n3_rsq) %>% 
+  mutate(model = "rf",
+         feature = "combined",
+         n = 3)
+
+n3_metrics_sum
+
+saveRDS(n3_metrics_sum, here("data/processed_data/model_compare/correct_metrics/RF_ALL_n3.rds"))
+```
+
+```{r}
+#predicted vs observed lm
+n3_preds_clean %>% 
+  ggplot(aes(cases_observed, cases_predicted)) +
+  geom_point() +
+  ggpmisc::stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/pred_v_obs/RF_ALL_n3.png"))
+
+#residuals lm
+n3_preds_clean %>% 
+  mutate(residual = cases_predicted-cases_observed) %>% 
+  ggplot(aes(cases_observed, residual)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/residuals/RF_ALL_n3.png"))
+```
+
+```{r}
+#collect predictions
+n3_pred_sum <- n3_preds_clean %>% 
+  group_by(row) %>% 
+  #summarize data
+  summarize(cases_observed = mean(cases_observed),
+            avg_pred = mean(cases_predicted),
+            se_pred = sd(cases_predicted)/n(),
+            pred_lower_ci = avg_pred-1.96*se_pred,
+            pred_upper_ci = avg_pred+1.96*se_pred)
+
+#plot summarized data
+  n3_pred_fig <- n3_pred_sum %>% ggplot(aes(x=row)) +
+  geom_line(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_point(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  #geom_errorbar(aes(ymin = pred_lower_ci,
+                    #ymax = pred_upper_ci)) +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
+  ggthemes::theme_clean()
+  
+n3_pred_fig
+
+ggsave(here("figures/timeseries/cross_validation/RF_ALL_n3.tiff"))
+saveRDS(n6_pred_fig, 
+        here("figures/timeseries/cross_validation/RF_ALL_n3.rds"))
+```
+
+### New data
+
+```{r}
+n3_new_preds <- predict(fit_all_n3, data_n3_test) %>% 
+  bind_cols(data_n3_test)
+```
+
+```{r}
+#collect predictions
+all_n3_pred_sum_test <- n3_new_preds %>%
+  #undo log10 normalization
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+  select(week, cases_observed, cases_predicted)
+ 
+
+ n3_pred_test_fig <- all_n3_pred_sum_test %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=cases_predicted), color = "#FB6A4A") +
+  geom_point(aes(y=cases_predicted), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
+  ggthemes::theme_clean()
+ 
+n3_pred_test_fig
+
+ggsave(here("figures/timeseries/cross_validation/RF_ALL_n3_test.tiff"))
+saveRDS(n3_pred_test_fig, 
+        here("figures/timeseries/cross_validation/RF_ALL_n3_test.rds"))
+saveRDS(all_n3_pred_sum_test, 
+        here("data/processed_data/model_compare/new_data/RF_ALL_n3_preds.rds"))
 ```
 
 ### Null model
@@ -705,7 +910,7 @@ n6_train_compare %>%
   geom_point() +
   geom_smooth(method = "lm")
 
-ggsave(here("figures/random_forest/model_performance/RF_ALL_n6_predict_actual.png.png"))
+ggsave(here("figures/random_forest/model_performance/RF_ALL_n6_predict_actual.png"))
 
 #export files for use in comparison script
 saveRDS(n6_train_compare,here(

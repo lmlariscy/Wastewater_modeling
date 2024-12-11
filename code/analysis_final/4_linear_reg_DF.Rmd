@@ -302,7 +302,9 @@ folds_df_n3 <- vfold_cv(data_n3_train,
 
 #run cross validation
 set.seed(13)
-cv_df_n3 <- fit_resamples(df_workflow_n3, resamples = folds_df_n3)
+cv_df_n3 <- fit_resamples(df_workflow_n3, 
+                          resamples = folds_df_n3,
+                          control = control)
 
 #calculate performance metrics
 cv_df_n3_metrics <- collect_metrics(cv_df_n3,summarize = F)
@@ -312,6 +314,126 @@ df_n3_metrics_sum <- collect_metrics(cv_df_n3,summarize = T) %>%
 
 #check cross validation metrics
 df_n3_metrics_sum 
+```
+
+### Predictions
+
+```{r}
+#return data to original unit
+n3_preds_clean <- collect_predictions(cv_df_n3) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+```
+
+```{r}
+#collect metrics on cleaned data
+n3_rmse <- n3_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n3_rsq <- n3_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n3_metrics_sum <- bind_cols(n3_rmse, n3_rsq) %>% 
+  mutate(model = "rf",
+         feature = "combined",
+         n = 3)
+
+n3_metrics_sum
+
+saveRDS(n3_metrics_sum, here("data/processed_data/model_compare/correct_metrics/LM_DF_n3.rds"))
+```
+
+```{r}
+#predicted vs observed lm
+n3_preds_clean %>% 
+  ggplot(aes(cases_observed, cases_predicted)) +
+  geom_point() +
+  ggpmisc::stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/pred_v_obs/LM_DF_n3.png"))
+
+#residuals lm
+n3_preds_clean %>% 
+  mutate(residual = cases_predicted-cases_observed) %>% 
+  ggplot(aes(cases_observed, residual)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/residuals/LM_DF_n3.png"))
+```
+
+```{r}
+#collect predictions
+n3_pred_sum <- n3_preds_clean %>% 
+  group_by(row) %>% 
+  #summarize data
+  summarize(cases_observed = mean(cases_observed),
+            avg_pred = mean(cases_predicted),
+            se_pred = sd(cases_predicted)/n(),
+            pred_lower_ci = avg_pred-1.96*se_pred,
+            pred_upper_ci = avg_pred+1.96*se_pred)
+
+#plot summarized data
+  n3_pred_fig <- n3_pred_sum %>% ggplot(aes(x=row)) +
+  geom_line(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_point(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  #geom_errorbar(aes(ymin = pred_lower_ci,
+                    #ymax = pred_upper_ci)) +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
+  ggthemes::theme_clean()
+  
+n3_pred_fig
+
+ggsave(here("figures/timeseries/cross_validation/LM_DF_n3.tiff"))
+saveRDS(n3_pred_fig, here("figures/timeseries/cross_validation/LM_DF_n3.rds"))
+```
+
+### New data
+
+```{r}
+n3_new_preds <- predict(fit_df_n3, data_n3_test) %>% 
+  bind_cols(data_n3_test)
+```
+
+```{r}
+#collect predictions
+df_n3_pred_sum_test <- n3_new_preds %>%
+  #undo log10 normalization
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+  select(week, cases_observed, cases_predicted)
+ 
+
+ n3_pred_test_fig <- df_n3_pred_sum_test %>% ggplot(aes(x=week)) +
+  geom_line(aes(y=cases_predicted), color = "#FB6A4A") +
+  geom_point(aes(y=cases_predicted), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
+  ggthemes::theme_clean()
+ 
+n3_pred_test_fig
+
+ggsave(here("figures/timeseries/cross_validation/LM_DF_n3_test.tiff"))
+saveRDS(n3_pred_test_fig, 
+        here("figures/timeseries/cross_validation/LM_DF_n3_test.rds"))
+saveRDS(df_n3_pred_sum_test, 
+        here("data/processed_data/model_compare/new_data/LM_DF_n3_preds.rds"))
 ```
 
 ## n = 2
