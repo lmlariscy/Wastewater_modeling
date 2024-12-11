@@ -362,6 +362,78 @@ print(paste("Year 1 N2 Cq values range from",round(cq_low_y1_n2$ct,2),"to",round
 print(paste("Year 2 N2 Cq values range from",round(cq_low_y2_n2$ct,2),"to",round(cq_high_y2_n2$ct,2)))
 ```
 
+# Stats
+
+## Cq
+
+```{r}
+#Year 1
+y1_cq <- cq_unsum %>% filter(nondetect == "detect",
+                    date <= '2021-06-30') %>% 
+  select(target,ct) %>% 
+  mutate(year = "Y1")
+  
+#Year 2
+y2_cq <- cq_unsum %>% filter(nondetect == "detect",
+                    date >= '2021-06-30') %>% 
+  select(target,ct) %>% 
+  mutate(year = "Y2")
+  
+cq_summary <- rbind(y1_cq,y2_cq) %>% 
+  group_by(year,target) %>% 
+  summarise(Mean = mean(ct),
+            Median = median(ct),
+            SD = sd(ct),
+            Min = min(ct),
+            Max = max(ct))
+
+write_csv(cq_summary, 
+          here("data/processed_data/wastewater/cq_summary_stats.csv"))
+```
+
+## DF & VL
+
+```{r}
+weekly_long <- full_join(viral_load_sum_weekly,detection_freq_sum,
+                     by = "week") %>% 
+  select(!"week") %>% 
+  rename("WRFA N1 VL" = A_N1,
+         "WRFA N2 VL" = A_N2,
+         "WRFB N1 VL" = B_N1,
+         "WRFB N2 VL" = B_N2,
+         "WRFC N1 VL" = C_N1,
+         "WRFC N2 VL" = C_N2,
+         "WRFA N1 DF" = A_N1_POS,
+         "WRFA N2 DF" = A_N2_POS,
+         "WRFB N1 DF" = B_N1_POS,
+         "WRFB N2 DF" = B_N2_POS,
+         "WRFC N1 DF" = C_N1_POS,
+         "WRFC N2 DF" = C_N2_POS) %>% 
+  pivot_longer(cols = c("WRFA N1 VL",
+         "WRFA N2 VL",
+         "WRFB N1 VL",
+         "WRFB N2 VL",
+         "WRFC N1 VL",
+         "WRFC N2 VL",
+         "WRFA N1 DF",
+         "WRFA N2 DF",
+         "WRFB N1 DF",
+         "WRFB N2 DF",
+         "WRFC N1 DF",
+         "WRFC N2 DF"),
+         names_to = "Wastewater Metric")
+
+summary <- weekly_long %>% drop_na() %>% 
+  group_by(`Wastewater Metric`) %>% 
+  summarise(Mean = mean(value),
+            Median = median(value),
+            SD = sd(value),
+            Min = min(value),
+            Max = max(value))
+
+write_csv(summary, here("data/processed_data/wastewater/summary_stats.csv"))
+```
+
 # Visualize
 
 ```{r}

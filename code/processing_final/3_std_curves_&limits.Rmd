@@ -1,0 +1,116 @@
+---
+title: "Standard curves & Limits"
+author: "Leah Lariscy"
+output: html_document
+---
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(stats)
+```
+
+# Load data
+
+```{r,message=F}
+n1_stepone_std <- read_csv(
+  here("data/raw_data/standard_curves_stepone.csv")) %>% 
+  filter(target == "N1")
+    #year 1 N1 standard curve
+n1_cfx_std <- read_csv(
+  here("data/raw_data/standard_curves_CFX.csv")) %>% 
+  filter(target == "N1" & curve == "N1_2")
+    #year 2 N1 standard curve
+n2_stepone_std <- read_csv(
+  here("data/raw_data/standard_curves_stepone.csv")) %>% 
+  filter(target == "N2")
+    #year 1 N2 standard curve
+n2_cfx_std <- read_csv(
+  here("data/raw_data/standard_curves_CFX.csv")) %>% 
+  filter(target == "N2" & curve == "N2_2")
+    #year 2 N1 standard curve
+
+limits_cq <- readRDS(
+  here("data/processed_data/wastewater/loqs_lods_cq.rds"))
+
+limits_copies <- readRDS(
+  here("data/processed_data/wastewater/loqs_lods_copies.rds"))
+```
+
+# Calculate std curves
+
+```{r}
+#this chunk copied from cleaning script
+#stepone N1
+n1_stepone_lm <- lm(ct~log10(quantity), data = n1_stepone_std)
+n1_stepone_intercept <- coef(n1_stepone_lm)[1]
+n1_stepone_slope <- coef(n1_stepone_lm)[2]
+
+n1_y1 <- print(paste("y =", round(n1_stepone_slope,2),"x", "+", 
+            round(n1_stepone_intercept,2)))
+
+#stepone N2
+n2_stepone_lm <- lm(ct~log10(quantity), data = n2_stepone_std)
+n2_stepone_intercept <- coef(n2_stepone_lm)[1]
+n2_stepone_slope <- coef(n2_stepone_lm)[2]
+
+n2_y1 <- print(paste("y =", round(n2_stepone_slope,2), "x", "+", 
+            round(n2_stepone_intercept,2)))
+
+#CFX N1
+n1_cfx_lm <- lm(ct~log10(quantity), data = n1_cfx_std)
+n1_cfx_intercept <- coef(n1_cfx_lm)[1]
+n1_cfx_slope <- coef(n1_cfx_lm)[2]
+
+n1_y2 <- print(paste("y =", round(n1_cfx_slope,2), "x", "+", 
+            round(n1_cfx_intercept,2)))
+
+#CFX N2
+n2_cfx_lm <- lm(ct~log10(quantity), data = n2_cfx_std)
+n2_cfx_intercept <- coef(n2_cfx_lm)[1]
+n2_cfx_slope <- coef(n2_cfx_lm)[2]
+
+n2_y2 <- print(paste("y =", round(n2_cfx_slope,2), "x", "+", 
+            round(n2_cfx_intercept,2)))
+```
+
+## Combine
+
+```{r}
+#combine intercepts
+intercepts <- list("Y1 N1" = n1_stepone_intercept,
+                   "Y1 N2" = n2_stepone_intercept,
+                   "Y2 N1" = n1_cfx_intercept,
+                   "Y2 N2" = n2_cfx_intercept)
+
+intercepts_combined <- enframe(intercepts, 
+                               name = "Assay",
+                               value = "Y-intercept")
+
+#combine slopes
+slopes <- list("Y1 N1" = n1_stepone_slope,
+               "Y1 N2" = n2_stepone_slope,
+               "Y2 N1" = n1_cfx_slope,
+               "Y2 N2" = n2_cfx_slope)
+
+slopes_combined <- enframe(slopes,
+                           name = "Assay",
+                           value = "Slope")
+
+coef_combined <- full_join(slopes_combined,intercepts_combined, 
+                           by = "Assay")
+write_csv(coef_combined, 
+          here("data/processed_data/wastewater/std_curve_coefs.csv"))
+```
+
+# Limits
+
+```{r}
+limits_combined <- full_join(limits_cq,limits_copies,
+                     by = "Limits")
+
+write_csv(limits_combined, 
+          here("data/processed_data/wastewater/limits_cq_copies.csv"))
+```

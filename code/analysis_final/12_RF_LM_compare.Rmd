@@ -17,6 +17,12 @@ library(tsibble)
 # Load RDS files
 
 ```{r}
+#all metrics data
+lm_metrics <- readRDS(
+  here("data/processed_data/linear_reg/metrics_compare.rds")) %>% mutate(model = "linear")
+rf_metrics <- readRDS(
+  here("data/processed_data/rand_forest/metrics_compare.rds")) %>% mutate(model = "random_forest")
+
 #RMSE figures
 rf_rmse <- readRDS(here("figures/random_forest/metrics/rmse_compare.rds"))
 lm_rmse <- readRDS(here("figures/linear_reg/metrics/rmse_compare.rds"))
@@ -56,6 +62,22 @@ lm_all_test <- readRDS(
   here("figures/linear_reg/time_series/all_n6_test.rds"))
 lm_df_test <- readRDS(here(
   "figures/linear_reg/time_series/df_n3_test.rds"))
+```
+
+# Summary table
+
+```{r}
+metric_summary <- rbind(lm_metrics,rf_metrics) %>% 
+  select(model,feature,.config,.metric,mean,std_err) %>% 
+  mutate(.config = str_sub(.config, -1, -1)) %>% 
+  rename(bio_rep = .config,
+         SE = std_err) %>% 
+  pivot_wider(names_from = .metric,
+              values_from = c(mean,SE)) %>% 
+  select(model, feature, bio_rep, mean_rsq, SE_rsq, mean_rmse, SE_rmse)
+
+write_csv(metric_summary,
+          here("data/processed_data/model_compare/model_metrics.csv"))
 ```
 
 # Combine figures

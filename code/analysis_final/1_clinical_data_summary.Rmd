@@ -9,6 +9,7 @@ output: html_document
 ```{r}
 library(tidyverse)
 library(tsibble)
+library(here)
 ```
 
 # Load data
@@ -49,6 +50,25 @@ weekly %>% arrange(desc(pcr_tests))
 
 ```{r}
 weekly %>% arrange(pcr_tests)
+```
+
+## Stats
+
+```{r}
+weekly_long <- weekly %>% select(cases.reported, pcr_tests) %>% 
+  rename("Reported Cases" = cases.reported,
+         "Tests Administered" = pcr_tests) %>% 
+  pivot_longer(cols = c("Reported Cases","Tests Administered"),
+              names_to = "Clinical Metric")
+
+summary <- weekly_long %>% group_by(`Clinical Metric`) %>% 
+  summarise(Mean = mean(value),
+            Median = median(value),
+            SD = sd(value),
+            Min = min(value),
+            Max = max(value))
+
+write_csv(summary, here("data/processed_data/clinical/summary_stats.csv"))
 ```
 
 # Visualize

@@ -32,6 +32,8 @@ all_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all_sum.
 metrics_compare <- rbind(df_metrics,
                          vl_metrics,
                          all_metrics)
+saveRDS(metrics_compare,
+        here("data/processed_data/rand_forest/metrics_compare.rds"))
 
 #detection frequency n=3 predictions and rsq/rmse
 df_n3_train_predictions <- readRDS(here(

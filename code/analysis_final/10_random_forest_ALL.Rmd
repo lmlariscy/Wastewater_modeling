@@ -315,6 +315,17 @@ collect_predictions(cv_all_n6) %>%
   stat_poly_eq(use_label("eq"))
 
 ggsave(here("figures/model_eval/residuals/RF_ALL.png"))
+
+collect_predictions(cv_all_n6) %>%
+  ggplot(aes(x=.row)) +
+  #geom_line(aes(y=.pred), color = "#FB6A4A") +
+  geom_jitter(aes(y=.pred), color = "#FB6A4A", 
+              shape = 16, ) +
+  geom_line(aes(y=log10_cases), color = "#003e99") +
+  geom_point(aes(y=log10_cases), color = "#003e99", shape = 16) +
+  ggthemes::theme_clean()
+
+ggsave(here("figures/timeseries/cross_validation/RF_ALL_n6.tiff"))
 ```
 
 ### Null model
