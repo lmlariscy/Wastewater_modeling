@@ -19,9 +19,9 @@ library(tsibble)
 ```{r}
 #all metrics data
 lm_metrics <- readRDS(
-  here("data/processed_data/linear_reg/metrics_compare.rds")) %>% mutate(model = "linear")
+  here("data/processed_data/linear_reg/metrics_compare.rds"))
 rf_metrics <- readRDS(
-  here("data/processed_data/rand_forest/metrics_compare.rds")) %>% mutate(model = "random_forest")
+  here("data/processed_data/rand_forest/metrics_compare.rds"))
 
 #RMSE figures
 rf_rmse <- readRDS(here("figures/random_forest/metrics/rmse_compare.rds"))
@@ -67,14 +67,7 @@ lm_df_test <- readRDS(here(
 # Summary table
 
 ```{r}
-metric_summary <- rbind(lm_metrics,rf_metrics) %>% 
-  select(model,feature,.config,.metric,mean,std_err) %>% 
-  mutate(.config = str_sub(.config, -1, -1)) %>% 
-  rename(bio_rep = .config,
-         SE = std_err) %>% 
-  pivot_wider(names_from = .metric,
-              values_from = c(mean,SE)) %>% 
-  select(model, feature, bio_rep, mean_rsq, SE_rsq, mean_rmse, SE_rmse)
+metric_summary <- rbind(lm_metrics,rf_metrics)
 
 write_csv(metric_summary,
           here("data/processed_data/model_compare/model_metrics.csv"))
@@ -95,35 +88,15 @@ ggsave(here("figures/rf_lm_compare/rmse_compare.png"),
 
 ```{r}
 rf_lm_rmse <- bind_rows(rf_rmse_nums,lm_rmse_nums) %>% 
-  arrange(mean)
+  arrange(avg_rmse)
 
 rf_lm_rmse
 ```
 
 ```{r}
-#All RF
-rf_lm_rmse %>% filter(feature == "combined" & model == "rand_forest")
-
-#All LM
-rf_lm_rmse %>% filter(feature == "combined" & model == "linear_reg")
-
-#DF RF
-rf_lm_rmse %>% filter(feature == "df" & model == "rand_forest")
-
-#DF LM
-rf_lm_rmse %>% filter(feature == "df" & model == "linear_reg")
-
-#VL RF
-rf_lm_rmse %>% filter(feature == "vl" & model == "rand_forest")
-
-#VL LM
-rf_lm_rmse %>% filter(feature == "vl" & model == "linear_reg")
-```
-
-```{r}
 rf_lm_rmse %>% 
   group_by(feature,model) %>% 
-  summarise(mean_rmse = mean(mean)) %>% 
+  summarise(mean_rmse = mean(avg_rmse)) %>% 
   arrange(mean_rmse)
 ```
 
@@ -140,35 +113,15 @@ ggsave(here("figures/rf_lm_compare/rsq_compare.png"),
 
 ```{r}
 rf_lm_rsq <- bind_rows(rf_rsq_nums,lm_rsq_nums) %>% 
-  arrange(desc(mean))
+  arrange(desc(avg_rsq))
 
 rf_lm_rsq
 ```
 
 ```{r}
-#All RF
-rf_lm_rsq %>% filter(feature == "combined" & model == "rand_forest")
-
-#All LM
-rf_lm_rsq %>% filter(feature == "combined" & model == "linear_reg")
-
-#DF RF
-rf_lm_rsq %>% filter(feature == "df" & model == "rand_forest")
-
-#DF LM
-rf_lm_rsq %>% filter(feature == "df" & model == "linear_reg")
-
-#VL RF
-rf_lm_rsq %>% filter(feature == "vl" & model == "rand_forest")
-
-#VL LM
-rf_lm_rsq %>% filter(feature == "vl" & model == "linear_reg")
-```
-
-```{r}
 rf_lm_rsq %>% 
   group_by(feature,model) %>% 
-  summarise(mean_rsq = mean(mean)) %>% 
+  summarise(mean_rsq = mean(avg_rsq)) %>% 
   arrange(desc(mean_rsq))
 ```
 

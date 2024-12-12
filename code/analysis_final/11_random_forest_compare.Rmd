@@ -31,7 +31,9 @@ all_metrics <- readRDS(here("data/processed_data/rand_forest/cv_metrics_all_sum.
 #bind metrics dataframes
 metrics_compare <- rbind(df_metrics,
                          vl_metrics,
-                         all_metrics)
+                         all_metrics) %>% 
+  mutate(config = paste(feature,n,sep = "_"))
+
 saveRDS(metrics_compare,
         here("data/processed_data/rand_forest/metrics_compare.rds"))
 
@@ -140,11 +142,10 @@ labels <- c("All 1","All 2","All 3","All 4","All 5","All 6",
 
 ```{r}
 rmse_compare <- metrics_compare %>% 
-  filter(.metric == "rmse") %>% 
-  ggplot(aes(.config, mean, color=.config)) +
+  ggplot(aes(config, avg_rmse, color=config)) +
   geom_point(size = 4) +
-    geom_errorbar(aes(ymin = lower_ci,
-                ymax = upper_ci)) +
+    geom_errorbar(aes(ymin = lower_rmse,
+                ymax = upper_rmse)) +
   ggthemes::theme_clean() +
   theme(axis.title.x = element_blank(),
         #axis.ticks.x = element_blank(),
@@ -160,8 +161,14 @@ rmse_compare <- metrics_compare %>%
   xlab("Feature selection configuration") +
   ylab("RMSE") +
   scale_x_discrete(labels=labels) +
-  geom_hline(yintercept = 0.45, alpha = 0) +
-  geom_hline(yintercept = 0.2, alpha = 0)
+  geom_hline(yintercept = 250, alpha = 0) +
+  geom_hline(yintercept = 100, alpha = 0) +
+      geom_hline(yintercept = 192,
+             linetype = "longdash",
+             linewidth = .8,
+             color = "red") +
+  annotate("text", label="Null model average", 
+           x=16, y=197, size=4, color = "red")
 
 rmse_compare
 
@@ -173,10 +180,8 @@ saveRDS(rmse_compare,
 
 ```{r}
 rmse <- metrics_compare %>% 
-  filter(.metric == "rmse") %>% 
-  select(mean,.config,feature) %>% 
-  arrange(mean) %>% 
-  mutate(model = "rand_forest")
+  select(model,feature,n,avg_rmse,se_rmse) %>% 
+  arrange(avg_rmse)
 
 rmse
 
@@ -188,11 +193,10 @@ saveRDS(rmse,
 
 ```{r}
 rsq_compare <- metrics_compare %>% 
-  filter(.metric == "rsq") %>% 
-  ggplot(aes(.config, mean, color=.config)) +
+  ggplot(aes(config, avg_rsq, color=config)) +
   geom_point(size = 4) +
-    geom_errorbar(aes(ymin = lower_ci,
-                ymax = upper_ci)) +
+    geom_errorbar(aes(ymin = lower_rsq,
+                ymax = upper_rsq)) +
   ggthemes::theme_clean() +
   theme(axis.title.x = element_blank(),
         #axis.ticks.x = element_blank(),
@@ -209,7 +213,12 @@ rsq_compare <- metrics_compare %>%
   ylab("R-Squared") +
   scale_x_discrete(labels=labels) +
   geom_hline(yintercept = 0.8, alpha = 0) +
-  geom_hline(yintercept = 0.25, alpha = 0)
+  geom_hline(yintercept = 0.11,
+             linetype = "longdash",
+             linewidth = .8,
+             color = "red") +
+  annotate("text", label="Null model average", 
+           x=16, y=.14, size=4, color = "red")
 
 rsq_compare
 
@@ -221,30 +230,13 @@ saveRDS(rsq_compare,
 
 ```{r}
 rsq <- metrics_compare %>% 
-  filter(.metric == "rsq") %>% 
-  select(mean,.config,feature) %>% 
-  arrange(desc(mean)) %>% 
-  mutate(model = "rand_forest")
+  select(model,feature,n,avg_rsq,se_rsq) %>% 
+  arrange(desc(avg_rsq))
 
 rsq
 
 saveRDS(rsq,
         here("data/processed_data/rand_forest/rsq_compare.rds"))
-```
-
-```{r}
-mean_rsq <- metrics_compare %>% 
-  filter(.metric == "rsq") %>% 
-  select(mean,feature) %>% 
-  group_by(feature) %>% 
-  summarise(mean_rsq=mean(mean)) %>% 
-  arrange(desc(mean_rsq)) %>% 
-  mutate(model = "rand_forest")
-  
-mean_rsq
-
-saveRDS(mean_rsq,
-        here("data/processed_data/rand_forest/rsq_mean_compare.rds"))
 ```
 
 ## Predictions

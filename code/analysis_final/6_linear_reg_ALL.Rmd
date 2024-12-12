@@ -212,6 +212,42 @@ collect_predictions(cv_all_n6) %>%
 ggsave(here("figures/model_eval/residuals/LM_ALL.png"))
 ```
 
+```{r}
+#return data to original units and collect metrics
+
+#return data to original unit
+n6_preds_clean <- collect_predictions(cv_all_n6) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+
+#collect metrics on cleaned data
+n6_rmse <- n6_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n6_rsq <- n6_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n6_metrics_sum <- bind_cols(n6_rmse, n6_rsq) %>% 
+  mutate(model = "lm",
+         feature = "all",
+         n = 6)
+
+n6_metrics_sum
+```
+
 ### Null model
 
 ```{r}
@@ -224,7 +260,8 @@ folds_all_n6_null <- vfold_cv(data_n6_train,
 #run cross validation
 set.seed(13)
 cv_all_n6_null <- fit_resamples(all_null_workflow_n6, 
-                                resamples = folds_all_n6_null)
+                                resamples = folds_all_n6_null,
+                                control = control)
 
 #calculate performance metrics
 cv_all_n6_metrics_null <- collect_metrics(cv_all_n6_null,summarize = F)
@@ -233,6 +270,31 @@ all_n6_metrics_null_sum <- collect_metrics(cv_all_n6_null,summarize = T) %>%   m
 
 #check cross validation metrics
 all_n6_metrics_null_sum
+
+#return data to original unit
+n6_null_preds_clean <- collect_predictions(cv_all_n6_null) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+
+#collect metrics on cleaned data
+n6_null_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n6_null_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
 ```
 
 ## n = 5
@@ -251,7 +313,9 @@ folds_all_n5 <- vfold_cv(data_n5_train,
 
 #run cross validation
 set.seed(13)
-cv_all_n5 <- fit_resamples(all_workflow_n5, resamples = folds_all_n5)
+cv_all_n5 <- fit_resamples(all_workflow_n5, 
+                           resamples = folds_all_n5,
+                           control = control)
 
 #calculate performance metrics
 cv_all_n5_metrics <- collect_metrics(cv_all_n5,summarize = F)
@@ -261,6 +325,42 @@ all_n5_metrics_sum <- collect_metrics(cv_all_n5,summarize = T) %>%
 
 #check cross validation metrics
 all_n5_metrics_sum
+```
+
+```{r}
+#return data to original units and collect metrics
+
+#return data to original unit
+n5_preds_clean <- collect_predictions(cv_all_n5) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+
+#collect metrics on cleaned data
+n5_rmse <- n5_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n5_rsq <- n5_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n5_metrics_sum <- bind_cols(n5_rmse, n5_rsq) %>% 
+  mutate(model = "lm",
+         feature = "all",
+         n = 5)
+
+n5_metrics_sum
 ```
 
 ## n = 4
@@ -279,7 +379,9 @@ folds_all_n4 <- vfold_cv(data_n4_train,
 
 #run cross validation
 set.seed(13)
-cv_all_n4 <- fit_resamples(all_workflow_n4, resamples = folds_all_n4)
+cv_all_n4 <- fit_resamples(all_workflow_n4, 
+                           resamples = folds_all_n4,
+                           control = control)
 
 #calculate performance metrics
 cv_all_n4_metrics <- collect_metrics(cv_all_n4,summarize = F)
@@ -289,6 +391,42 @@ all_n4_metrics_sum <- collect_metrics(cv_all_n4,summarize = T) %>%
 
 #check cross validation metrics
 all_n4_metrics_sum
+```
+
+```{r}
+#return data to original units and collect metrics
+
+#return data to original unit
+n4_preds_clean <- collect_predictions(cv_all_n4) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+
+#collect metrics on cleaned data
+n4_rmse <- n4_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n4_rsq <- n4_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n4_metrics_sum <- bind_cols(n4_rmse, n4_rsq) %>% 
+  mutate(model = "lm",
+         feature = "all",
+         n = 4)
+
+n4_metrics_sum
 ```
 
 ## n = 3
@@ -352,8 +490,8 @@ n3_rsq <- n3_preds_clean %>%
             upper_rsq = avg_rsq+1.96*se_rsq)
 
 n3_metrics_sum <- bind_cols(n3_rmse, n3_rsq) %>% 
-  mutate(model = "rf",
-         feature = "combined",
+  mutate(model = "lm",
+         feature = "all",
          n = 3)
 
 n3_metrics_sum
@@ -457,7 +595,9 @@ folds_all_n2 <- vfold_cv(data_n2_train,
 
 #run cross validation
 set.seed(13)
-cv_all_n2 <- fit_resamples(all_workflow_n2, resamples = folds_all_n2)
+cv_all_n2 <- fit_resamples(all_workflow_n2, 
+                           resamples = folds_all_n2,
+                           control = control)
 
 #calculate performance metrics
 cv_all_n2_metrics <- collect_metrics(cv_all_n2,summarize = F)
@@ -467,6 +607,42 @@ all_n2_metrics_sum <- collect_metrics(cv_all_n2,summarize = T) %>%
 
 #check cross validation metrics
 all_n2_metrics_sum
+```
+
+```{r}
+#return data to original units and collect metrics
+
+#return data to original unit
+n2_preds_clean <- collect_predictions(cv_all_n2) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+
+#collect metrics on cleaned data
+n2_rmse <- n2_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n2_rsq <- n2_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n2_metrics_sum <- bind_cols(n2_rmse, n2_rsq) %>% 
+  mutate(model = "lm",
+         feature = "all",
+         n = 2)
+
+n2_metrics_sum
 ```
 
 ## n = 1
@@ -485,7 +661,9 @@ folds_all_n1 <- vfold_cv(data_n1_train,
 
 #run cross validation
 set.seed(13)
-cv_all_n1 <- fit_resamples(all_workflow_n1, resamples = folds_all_n1)
+cv_all_n1 <- fit_resamples(all_workflow_n1, 
+                           resamples = folds_all_n1,
+                           control = control)
 
 #calculate performance metrics
 cv_all_n1_metrics <- collect_metrics(cv_all_n1,summarize = F)
@@ -495,6 +673,42 @@ all_n1_metrics_sum <- collect_metrics(cv_all_n1,summarize = T) %>%
 
 #check cross validation metrics
 all_n1_metrics_sum
+```
+
+```{r}
+#return data to original units and collect metrics
+
+#return data to original unit
+n1_preds_clean <- collect_predictions(cv_all_n1) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+
+#collect metrics on cleaned data
+n1_rmse <- n1_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n1_rsq <- n1_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
+
+n1_metrics_sum <- bind_cols(n1_rmse, n1_rsq) %>% 
+  mutate(model = "lm",
+         feature = "all",
+         n = 1)
+
+n1_metrics_sum
 ```
 
 ### Null model
@@ -509,7 +723,8 @@ folds_all_n1_null <- vfold_cv(data_n1_train,
 #run cross validation
 set.seed(13)
 cv_all_n1_null <- fit_resamples(all_null_workflow_n1, 
-                                resamples = folds_all_n1_null)
+                                resamples = folds_all_n1_null,
+                                control = control)
 
 #calculate performance metrics
 cv_all_n1_metrics_null <- collect_metrics(cv_all_n1_null,summarize = F)
@@ -518,30 +733,42 @@ all_n1_metrics_null_sum <- collect_metrics(cv_all_n1_null,summarize = T) %>%   m
 
 #check cross validation metrics
 all_n1_metrics_null_sum
+
+#return data to original unit
+n1_null_preds_clean <- collect_predictions(cv_all_n1_null) %>% 
+  mutate(cases_observed = 10^log10_cases,
+         cases_predicted = 10^.pred) %>% 
+select(row=.row, fold=id2, cases_observed, cases_predicted)
+
+#collect metrics on cleaned data
+n1_null_preds_clean %>% 
+  group_by(fold) %>% 
+  rmse(truth = cases_observed,
+       estimate = cases_predicted) %>% 
+  summarize(avg_rmse = mean(.estimate),
+            se_rmse = sd(.estimate)/n(),
+            lower_rmse = avg_rmse-1.96*se_rmse,
+            upper_rmse = avg_rmse+1.96*se_rmse)
+
+n1_null_preds_clean %>% 
+  group_by(fold) %>% 
+  rsq(truth = cases_observed,
+      estimate = cases_predicted) %>% 
+  summarize(avg_rsq = mean(.estimate),
+            se_rsq = sd(.estimate)/n(),
+            lower_rsq = avg_rsq-1.96*se_rsq,
+            upper_rsq = avg_rsq+1.96*se_rsq)
 ```
 
 ## Export results
 
 ```{r}
-all_n6_metrics_sum <- all_n6_metrics_sum %>% mutate(.config="all_n6",
-                                                  feature="combined")
-all_n5_metrics_sum <- all_n5_metrics_sum %>% mutate(.config="all_n5",
-                                                  feature="combined")
-all_n4_metrics_sum <- all_n4_metrics_sum %>% mutate(.config="all_n4",
-                                                  feature="combined")
-all_n3_metrics_sum <- all_n3_metrics_sum %>% mutate(.config="all_n3",
-                                                  feature="combined")
-all_n2_metrics_sum <- all_n2_metrics_sum %>% mutate(.config="all_n2",
-                                                  feature="combined")
-all_n1_metrics_sum <- all_n1_metrics_sum %>% mutate(.config="all_n1",
-                                                  feature="combined")
-
-cv_metrics_all <- rbind(all_n1_metrics_sum,
-                       all_n2_metrics_sum,
-                       all_n3_metrics_sum,
-                       all_n4_metrics_sum,
-                       all_n5_metrics_sum,
-                       all_n6_metrics_sum)
+cv_metrics_all <- rbind(n1_metrics_sum,
+                       n2_metrics_sum,
+                       n3_metrics_sum,
+                       n4_metrics_sum,
+                       n5_metrics_sum,
+                       n6_metrics_sum)
 
 saveRDS(cv_metrics_all, 
         here("data/processed_data/linear_reg/cv_metrics_all.rds"))
