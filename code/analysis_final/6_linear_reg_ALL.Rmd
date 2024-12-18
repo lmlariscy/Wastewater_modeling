@@ -759,12 +759,12 @@ n2_test_compare %>%
 
 ```{r}
 #export files for use in comparison script
-saveRDS(n6_test_compare,here(
+saveRDS(n2_test_compare,here(
   "data/processed_data/linear_reg/all_n2_test_predictions.rds"))
 
-saveRDS(n6_test_rsq,here(
+saveRDS(n2_test_rsq,here(
   "data/processed_data/linear_reg/all_n2_test_rsq.rds"))
 
-saveRDS(n6_test_rmse,here(
+saveRDS(n2_test_rmse,here(
   "data/processed_data/linear_reg/all_n2_test_rmse.rds"))
 ```
