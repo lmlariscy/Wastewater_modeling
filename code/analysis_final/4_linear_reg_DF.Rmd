@@ -45,23 +45,23 @@ data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>% drop_n
 # Split data
 
 ```{r}
-data_n6_train <- data_n6 %>% head(n = 75) #training data
-data_n6_test <- data_n6 %>% tail(n = 50) #non-training data
+data_n6_train <- data_n6 %>% head(n = 73) #training data
+data_n6_test <- data_n6 %>% tail(n = 52) #non-training data
 
-data_n5_train <- data_n5 %>% head(n = 75)
-data_n5_test <- data_n5 %>% tail(n = 50)
+data_n5_train <- data_n5 %>% head(n = 73)
+data_n5_test <- data_n5 %>% tail(n = 52)
 
-data_n4_train <- data_n4 %>% head(n = 75)
-data_n4_test <- data_n4 %>% tail(n = 50)
+data_n4_train <- data_n4 %>% head(n = 73)
+data_n4_test <- data_n4 %>% tail(n = 52)
 
-data_n3_train <- data_n3 %>% head(n = 75)
-data_n3_test <- data_n3 %>% tail(n = 50)
+data_n3_train <- data_n3 %>% head(n = 73)
+data_n3_test <- data_n3 %>% tail(n = 52)
 
-data_n2_train <- data_n2 %>% head(n = 75)
-data_n2_test <- data_n2 %>% tail(n = 50)
+data_n2_train <- data_n2 %>% head(n = 73)
+data_n2_test <- data_n2 %>% tail(n = 52)
 
-data_n1_train <- data_n1 %>% head(n = 75)
-data_n1_test <- data_n1 %>% tail(n = 50)
+data_n1_train <- data_n1 %>% head(n = 73)
+data_n1_test <- data_n1 %>% tail(n = 52)
 ```
 
 # Model prep
@@ -163,6 +163,8 @@ set.seed(13)
 fit_df_n6 <- df_workflow_n6 %>% 
   fit(data_n6_train)
 
+
+
 #create folds for cross validation 
 set.seed(13)
 folds_df_n6 <- vfold_cv(data_n6_train, 
@@ -241,29 +243,7 @@ collect_predictions(cv_df_n6) %>%
   stat_poly_line() +
   stat_poly_eq(use_label("eq"))
 
-ggsave(here("figures/model_eval/residuals/LM_DF.png"))
-```
-
-### Null model
-
-```{r}
-#create folds for cross validation
-set.seed(13)
-folds_df_n6_null <- vfold_cv(data_n6_train, 
-                        v = 10,
-                        repeats = 10)
-
-#run cross validation
-set.seed(13)
-cv_df_n6_null <- fit_resamples(df_null_workflow_n6, 
-                                resamples = folds_df_n6_null)
-
-#calculate performance metrics
-cv_df_n6_metrics_null <- collect_metrics(cv_df_n6_null ,summarize = F)
-df_n6_metrics_null_sum <- collect_metrics(cv_df_n6_null ,summarize = T)
-
-#check cross validation metrics
-df_n6_metrics_null_sum
+ggsave(here("figures/model_eval/residuals/LM_DF.png"))       
 ```
 
 ## n = 5
@@ -683,28 +663,6 @@ n1_metrics_sum
 
 ### Null model
 
-```{r}
-#create folds for cross validation
-set.seed(13)
-folds_df_n1_null <- vfold_cv(data_n1_train, 
-                        v = 10,
-                        repeats = 10)
-
-#run cross validation
-set.seed(13)
-cv_df_n1_null <- fit_resamples(df_null_workflow_n1, 
-                                resamples = folds_df_n1_null)
-
-#calculate performance metrics
-cv_df_n1_metrics_null <- collect_metrics(cv_df_n1_null,summarize = F)
-df_n1_metrics_null_sum <- collect_metrics(cv_df_n1_null,summarize = T) %>% 
-  mutate(lower_ci = mean-1.96*std_err,
-         upper_ci = mean+1.96*std_err)
-
-#check cross validation metrics
-df_n1_metrics_null_sum
-```
-
 ## Export results
 
 ```{r}
@@ -745,32 +703,32 @@ saveRDS(cv_metrics_df_raw,
 
 # Observed vs predicted
 
-## Training data (2020-2021)
+## New data (2022)
 
 ```{r}
 # generate predictions from 2000 bootstrap models
 set.seed(456)
-n3_pred_conf_int_train <- 
-  df_workflow_n3 %>%
+n2_pred_conf_int_test <- 
+  df_workflow_n2 %>%
   predict_boots(
     n = 2000,
-    training_data = data_n3_train,
-    new_data = data_n3_train,
+    training_data = data_n2_train,
+    new_data = data_n2_test,
     interval = "confidence"
   )
 
 # summarise with a 95% confidence interval
-n3_pred_conf_int_train_sum <- n3_pred_conf_int_train %>%
+n2_pred_conf_int_test_sum <- n2_pred_conf_int_test %>%
   summarise_predictions()
 
 #select important variables from original data
-n3_actual_train <- data_n3_train %>% select(week,log10_cases)
+n2_actual_test <- data_n2_test %>% select(week,log10_cases)
 
 #select important variables from predicted data
-n3_pred_train <- n3_pred_conf_int_train_sum %>% select(.pred,.pred_lower,.pred_upper)
+n2_pred_test <- n2_pred_conf_int_test_sum %>% select(.pred,.pred_lower,.pred_upper)
 
 #bind original and predicted data and undo log transformation
-n3_train_compare <- bind_cols(n3_actual_train, n3_pred_train) %>% 
+n2_test_compare <- bind_cols(n2_actual_test, n2_pred_test) %>% 
   mutate(prediction = 10^.pred,
        actual = 10^log10_cases,
        pred_lower = 10^.pred_lower,
@@ -778,18 +736,18 @@ n3_train_compare <- bind_cols(n3_actual_train, n3_pred_train) %>%
   select(week,actual,prediction,pred_lower,pred_upper)
 
 #calculate R-squared and RMSE
-n3_train_rsq <- n3_train_compare %>% 
+n2_test_rsq <- n2_test_compare %>% 
   rsq(truth = actual, estimate = prediction)
 
-n3_train_rsq
+n2_test_rsq
 
-n3_train_rmse <- n3_train_compare %>% 
+n2_test_rmse <- n2_test_compare %>% 
   rmse(truth = actual,estimate = prediction)
 
-n3_train_rmse
+n2_test_rmse
 
 #visualize timeseries of actual vs predicted data
-n3_train_compare %>% 
+n2_test_compare %>% 
   ggplot(aes(x=week)) +
   geom_line(aes(y=prediction), color = "blue") +
   geom_point(aes(y=prediction), color = "blue") +
@@ -799,122 +757,12 @@ n3_train_compare %>%
   ggthemes::theme_clean()
 
 #export files for use in comparison script
-saveRDS(n3_train_compare,here(
-  "data/processed_data/linear_reg/df_n3_train_predictions.rds"))
+saveRDS(n2_test_compare,here(
+  "data/processed_data/linear_reg/df_n2_test_predictions.rds"))
 
-saveRDS(n3_train_rsq,here(
-  "data/processed_data/linear_reg/df_n3_train_rsq.rds"))
+saveRDS(n2_test_rsq,here(
+  "data/processed_data/linear_reg/df_n2_test_rsq.rds"))
 
-saveRDS(n3_train_rmse,here(
-  "data/processed_data/linear_reg/df_n3_train_rmse.rds"))
-```
-
-## Testing data (2022)
-
-```{r}
-# generate predictions from 2000 bootstrap models
-set.seed(456)
-n3_pred_conf_int_test <- 
-  df_workflow_n3 %>%
-  predict_boots(
-    n = 2000,
-    training_data = data_n3_train,
-    new_data = data_n3_test,
-    interval = "confidence"
-  )
-
-# summarise with a 95% confidence interval
-n3_pred_conf_int_test_sum <- n3_pred_conf_int_test %>%
-  summarise_predictions()
-
-#select important variables from original data
-n3_actual_test <- data_n3_test %>% select(week,log10_cases)
-
-#select important variables from predicted data
-n3_pred_test <- n3_pred_conf_int_test_sum %>% select(.pred,.pred_lower,.pred_upper)
-
-#bind original and predicted data and undo log transformation
-n3_test_compare <- bind_cols(n3_actual_test, n3_pred_test) %>% 
-  mutate(prediction = 10^.pred,
-       actual = 10^log10_cases,
-       pred_lower = 10^.pred_lower,
-       pred_upper = 10^.pred_upper) %>% 
-  select(week,actual,prediction,pred_lower,pred_upper)
-
-#calculate R-squared and RMSE
-n3_test_rsq <- n3_test_compare %>% 
-  rsq(truth = actual, estimate = prediction)
-
-n3_test_rsq
-
-n3_test_rmse <- n3_test_compare %>% 
-  rmse(truth = actual,estimate = prediction)
-
-n3_test_rmse
-
-#visualize timeseries of actual vs predicted data
-n3_test_compare %>% 
-  ggplot(aes(x=week)) +
-  geom_line(aes(y=prediction), color = "blue") +
-  geom_point(aes(y=prediction), color = "blue") +
-  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
-  geom_line(aes(y=actual), color = "red") +
-  geom_point(aes(y=actual), color = "red") +
-  ggthemes::theme_clean()
-
-#export files for use in comparison script
-saveRDS(n3_test_compare,here(
-  "data/processed_data/linear_reg/df_n3_test_predictions.rds"))
-
-saveRDS(n3_test_rsq,here(
-  "data/processed_data/linear_reg/df_n3_test_rsq.rds"))
-
-saveRDS(n3_test_rmse,here(
-  "data/processed_data/linear_reg/df_n3_test_rmse.rds"))
-```
-
-## Full timeseries
-
-```{r}
-# generate predictions from 2000 bootstrap models
-set.seed(456)
-n3_pred_conf_int_full <- 
-  df_workflow_n3 %>%
-  predict_boots(
-    n = 2000,
-    training_data = data_n3_train,
-    new_data = data_n3,
-    interval = "confidence"
-  )
-
-# summarise with a 95% confidence interval
-n3_pred_conf_int_full_sum <- n3_pred_conf_int_full %>%
-  summarise_predictions()
-
-#select important variables from original data
-n3_actual_full <- data_n3 %>% select(week,log10_cases)
-
-#select important variables from predicted data
-n3_pred_full <- n3_pred_conf_int_full_sum %>% select(.pred,.pred_lower,.pred_upper)
-
-#bind original and predicted data and undo log transformation
-n3_full_compare <- bind_cols(n3_actual_full, n3_pred_full) %>% 
-  mutate(prediction = 10^.pred,
-       actual = 10^log10_cases,
-       pred_lower = 10^.pred_lower,
-       pred_upper = 10^.pred_upper) %>% 
-  select(week,actual,prediction,pred_lower,pred_upper)
-
-n3_full_compare %>% 
-  ggplot(aes(x=week)) +
-  geom_line(aes(y=prediction), color = "blue") +
-  geom_point(aes(y=prediction), color = "blue") +
-  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
-  geom_line(aes(y=actual), color = "red") +
-  geom_point(aes(y=actual), color = "red") +
-  ggthemes::theme_clean()
-
-#export files for use in comparison script
-saveRDS(n3_full_compare,here(
-  "data/processed_data/linear_reg/df_n3_full_predictions.rds"))
+saveRDS(n2_test_rmse,here(
+  "data/processed_data/linear_reg/df_n2_test_rmse.rds"))
 ```

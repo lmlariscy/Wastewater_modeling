@@ -443,9 +443,10 @@ viral_load <- viral_load_sum_weekly %>%
   group_by(week) %>% 
   summarise(mean = exp(mean(log(value)))) %>% 
   ggplot(aes(week,mean)) +
-  geom_line() +
-  geom_point() +
-  ylab("Mean viral load") +
+  geom_point(color = "#2171B5", size = 2) +
+  geom_line(alpha = .6, color = "#2171B5", size = 2) +
+  geom_vline(xintercept = 18974,linetype = 2, size = .8) +
+  ylab("Viral load") +
   xlab("") +
   scale_y_log10() +
   ggthemes::theme_clean()
@@ -462,9 +463,10 @@ detection_freq <- detection_freq_sum %>%
   group_by(week) %>% 
   summarise(mean = mean(value)) %>% 
   ggplot(aes(week,mean)) +
-  geom_line() +
-  geom_point() +
-  ylab("Mean detection frequency") +
+  geom_point(color = "#08306B", size = 2) +
+  geom_line(alpha = .6, color = "#08306B", size = 2) +
+  geom_vline(xintercept = 18974,linetype = 2, size = .8) +
+  ylab("Detection frequency") +
   xlab("") +
   ggthemes::theme_clean()
 
@@ -476,14 +478,12 @@ ggsave(here("figures/timeseries/detection_frequency.png"))
 ## Combine figures
 
 ```{r}
-cases_reported <- readRDS(here("figures/timeseries/cases_reported.rds"))
-
-ggarrange(cases_reported,viral_load,detection_freq,
-          labels = c("A","B","C"),
-          nrow = 3,
+ggarrange(viral_load,detection_freq,
+          labels = c("a","b"),
+          nrow = 2,
           ncol = 1)
 
-ggsave(here("figures/timeseries/clinical_wastewater_combined.png"),
-       width = 10,
-       height = 8)
+ggsave(here("figures/timeseries/wastewater_combined.png"),
+       width = 9,
+       height = 5)
 ```

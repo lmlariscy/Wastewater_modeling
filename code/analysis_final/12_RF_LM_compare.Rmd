@@ -79,7 +79,7 @@ write_csv(metric_summary,
 
 ```{r}
 ggarrange(rf_rmse,lm_rmse,
-          labels = c("A","B"),
+          labels = c("a","b"),
           ncol = 2)
 
 ggsave(here("figures/rf_lm_compare/rmse_compare.png"),
@@ -104,7 +104,7 @@ rf_lm_rmse %>%
 
 ```{r}
 ggarrange(rf_rsq,lm_rsq,
-          labels = c("A","B"),
+          labels = c("a","b"),
           ncol = 2)
 
 ggsave(here("figures/rf_lm_compare/rsq_compare.png"),

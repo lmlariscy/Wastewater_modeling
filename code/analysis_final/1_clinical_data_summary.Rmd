@@ -75,23 +75,37 @@ write_csv(summary, here("data/processed_data/clinical/summary_stats.csv"))
 
 ```{r}
 cases_reported_fig <- weekly %>% ggplot(aes(week,cases.reported)) +
-  geom_point() +
-  geom_line() +
-  ylab("Cases reported (per 100,000)") +
+  geom_point(color = "#FB6A4A", size = 2) +
+  geom_line(alpha = .6, color = "#FB6A4A", size = 2) +
+  geom_vline(xintercept = 18974,linetype = 2, size = .8) +
+  #geom_area(alpha = .7, fill = "#FB6A4A") +
+  ylab("Cases reported") +
   xlab("") +
   ggthemes::theme_clean()
 
-ggsave(here("figures/timeseries/cases_reported.png"))
-saveRDS(cases_reported_fig, here("figures/timeseries/cases_reported.rds"))
+cases_reported_fig
 ```
 
 ```{r}
-weekly %>% ggplot(aes(week,pcr_tests)) +
-  geom_point() +
-  geom_line() +
+test_admin_fig <- weekly %>% ggplot(aes(week,pcr_tests)) +
+  geom_point(color = "#A50F15", size = 2) +
+  geom_line(alpha = .6, color = "#A50F15", size = 2) +
+  geom_vline(xintercept = 18974,linetype = 2, size = .8) +
+  #geom_area(alpha = .7, fill = "#A50F15") +
   ylab("Tests administered") +
   xlab("") +
   ggthemes::theme_clean()
 
-ggsave(here("figures/timeseries/test_admin.png"))
+test_admin_fig
+```
+
+```{r}
+ggarrange(cases_reported_fig,test_admin_fig,
+          nrow = 2,
+          ncol = 1,
+          labels = c("a","b"))
+
+ggsave(here("figures/timeseries/clinical_combined.tiff"),
+       width = 9,
+       height = 5)
 ```

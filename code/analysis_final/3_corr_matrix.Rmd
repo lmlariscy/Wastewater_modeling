@@ -172,7 +172,7 @@ cor_matrix_melted_y2 <- cor_matrix_melted_y2 %>%
   filter(as.numeric(Var1) > as.numeric(Var2))
 
 # Create the heatmap with numerical values
-ggplot(cor_matrix_melted_y2, aes(x = Var1, y = Var2, fill = value)) +
+y2_matrix <- ggplot(cor_matrix_melted_y2, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white",
                        midpoint = .2, limit = c(-0.5, 1), space = "Lab",
@@ -199,7 +199,7 @@ cor_matrix_melted_y1 <- cor_matrix_melted_y1 %>%
   filter(as.numeric(Var1) > as.numeric(Var2))
 
 # Create the heatmap with numerical values
-ggplot(cor_matrix_melted_y1, aes(x = Var1, y = Var2, fill = value)) +
+y1_matrix <- ggplot(cor_matrix_melted_y1, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white",
                        midpoint = .2, limit = c(-.5, 1), space = "Lab",
@@ -214,4 +214,14 @@ ggplot(cor_matrix_melted_y1, aes(x = Var1, y = Var2, fill = value)) +
 ggsave(here("figures/corr_matrix/spearman_year1.tiff"))
 ```
 
-# 
+```{r}
+ggarrange(y1_matrix, y2_matrix,
+          ncol = 2,
+          nrow = 1,
+          labels = c("a","b"),
+          vjust = 37)
+
+ggsave(here("figures/corr_matrix/y1_y2_combo.tiff"),
+       width = 9,
+       height = 7)
+```
