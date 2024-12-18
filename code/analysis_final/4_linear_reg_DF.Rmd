@@ -595,6 +595,27 @@ n2_metrics_sum <- bind_cols(n2_rmse, n2_rsq) %>%
 n2_metrics_sum
 ```
 
+```{r}
+#predicted vs observed lm
+n2_preds_clean %>% 
+  ggplot(aes(cases_observed, cases_predicted)) +
+  geom_point() +
+  ggpmisc::stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/pred_v_obs/LM_DF_n2.png"))
+
+#residuals lm
+n2_preds_clean %>% 
+  mutate(residual = cases_predicted-cases_observed) %>% 
+  ggplot(aes(cases_observed, residual)) +
+  geom_point() +
+  stat_poly_line() +
+  stat_poly_eq(use_label("eq"))
+
+ggsave(here("figures/model_eval/residuals/LM_DF_n2.png"))
+```
+
 ## n = 1
 
 ```{r}
