@@ -48,30 +48,23 @@ data_n1 <- readRDS(here("data/processed_data/wbe_covid_n1_week.rds")) %>% drop_n
 # Split data
 
 ```{r}
-#first 75 observations should be used to train, last 50 observations should be used to test
-data_n6_split <- initial_time_split(data_n6, prop = 3/5)
-data_n6_train <- training(data_n6_split)
-data_n6_test <- testing(data_n6_split)
+data_n6_train <- data_n6 %>% head(n = 73) #training data
+data_n6_test <- data_n6 %>% tail(n = 52) #non-training data
 
-data_n5_split <- initial_time_split(data_n5, prop = 3/5)
-data_n5_train <- training(data_n5_split)
-data_n5_test <- testing(data_n6_split)
+data_n5_train <- data_n5 %>% head(n = 73)
+data_n5_test <- data_n5 %>% tail(n = 52)
 
-data_n4_split <- initial_time_split(data_n4, prop = 3/5)
-data_n4_train <- training(data_n4_split)
-data_n4_test <- testing(data_n4_split)
+data_n4_train <- data_n4 %>% head(n = 73)
+data_n4_test <- data_n4 %>% tail(n = 52)
 
-data_n3_split <- initial_time_split(data_n3, prop = 3/5)
-data_n3_train <- training(data_n3_split)
-data_n3_test <- testing(data_n3_split)
+data_n3_train <- data_n3 %>% head(n = 73)
+data_n3_test <- data_n3 %>% tail(n = 52)
 
-data_n2_split <- initial_time_split(data_n2, prop = 3/5)
-data_n2_train <- training(data_n2_split)
-data_n2_test <- testing(data_n2_split)
+data_n2_train <- data_n2 %>% head(n = 73)
+data_n2_test <- data_n2 %>% tail(n = 52)
 
-data_n1_split <- initial_time_split(data_n1, prop = 3/5)
-data_n1_train <- training(data_n1_split)
-data_n1_test <- testing(data_n1_split)
+data_n1_train <- data_n1 %>% head(n = 73)
+data_n1_test <- data_n1 %>% tail(n = 52)
 ```
 
 # Model tuning
@@ -718,9 +711,7 @@ n3_preds_clean <- collect_predictions(cv_all_n3) %>%
   mutate(cases_observed = 10^log10_cases,
          cases_predicted = 10^.pred) %>% 
 select(row=.row, fold=id2, cases_observed, cases_predicted)
-```
 
-```{r}
 #collect metrics on cleaned data
 n3_rmse <- n3_preds_clean %>% 
   group_by(fold) %>% 
@@ -1142,32 +1133,32 @@ saveRDS(cv_metrics_all_sum,
 
 # Observed vs predicted
 
-## Training data (2020-2021)
+## New data (2022)
 
 ```{r}
 # generate predictions from 2000 bootstrap models
 set.seed(456)
-n6_pred_conf_int_train <- 
-  all_n6_final_wf %>%
+n2_pred_conf_int_test <- 
+  all_n2_final_wf %>%
   predict_boots(
     n = 2000,
-    training_data = data_n6_train,
-    new_data = data_n6_train,
+    training_data = data_n2_train,
+    new_data = data_n2_test,
     interval = "confidence"
   )
 
 # summarise with a 95% confidence interval
-n6_pred_conf_int_train_sum <- n6_pred_conf_int_train %>%
+n2_pred_conf_int_test_sum <- n2_pred_conf_int_test %>%
   summarise_predictions()
 
 #select important variables from original data
-n6_actual_train <- data_n6_train %>% select(week,log10_cases)
+n2_actual_test <- data_n2_test %>% select(week,log10_cases)
 
 #select important variables from predicted data
-n6_pred_train <- n6_pred_conf_int_train_sum %>% select(.pred,.pred_lower,.pred_upper)
+n2_pred_test <- n2_pred_conf_int_test_sum %>% select(.pred,.pred_lower,.pred_upper)
 
 #bind original and predicted data and undo log transformation
-n6_train_compare <- bind_cols(n6_actual_train, n6_pred_train) %>% 
+n2_test_compare <- bind_cols(n2_actual_test, n2_pred_test) %>% 
   mutate(prediction = 10^.pred,
        actual = 10^log10_cases,
        pred_lower = 10^.pred_lower,
@@ -1175,18 +1166,18 @@ n6_train_compare <- bind_cols(n6_actual_train, n6_pred_train) %>%
   select(week,actual,prediction,pred_lower,pred_upper)
 
 #calculate R-squared and RMSE
-n6_train_rsq <- n6_train_compare %>% 
+n2_test_rsq <- n2_test_compare %>% 
   rsq(truth = actual, estimate = prediction)
 
-n6_train_rsq
+n2_test_rsq
 
-n6_train_rmse <- n6_train_compare %>% 
+n2_test_rmse <- n2_test_compare %>% 
   rmse(truth = actual,estimate = prediction)
 
-n6_train_rmse
+n2_test_rmse
 
 #visualize timeseries of actual vs predicted data
-n6_train_compare %>% 
+n2_test_compare %>% 
   ggplot(aes(x=week)) +
   geom_line(aes(y=prediction), color = "blue") +
   geom_point(aes(y=prediction), color = "blue") +
@@ -1194,92 +1185,15 @@ n6_train_compare %>%
   geom_line(aes(y=actual), color = "red") +
   geom_point(aes(y=actual), color = "red") +
   ggthemes::theme_clean()
-
-ggsave(here("figures/random_forest/time_series/n6_train.png"))
-
-#visualize relationship of actual vs predicted data
-n6_train_compare %>% 
-  ggplot(aes(actual,prediction)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-
-ggsave(here("figures/random_forest/model_performance/RF_ALL_n6_predict_actual.png"))
-
 #export files for use in comparison script
-saveRDS(n6_train_compare,here(
-  "data/processed_data/rand_forest/all_n6_train_predictions.rds"))
+saveRDS(n2_test_compare,here(
+  "data/processed_data/rand_forest/all_n2_test_predictions.rds"))
 
-saveRDS(n6_train_rsq,here(
-  "data/processed_data/rand_forest/all_n6_train_rsq.rds"))
+saveRDS(n2_test_rsq,here(
+  "data/processed_data/rand_forest/all_n2_test_rsq.rds"))
 
-saveRDS(n6_train_rmse,here(
-  "data/processed_data/rand_forest/all_n6_train_rmse.rds"))
+saveRDS(n2_test_rmse,here(
+  "data/processed_data/rand_forest/all_n2_test_rmse.rds"))
+
+ggsave(here("figures/random_forest/time_series/n2_test.png"))
 ```
-
-## Testing data (2022)
-
-```{r}
-# generate predictions from 2000 bootstrap models
-set.seed(456)
-n6_pred_conf_int_test <- 
-  all_n6_final_wf %>%
-  predict_boots(
-    n = 2000,
-    training_data = data_n6_train,
-    new_data = data_n6_test,
-    interval = "confidence"
-  )
-
-# summarise with a 95% confidence interval
-n6_pred_conf_int_test_sum <- n6_pred_conf_int_test %>%
-  summarise_predictions()
-
-#select important variables from original data
-n6_actual_test <- data_n6_test %>% select(week,log10_cases)
-
-#select important variables from predicted data
-n6_pred_test <- n6_pred_conf_int_test_sum %>% select(.pred,.pred_lower,.pred_upper)
-
-#bind original and predicted data and undo log transformation
-n6_test_compare <- bind_cols(n6_actual_test, n6_pred_test) %>% 
-  mutate(prediction = 10^.pred,
-       actual = 10^log10_cases,
-       pred_lower = 10^.pred_lower,
-       pred_upper = 10^.pred_upper) %>% 
-  select(week,actual,prediction,pred_lower,pred_upper)
-
-#calculate R-squared and RMSE
-n6_test_rsq <- n6_test_compare %>% 
-  rsq(truth = actual, estimate = prediction)
-
-n6_test_rsq
-
-n6_test_rmse <- n6_test_compare %>% 
-  rmse(truth = actual,estimate = prediction)
-
-n6_test_rmse
-
-#visualize timeseries of actual vs predicted data
-n6_test_compare %>% 
-  ggplot(aes(x=week)) +
-  geom_line(aes(y=prediction), color = "blue") +
-  geom_point(aes(y=prediction), color = "blue") +
-  geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "blue", alpha = 0.3) +
-  geom_line(aes(y=actual), color = "red") +
-  geom_point(aes(y=actual), color = "red") +
-  ggthemes::theme_clean()
-
-#export files for use in comparison script
-saveRDS(n6_test_compare,here(
-  "data/processed_data/rand_forest/all_n6_test_predictions.rds"))
-
-saveRDS(n6_test_rsq,here(
-  "data/processed_data/rand_forest/all_n6_test_rsq.rds"))
-
-saveRDS(n6_test_rmse,here(
-  "data/processed_data/rand_forest/all_n6_test_rmse.rds"))
-
-ggsave(here("figures/random_forest/time_series/n6_test.png"))
-```
-
-## 
