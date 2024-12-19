@@ -76,7 +76,7 @@ write_csv(summary, here("data/processed_data/clinical/summary_stats.csv"))
 ```{r}
 cases_reported_fig <- weekly %>% ggplot(aes(week,cases.reported)) +
   geom_point(color = "#FB6A4A", size = 2) +
-  geom_line(alpha = .6, color = "#FB6A4A", size = 2) +
+  geom_line(alpha = .6, color = "#FB6A4A", linewidth = 2) +
   geom_vline(xintercept = 18974,linetype = 2, size = .8) +
   #geom_area(alpha = .7, fill = "#FB6A4A") +
   ylab("Cases reported") +
@@ -89,7 +89,7 @@ cases_reported_fig
 ```{r}
 test_admin_fig <- weekly %>% ggplot(aes(week,pcr_tests)) +
   geom_point(color = "#A50F15", size = 2) +
-  geom_line(alpha = .6, color = "#A50F15", size = 2) +
+  geom_line(alpha = .6, color = "#A50F15", linewidth = 2) +
   geom_vline(xintercept = 18974,linetype = 2, size = .8) +
   #geom_area(alpha = .7, fill = "#A50F15") +
   ylab("Tests administered") +

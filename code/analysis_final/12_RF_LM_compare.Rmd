@@ -55,19 +55,21 @@ lm_df_train <- readRDS(here(
 
 #timeseries figures (new data)
 rf_all_test <- readRDS(
-  here("figures/random_forest/time_series/all_n6_test.rds"))
+  here("figures/random_forest/time_series/all_n2_test.rds"))
 rf_df_test <- readRDS(
-  here("figures/random_forest/time_series/df_n3_test.rds"))
+  here("figures/random_forest/time_series/df_n2_test.rds"))
 lm_all_test <- readRDS(
-  here("figures/linear_reg/time_series/all_n6_test.rds"))
+  here("figures/linear_reg/time_series/all_n2_test.rds"))
 lm_df_test <- readRDS(here(
-  "figures/linear_reg/time_series/df_n3_test.rds"))
+  "figures/linear_reg/time_series/df_n2_test.rds"))
 ```
 
 # Summary table
 
 ```{r}
 metric_summary <- rbind(lm_metrics,rf_metrics)
+
+metric_summary
 
 write_csv(metric_summary,
           here("data/processed_data/model_compare/model_metrics.csv"))
@@ -141,7 +143,7 @@ ggsave(here("figures/rf_lm_compare/training_timeseries.png"),
 
 ```{r}
 ggarrange(rf_all_test,rf_df_test,lm_all_test,lm_df_test,
-          labels = c("A","B","C","D"),
+          labels = c("a","b","c","d"),
           ncol = 2,
           nrow = 2)
 

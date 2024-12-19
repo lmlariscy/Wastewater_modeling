@@ -148,14 +148,14 @@ rmse_compare <- metrics_compare %>%
                     #labels=labels,
                     values = color_palette) +
   scale_x_discrete(labels=labels) +
-  geom_hline(yintercept = 250, alpha = 0) +
+  geom_hline(yintercept = 200, alpha = 0) +
   geom_hline(yintercept = 100, alpha = 0) +
-    geom_hline(yintercept = 192,
+    geom_hline(yintercept = 174,
              linetype = "longdash",
              linewidth = .8,
              color = "red") +
   annotate("text", label="Null model average", 
-           x=16, y=197, size=4, color = "red")
+           x=16, y=180, size=4, color = "red")
 
 rmse_compare
 
@@ -201,12 +201,12 @@ rsq_compare <- metrics_compare %>%
   ylab("R-Squared") +
   scale_x_discrete(labels=labels) +
   geom_hline(yintercept = 0.8, alpha = 0) +
-  geom_hline(yintercept = 0.11,
+  geom_hline(yintercept = 0.07,
              linetype = "longdash",
              linewidth = .8,
              color = "red") +
   annotate("text", label="Null model average", 
-           x=16, y=.14, size=4, color = "red")
+           x=16, y=.1, size=4, color = "red")
 
 rsq_compare
 
@@ -271,21 +271,25 @@ all_n2_test2_rsq_round <- end_2022_rsq_all$.estimate %>%
 
 all_n2_test_fig <- all_n2_test_predictions %>% 
   ggplot(aes(x=week)) +
-  geom_line(aes(y=prediction), color = "#FB6A4A") +
-  geom_point(aes(y=prediction), color = "#FB6A4A", shape = 17) +
+  geom_line(aes(y=prediction), color = "#FB6A4A", 
+            linewidth = 2, alpha = .5) +
+  geom_point(aes(y=prediction), color = "#FB6A4A", 
+             shape = 17, size = 2) +
   geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "#FB6A4A", alpha = 0.3) +
-  geom_line(aes(y=actual), color = "#003e99") +
-  geom_point(aes(y=actual), color = "#003e99", shape = 16) +
-  annotate("text", label=all_n2_test1_rsq_round, x=19095, y=2950, size=4) +
-  annotate("text", label=all_n2_test2_rsq_round, x=19330, y=2950, size=4) +
-  annotate("text", label="Predicted", x=19045, y=2800, color="#FB6A4A", size=4) +
-  annotate("text", label="Observed", x=19045, y=2950, color="#003e99", size=4) +
-  ylab("Weekly cases per 100,000") +
+  geom_line(aes(y=actual), color = "#003e99",
+            linewidth = 2, alpha = .6) +
+  geom_point(aes(y=actual), color = "#003e99",
+             size = 2) +
+  annotate("text", label=all_n2_test1_rsq_round, x=19095, y=3000, size=4) +
+  annotate("text", label=all_n2_test2_rsq_round, x=19330, y=3000, size=4) +
+  annotate("text", label="Predicted", x=19045, y=2850, color="#FB6A4A", size=4) +
+  annotate("text", label="Observed", x=19045, y=3000, color="#003e99", size=4) +
+  ylab("Cases") +
   #xlab("Week") +
   geom_vline(xintercept = 19115, linetype = 2) +
   #geom_hline(yintercept = 4000, alpha = 0) +
   ggthemes::theme_clean() +
-  theme(axis.title = element_text(face = "bold",size = 12),
+  theme(axis.title = element_text(size = 12),
         axis.title.x = element_blank()) 
 
 all_n2_test_fig
@@ -305,8 +309,10 @@ df_n3_train_rsq_round <- df_n3_train_rsq$.estimate %>% round(digits = 3)
 
 df_n3_train_fig <- df_n3_train_predictions %>% 
   ggplot(aes(x=week)) +
-  geom_line(aes(y=prediction), color = "#FB6A4A") +
-  geom_point(aes(y=prediction), color = "#FB6A4A", shape = 17) +
+  geom_line(aes(y=prediction), color = "#FB6A4A",
+            linewidth = 2, alpha = .5) +
+  geom_point(aes(y=prediction), color = "#FB6A4A", 
+             shape = 17, size = 2) +
   geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "#FB6A4A", alpha = 0.3) +
   geom_line(aes(y=actual), color = "#003e99") +
   geom_point(aes(y=actual), color = "#003e99", shape = 16) +
@@ -338,15 +344,19 @@ df_n2_test2_rsq_round <- end_2022_rsq_df$.estimate %>%
 
 df_n2_test_fig <- df_n2_test_predictions %>% 
   ggplot(aes(x=week)) +
-  geom_line(aes(y=prediction), color = "#FB6A4A") +
-  geom_point(aes(y=prediction), color = "#FB6A4A", shape = 17) +
+  geom_line(aes(y=prediction), color = "#FB6A4A",
+            linewidth = 2, alpha = .5) +
+  geom_point(aes(y=prediction), color = "#FB6A4A", 
+             shape = 17, size = 2) +
   geom_ribbon(aes(ymin=pred_lower, ymax=pred_upper), fill = "#FB6A4A", alpha = 0.3) +
-  geom_line(aes(y=actual), color = "#003e99") +
-  geom_point(aes(y=actual), color = "#003e99", shape = 16) +
-  annotate("text", label=df_n2_test1_rsq_round, x=19095, y=2950, size=4) +
-  annotate("text", label=df_n2_test2_rsq_round, x=19330, y=2950, size=4) +
-  annotate("text", label="Predicted", x=19045, y=2800, color="#FB6A4A", size=4) +
-  annotate("text", label="Observed", x=19045, y=2950, color="#003e99", size=4) +
+  geom_line(aes(y=actual), color = "#003e99",
+            linewidth = 2, alpha = .6) +
+  geom_point(aes(y=actual), color = "#003e99", 
+             size = 2) +
+  annotate("text", label=df_n2_test1_rsq_round, x=19095, y=3000, size=4) +
+  annotate("text", label=df_n2_test2_rsq_round, x=19330, y=3000, size=4) +
+  annotate("text", label="Predicted", x=19045, y=2850, color="#FB6A4A", size=4) +
+  annotate("text", label="Observed", x=19045, y=3000, color="#003e99", size=4) +
   #ylab("Weekly reported cases") +
   #xlab("Week") +
   geom_vline(xintercept = 19115, linetype = 2) +

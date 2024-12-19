@@ -444,7 +444,7 @@ viral_load <- viral_load_sum_weekly %>%
   summarise(mean = exp(mean(log(value)))) %>% 
   ggplot(aes(week,mean)) +
   geom_point(color = "#2171B5", size = 2) +
-  geom_line(alpha = .6, color = "#2171B5", size = 2) +
+  geom_line(alpha = .6, color = "#2171B5", linewidth = 2) +
   geom_vline(xintercept = 18974,linetype = 2, size = .8) +
   ylab("Viral load") +
   xlab("") +
@@ -464,7 +464,7 @@ detection_freq <- detection_freq_sum %>%
   summarise(mean = mean(value)) %>% 
   ggplot(aes(week,mean)) +
   geom_point(color = "#08306B", size = 2) +
-  geom_line(alpha = .6, color = "#08306B", size = 2) +
+  geom_line(alpha = .6, color = "#08306B", linewidth = 2) +
   geom_vline(xintercept = 18974,linetype = 2, size = .8) +
   ylab("Detection frequency") +
   xlab("") +
