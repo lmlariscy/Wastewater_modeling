@@ -194,7 +194,7 @@ tune_rf_1 %>%
 ```{r}
 #select the best model based on RMSE
 best_rsq_1 <- tune_rf_1 %>%
-  select_best(metric = "rsq")
+  select_best(metric = "rmse")
 
 final_rf_1 <- finalize_model(rf_model, best_rsq_1)
 
