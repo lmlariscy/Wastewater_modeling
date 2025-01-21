@@ -19,6 +19,7 @@ library(tsibble)
 library(ingredients)
 library(RColorBrewer)
 library(workboots)
+library(ggpmisc)
 ```
 
 # Load Data
@@ -320,6 +321,30 @@ n6_metrics_sum <- bind_cols(n6_rmse, n6_rsq) %>%
 n6_metrics_sum
 ```
 
+```{r}
+#collect predictions
+n6_pred_sum <- n6_preds_clean %>% 
+  group_by(row) %>% 
+  #summarize data
+  summarize(cases_observed = mean(cases_observed),
+            avg_pred = mean(cases_predicted),
+            se_pred = sd(cases_predicted)/n(),
+            pred_lower_ci = avg_pred-1.96*se_pred,
+            pred_upper_ci = avg_pred+1.96*se_pred)
+
+#plot summarized data
+  n6_pred_fig <- n6_pred_sum %>% ggplot(aes(x=row)) +
+  geom_line(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_point(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  #geom_errorbar(aes(ymin = pred_lower_ci,
+                    #ymax = pred_upper_ci)) +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
+  ggthemes::theme_clean()
+  
+n6_pred_fig
+```
+
 ## n = 5
 
 ```{r}
@@ -510,6 +535,30 @@ n3_metrics_sum <- bind_cols(n3_rmse, n3_rsq) %>%
          n = 3)
 
 n3_metrics_sum
+```
+
+```{r}
+#collect predictions
+n3_pred_sum <- n3_preds_clean %>% 
+  group_by(row) %>% 
+  #summarize data
+  summarize(cases_observed = mean(cases_observed),
+            avg_pred = mean(cases_predicted),
+            se_pred = sd(cases_predicted)/n(),
+            pred_lower_ci = avg_pred-1.96*se_pred,
+            pred_upper_ci = avg_pred+1.96*se_pred)
+
+#plot summarized data
+  n3_pred_fig <- n3_pred_sum %>% ggplot(aes(x=row)) +
+  geom_line(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_point(aes(y=avg_pred), color = "#FB6A4A") +
+  geom_line(aes(y=cases_observed), color = "#003e99") +
+  #geom_errorbar(aes(ymin = pred_lower_ci,
+                    #ymax = pred_upper_ci)) +
+  geom_point(aes(y=cases_observed), color = "#003e99") +
+  ggthemes::theme_clean()
+  
+n3_pred_fig
 ```
 
 ## n = 2

@@ -73,6 +73,11 @@ metric_summary
 
 write_csv(metric_summary,
           here("data/processed_data/model_compare/model_metrics.csv"))
+
+metric_summary %>% 
+  select(!n,config) %>% 
+  group_by(model,feature) %>% 
+  summarize_all(mean)
 ```
 
 # Combine figures

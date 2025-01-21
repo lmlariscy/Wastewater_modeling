@@ -280,6 +280,21 @@ n2_cfx_half_lod <- as.numeric(
   10^((n2_cfx_lod-n2_cfx_intercept)/n2_cfx_slope)/2)
 ```
 
+```{r}
+#limits in total copies per rxn
+n1_stepone_lod_rxn <- as.numeric(
+  10^((n1_stepone_lod-n1_stepone_intercept)/n1_stepone_slope)*20)
+
+n2_stepone_lod_rxn <- as.numeric(
+  10^((n2_stepone_lod-n2_stepone_intercept)/n2_stepone_slope)*20)
+
+n1_cfx_lod_rxn <- as.numeric(
+  10^((n1_cfx_lod-n1_stepone_intercept)/n1_cfx_slope)*20)
+
+n2_cfx_lod_rxn <- as.numeric(
+  10^((n2_cfx_lod-n2_stepone_intercept)/n2_cfx_slope)*20)
+```
+
 ### Calculate LoD and LoQ in copies/L
 
 ```{r}
