@@ -80,6 +80,7 @@ vl_n6_train_fit <- readRDS(
 # Calculate RMSE/RSQ
 
 ```{r}
+#RSQ
 #calculate for beginning of 2022 (January - April 2022)
 
 #DF 
@@ -107,6 +108,37 @@ end_2022_rsq_all <- all_n2_test_predictions %>%
   rsq(truth = actual, estimate = prediction)
 
 end_2022_rsq_all
+```
+
+```{r}
+#RMSE
+#calculate for beginning of 2022 (January - April 2022)
+
+#DF 
+start_2022_rmse_df <- df_n2_test_predictions %>% 
+  head(17) %>% 
+  rmse(truth = actual, estimate = prediction)
+
+start_2022_rmse_df
+
+end_2022_rmse_df <- df_n2_test_predictions %>% 
+  tail(33) %>% 
+  rmse(truth = actual, estimate = prediction)
+
+end_2022_rmse_df
+
+#ALL
+start_2022_rmse_all <- all_n2_test_predictions %>% 
+  head(17) %>% 
+  rmse(truth = actual, estimate = prediction)
+
+start_2022_rmse_all
+
+end_2022_rmse_all <- all_n2_test_predictions %>% 
+  tail(33) %>% 
+  rmse(truth = actual, estimate = prediction)
+
+end_2022_rmse_all
 ```
 
 # Visualize
@@ -158,7 +190,7 @@ rmse_compare <- metrics_compare %>%
   ylab("RMSE") +
   scale_x_discrete(labels=labels) +
   geom_hline(yintercept = 200, alpha = 0) +
-  geom_hline(yintercept = 100, alpha = 0) +
+  geom_hline(yintercept = 90, alpha = 0) +
       geom_hline(yintercept = 174,
              linetype = "longdash",
              linewidth = .8,
@@ -270,6 +302,10 @@ all_n2_test1_rsq_round <- start_2022_rsq_all$.estimate %>%
   round(digits = 3)
 all_n2_test2_rsq_round <- end_2022_rsq_all$.estimate %>% 
   round(digits = 3)
+all_n2_test1_rmse_round <- start_2022_rmse_all$.estimate %>% 
+  round(digits = 3)
+all_n2_test2_rmse_round <- end_2022_rmse_all$.estimate %>% 
+  round(digits = 3)
 
 all_n2_test_fig <- all_n2_test_predictions %>% 
   ggplot(aes(x=week)) +
@@ -284,6 +320,8 @@ all_n2_test_fig <- all_n2_test_predictions %>%
              size = 2) +
   annotate("text", label=all_n2_test1_rsq_round, x=19095, y=1500, size=4) +
   annotate("text", label=all_n2_test2_rsq_round, x=19330, y=1500, size=4) +
+  annotate("text", label=all_n2_test1_rmse_round, x=19095, y=1600, size=4) +
+  annotate("text", label=all_n2_test2_rmse_round, x=19330, y=1600, size=4) +
   annotate("text", label="Predicted", x=19045, y=1425, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=19045, y=1500, color="#003e99", size=4) +
   ylab("Cases") +
@@ -335,6 +373,10 @@ df_n2_test1_rsq_round <- start_2022_rsq_df$.estimate %>%
   round(digits = 3)
 df_n2_test2_rsq_round <- end_2022_rsq_df$.estimate %>% 
   round(digits = 3)
+df_n2_test1_rmse_round <- start_2022_rmse_df$.estimate %>% 
+  round(digits = 3)
+df_n2_test2_rmse_round <- end_2022_rmse_df$.estimate %>% 
+  round(digits = 3)
 
 df_n2_test_fig <- df_n2_test_predictions %>% 
   ggplot(aes(x=week)) +
@@ -349,6 +391,8 @@ df_n2_test_fig <- df_n2_test_predictions %>%
              size = 2) +
   annotate("text", label=df_n2_test1_rsq_round, x=19095, y=1500, size=4) +
   annotate("text", label=df_n2_test2_rsq_round, x=19330, y=1500, size=4) +
+  annotate("text", label=df_n2_test1_rmse_round, x=19095, y=1600, size=4) +
+  annotate("text", label=df_n2_test2_rmse_round, x=19330, y=1600, size=4) +
   annotate("text", label="Predicted", x=19045, y=1425, color="#FB6A4A", size=4) +
   annotate("text", label="Observed", x=19045, y=1500, color="#003e99", size=4) +
   #ylab("Weekly reported cases") +
